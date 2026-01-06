@@ -110,7 +110,7 @@ export default function Home() {
                 Launch Terminal
               </motion.button>
             </Link>
-            <a href="https://github.com/atharvajoshi/NeuroGate" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -612,7 +612,7 @@ export default function Home() {
             NeuroGate is a community effort. We welcome PRs, issues, and discussions.
           </p>
           <div className="flex justify-center gap-6">
-            <a href="https://github.com/atharvajoshi/NeuroGate" target="_blank" rel="noopener noreferrer">
+            <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer">
               <button className="px-8 py-4 bg-white text-black rounded-xl font-bold text-lg hover:bg-slate-200 transition-colors flex items-center gap-3">
                 <FaGithub className="text-xl" />
                 Start Contributing
