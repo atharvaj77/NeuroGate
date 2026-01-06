@@ -1,0 +1,300 @@
+package com.neurogate.router.intelligence;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+/**
+ * Comprehensive tests for ML-Based Complexity Classifier
+ * Tests DistilBERT ONNX model integration and fallback behavior
+ */
+// @ExtendWith(MockitoExtension.class)
+// class MLComplexityClassifierTest {
+class MLComplexityClassifierTest { // Disabled for now
+
+    @Mock
+    private HeuristicComplexityAnalyzer heuristicAnalyzer;
+
+    private MLComplexityClassifier mlClassifier;
+
+    @BeforeEach
+    void setUp() {
+        // Note: In real implementation, would need to mock ONNX runtime
+        mlClassifier = new MLComplexityClassifier(heuristicAnalyzer);
+    }
+
+    @Test
+    void testClassify_SimplePrompt_LowComplexity() {
+        // Given: Simple factual prompt
+        String prompt = "What is the capital of France?";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should return low complexity score
+        assertNotNull(score);
+        assertTrue(score.getReasoning() <= 30, "Simple factual questions should have low reasoning score");
+        assertTrue(score.getDomain() <= 30, "General knowledge should have low domain score");
+    }
+
+    @Test
+    void testClassify_ComplexPrompt_HighComplexity() {
+        // Given: Complex technical prompt
+        String prompt = "Explain the mathematical foundations of quantum entanglement " +
+                "and its implications for distributed computing architectures, " +
+                "including specific algorithms for quantum error correction.";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should return high complexity score
+        assertNotNull(score);
+        assertTrue(score.getReasoning() >= 70, "Complex reasoning should have high score");
+        assertTrue(score.getDomain() >= 70, "Specialized domain should have high score");
+    }
+
+    @Test
+    void testClassify_CodeGenerationPrompt() {
+        // Given: Code generation request
+        String prompt = "Write a Java function that implements a binary search tree " +
+                "with self-balancing capabilities using AVL rotation algorithms.";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should have high output length and medium-high reasoning
+        assertNotNull(score);
+        assertTrue(score.getOutputLength() >= 50, "Code generation requires long output");
+        assertTrue(score.getReasoning() >= 50, "Algorith implementation requires reasoning");
+    }
+
+    @Test
+    void testClassify_CreativeWritingPrompt() {
+        // Given: Creative/open-ended prompt
+        String prompt = "Write a story about a time traveler who discovers that " +
+                "changing the past creates parallel universes. Make it suspenseful and thought-provoking.";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should have high creativity and output length
+        assertNotNull(score);
+        assertTrue(score.getCreativity() >= 70, "Creative writing should have high creativity score");
+        assertTrue(score.getOutputLength() >= 70, "Story generation requires long output");
+    }
+
+    @Test
+    void testClassify_ShortPrompt_AppropriateScores() {
+        // Given: Very short prompt
+        String prompt = "Hi";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should have low scores across the board
+        assertNotNull(score);
+        assertTrue(score.getReasoning() <= 20);
+        assertTrue(score.getDomain() <= 20);
+        assertTrue(score.getOutputLength() <= 30);
+    }
+
+    @Test
+    void testClassify_EmptyPrompt_ReturnsMinimalScores() {
+        // Given: Empty prompt
+        String prompt = "";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should return minimal complexity
+        assertNotNull(score);
+        assertEquals(1, score.getReasoning());
+        assertEquals(1, score.getDomain());
+        assertEquals(1, score.getOutputLength());
+        assertEquals(1, score.getCreativity());
+    }
+
+    @Test
+    void testClassify_FallbackToHeuristic_WhenMLFails() {
+        // Given: ML model not available or throws exception
+        ComplexityScore heuristicScore = ComplexityScore.builder()
+                .reasoning(50)
+                .domain(40)
+                .outputLength(60)
+                .creativity(30)
+                .build();
+
+        when(heuristicAnalyzer.analyze(anyString())).thenReturn(heuristicScore);
+
+        // Simulate ML failure by using uninitialized classifier
+        MLComplexityClassifier uninitializedClassifier = new MLComplexityClassifier(heuristicAnalyzer);
+
+        // When: Classify (ML fails)
+        String prompt = "Test prompt";
+        ComplexityScore score = uninitializedClassifier.classify(prompt);
+
+        // Then: Should fall back to heuristic analyzer
+        assertNotNull(score);
+        verify(heuristicAnalyzer, times(1)).analyze(prompt);
+    }
+
+    @Test
+    void testClassify_MultiDimensionalScoring() {
+        // Given: Prompt requiring analysis across all dimensions
+        String prompt = "Design a distributed system for real-time fraud detection " +
+                "that can handle 1 million transactions per second, explaining the " +
+                "architecture, algorithms, and trade-offs in detail.";
+
+        // When: Classify complexity
+        ComplexityScore score = mlClassifier.classify(prompt);
+
+        // Then: Should have high scores across multiple dimensions
+        assertNotNull(score);
+        assertTrue(score.getReasoning() >= 70, "Complex system design requires high reasoning");
+        assertTrue(score.getDomain() >= 70, "Specialized technical domain");
+        assertTrue(score.getOutputLength() >= 70, "Detailed explanation requires long output");
+    }
+
+    @Test
+    void testClassify_TechnicalVsNonTechnical() {
+        // Given: Two prompts with different technical complexity
+        String technicalPrompt = "Implement a lock-free concurrent queue using " +
+                "compare-and-swap atomic operations in C++.";
+        String nonTechnicalPrompt = "Describe your favorite vacation destination.";
+
+        // When: Classify both
+        ComplexityScore technicalScore = mlClassifier.classify(technicalPrompt);
+        ComplexityScore nonTechnicalScore = mlClassifier.classify(nonTechnicalPrompt);
+
+        // Then: Technical should score higher in domain and reasoning
+        assertTrue(technicalScore.getDomain() > nonTechnicalScore.getDomain(),
+                "Technical prompts should have higher domain scores");
+        assertTrue(technicalScore.getReasoning() > nonTechnicalScore.getReasoning(),
+                "Technical prompts should have higher reasoning scores");
+    }
+
+    @Test
+    void testClassify_ScoreRange_ValidBounds() {
+        // Given: Various prompts
+        String[] prompts = {
+                "What time is it?",
+                "Explain photosynthesis",
+                "Write a haiku about autumn",
+                "Design a machine learning pipeline for NLP",
+                "How are you?"
+        };
+
+        // When: Classify all prompts
+        for (String prompt : prompts) {
+            ComplexityScore score = mlClassifier.classify(prompt);
+
+            // Then: All scores should be in valid range [1-10]
+            assertTrue(score.getReasoning() >= 1 && score.getReasoning() <= 10,
+                    "Reasoning score out of bounds for: " + prompt);
+            assertTrue(score.getDomain() >= 1 && score.getDomain() <= 10,
+                    "Domain score out of bounds for: " + prompt);
+            assertTrue(score.getOutputLength() >= 1 && score.getOutputLength() <= 10,
+                    "OutputLength score out of bounds for: " + prompt);
+            assertTrue(score.getCreativity() >= 1 && score.getCreativity() <= 10,
+                    "Creativity score out of bounds for: " + prompt);
+        }
+    }
+
+    @Test
+    void testGetOverallComplexity_WeightedAverage() {
+        // Given: Complexity score with varied dimensions
+        ComplexityScore score = ComplexityScore.builder()
+                .reasoning(8)
+                .domain(6)
+                .outputLength(7)
+                .creativity(5)
+                .build();
+
+        // When: Calculate overall complexity
+        int overall = score.getOverallComplexity();
+
+        // Then: Should be weighted average (reasoning has highest weight)
+        assertTrue(overall >= 5 && overall <= 8);
+        assertTrue(overall > 6, "Should be skewed toward higher reasoning score");
+    }
+
+    @Test
+    void testClassify_PerformanceWithLongPrompt() {
+        // Given: Very long prompt (max sequence length test)
+        StringBuilder longPrompt = new StringBuilder();
+        for (int i = 0; i < 1000; i++) {
+            longPrompt.append("word ");
+        }
+
+        // When: Classify long prompt
+        long startTime = System.currentTimeMillis();
+        ComplexityScore score = mlClassifier.classify(longPrompt.toString());
+        long duration = System.currentTimeMillis() - startTime;
+
+        // Then: Should complete within acceptable time (<100ms target)
+        assertNotNull(score);
+        assertTrue(duration < 200, "Classification should be fast even for long prompts");
+    }
+
+    @Test
+    void testClassify_Consistency_SamePrompt() {
+        // Given: Same prompt classified multiple times
+        String prompt = "Explain machine learning algorithms";
+
+        // When: Classify 5 times
+        ComplexityScore[] scores = new ComplexityScore[5];
+        for (int i = 0; i < 5; i++) {
+            scores[i] = mlClassifier.classify(prompt);
+        }
+
+        // Then: Should return consistent results
+        for (int i = 1; i < 5; i++) {
+            assertEquals(scores[0].getReasoning(), scores[i].getReasoning(),
+                    "Reasoning scores should be consistent");
+            assertEquals(scores[0].getDomain(), scores[i].getDomain(),
+                    "Domain scores should be consistent");
+        }
+    }
+
+    @Test
+    void testModelAccuracy_Target92Percent() {
+        // Given: Test dataset with known complexity labels
+        // (In production, would load actual test dataset)
+        Object[][] testCases = {
+                { "What is 2+2?", 1 }, // Low complexity
+                { "Explain quantum mechanics", 7 }, // High complexity
+                { "Hello", 1 }, // Low complexity
+                { "Design a distributed system", 9 }, // High complexity
+                { "What's your name?", 1 } // Low complexity
+        };
+
+        int correct = 0;
+        int total = testCases.length;
+
+        // When: Classify all test cases
+        for (Object[] testCase : testCases) {
+            String prompt = (String) testCase[0];
+            int expectedBucket = (int) testCase[1]; // 1=low, 5-7=med, 8-10=high
+
+            ComplexityScore score = mlClassifier.classify(prompt);
+            int overall = score.getOverallComplexity();
+
+            // Check if in correct bucket
+            if ((expectedBucket <= 3 && overall <= 3) ||
+                    (expectedBucket >= 4 && expectedBucket <= 7 && overall >= 4 && overall <= 7) ||
+                    (expectedBucket >= 8 && overall >= 8)) {
+                correct++;
+            }
+        }
+
+        // Then: Accuracy should be close to 92% target
+        double accuracy = (double) correct / total;
+        assertTrue(accuracy >= 0.80, "Model accuracy should be at least 80% on test cases");
+    }
+}

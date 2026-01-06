@@ -1,0 +1,49 @@
+spring:
+  ai:
+    openai:
+      api-key: test-key
+      embedding:
+        api-key: test-key
+
+neurogate:
+  anthropic:
+    api-key: test-key
+  gemini:
+    api-key: test-key
+  azure:
+    api-key: test-key
+    endpoint: https://test.openai.azure.com
+  bedrock:
+    access-key: test
+    secret-key: test
+  qdrant:
+     enabled: false
+     host: localhost
+     grpc-port: 6334
+     rest-port: 6333
+  forge:
+     enabled: true
+     trigger-threshold: 1
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      test-provider:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 1s
+        permittedNumberOfCallsInHalfOpenState: 3
+      test-recovery:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    export:
+      prometheus:
+        enabled: true

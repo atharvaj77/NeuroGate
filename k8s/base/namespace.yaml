@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: neurogate
+  labels:
+    name: neurogate
+    environment: production
+    app.kubernetes.io/name: neurogate
+    app.kubernetes.io/component: ai-gateway

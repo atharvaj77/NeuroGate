@@ -1,0 +1,342 @@
+package com.neurogate.analytics;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+/**
+ * Comprehensive tests for Budget Management Service
+ * Tests budget alerts, throttling, and period resets
+ */
+@ExtendWith(MockitoExtension.class)
+class BudgetManagementServiceTest {
+
+    @Mock
+    private BudgetAlertRepository budgetAlertRepository;
+
+    @InjectMocks
+    private BudgetManagementService budgetManagementService;
+
+    private BudgetAlert testBudget;
+
+    @BeforeEach
+    void setUp() {
+        testBudget = BudgetAlert.builder()
+                .id(1L)
+                .entityId("user-123")
+                .entityType(EntityType.USER)
+                .period(BudgetPeriod.DAILY)
+                .budgetLimit(new BigDecimal("100.00"))
+                .currentSpending(new BigDecimal("0.00"))
+                .alertThreshold(80)
+                .enableThrottling(true)
+                .alertTriggered(false)
+                .periodStart(LocalDateTime.now())
+                .build();
+    }
+
+    @Test
+    void testCreateUserBudget_Success() {
+        // Given
+        when(budgetAlertRepository.save(any(BudgetAlert.class))).thenReturn(testBudget);
+
+        // When
+        BudgetAlert result = budgetManagementService.createUserBudget(
+                "user-123",
+                new BigDecimal("100.00"),
+                BudgetPeriod.DAILY,
+                80,
+                true
+        );
+
+        // Then
+        assertNotNull(result);
+        assertEquals("user-123", result.getEntityId());
+        assertEquals(EntityType.USER, result.getEntityType());
+        assertEquals(new BigDecimal("100.00"), result.getBudgetLimit());
+        assertEquals(80, result.getAlertThreshold());
+        assertTrue(result.getEnableThrottling());
+        verify(budgetAlertRepository, times(1)).save(any(BudgetAlert.class));
+    }
+
+    @Test
+    void testUpdateSpending_WithinBudget() {
+        // Given
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+        when(budgetAlertRepository.save(any())).thenReturn(testBudget);
+
+        // When
+        budgetManagementService.updateSpending("user-123", EntityType.USER, new BigDecimal("50.00"));
+
+        // Then
+        verify(budgetAlertRepository, times(1)).save(argThat(budget ->
+                budget.getCurrentSpending().compareTo(new BigDecimal("50.00")) == 0 &&
+                !budget.getAlertTriggered()
+        ));
+    }
+
+    @Test
+    void testUpdateSpending_TriggersAlertAtThreshold() {
+        // Given
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+        when(budgetAlertRepository.save(any())).thenReturn(testBudget);
+
+        // When: Spend 85% of budget (threshold is 80%)
+        budgetManagementService.updateSpending("user-123", EntityType.USER, new BigDecimal("85.00"));
+
+        // Then: Alert should be triggered
+        verify(budgetAlertRepository, times(1)).save(argThat(budget ->
+                budget.getCurrentSpending().compareTo(new BigDecimal("85.00")) == 0 &&
+                budget.getAlertTriggered()
+        ));
+    }
+
+    @Test
+    void testUpdateSpending_ExceedsBudget() {
+        // Given
+        testBudget.setCurrentSpending(new BigDecimal("95.00"));
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+        when(budgetAlertRepository.save(any())).thenReturn(testBudget);
+
+        // When: Spending exceeds budget
+        budgetManagementService.updateSpending("user-123", EntityType.USER, new BigDecimal("10.00"));
+
+        // Then: Total spending should be 105.00
+        verify(budgetAlertRepository, times(1)).save(argThat(budget ->
+                budget.getCurrentSpending().compareTo(new BigDecimal("105.00")) == 0
+        ));
+    }
+
+    @Test
+    void testShouldThrottle_WhenBudgetExceeded() {
+        // Given: Budget exceeded with throttling enabled
+        testBudget.setCurrentSpending(new BigDecimal("105.00"));
+        testBudget.setEnableThrottling(true);
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+
+        // When
+        boolean shouldThrottle = budgetManagementService.shouldThrottle("user-123");
+
+        // Then
+        assertTrue(shouldThrottle);
+    }
+
+    @Test
+    void testShouldThrottle_WhenThrottlingDisabled() {
+        // Given: Budget exceeded but throttling disabled
+        testBudget.setCurrentSpending(new BigDecimal("105.00"));
+        testBudget.setEnableThrottling(false);
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+
+        // When
+        boolean shouldThrottle = budgetManagementService.shouldThrottle("user-123");
+
+        // Then
+        assertFalse(shouldThrottle);
+    }
+
+    @Test
+    void testShouldThrottle_WhenWithinBudget() {
+        // Given: Within budget
+        testBudget.setCurrentSpending(new BigDecimal("50.00"));
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.of(testBudget));
+
+        // When
+        boolean shouldThrottle = budgetManagementService.shouldThrottle("user-123");
+
+        // Then
+        assertFalse(shouldThrottle);
+    }
+
+    @Test
+    void testShouldThrottle_WhenNoBudgetExists() {
+        // Given: No budget configured
+        when(budgetAlertRepository.findByEntityIdAndEntityType(anyString(), any()))
+                .thenReturn(Optional.empty());
+
+        // When
+        boolean shouldThrottle = budgetManagementService.shouldThrottle("user-123");
+
+        // Then: Should not throttle if no budget exists
+        assertFalse(shouldThrottle);
+    }
+
+    @Test
+    void testGetUtilizationPercentage() {
+        // Given: 80% of budget used
+        testBudget.setCurrentSpending(new BigDecimal("80.00"));
+
+        // When
+        int utilization = testBudget.getUtilizationPercentage();
+
+        // Then
+        assertEquals(80, utilization);
+    }
+
+    @Test
+    void testIsBudgetExceeded_True() {
+        // Given: Budget exceeded
+        testBudget.setCurrentSpending(new BigDecimal("105.00"));
+
+        // When
+        boolean exceeded = testBudget.isBudgetExceeded();
+
+        // Then
+        assertTrue(exceeded);
+    }
+
+    @Test
+    void testIsBudgetExceeded_False() {
+        // Given: Within budget
+        testBudget.setCurrentSpending(new BigDecimal("95.00"));
+
+        // When
+        boolean exceeded = testBudget.isBudgetExceeded();
+
+        // Then
+        assertFalse(exceeded);
+    }
+
+    @Test
+    void testIsAlertThresholdReached_True() {
+        // Given: Threshold is 80%, spending is 85%
+        testBudget.setCurrentSpending(new BigDecimal("85.00"));
+
+        // When
+        boolean reached = testBudget.isAlertThresholdReached();
+
+        // Then
+        assertTrue(reached);
+    }
+
+    @Test
+    void testIsAlertThresholdReached_False() {
+        // Given: Threshold is 80%, spending is 75%
+        testBudget.setCurrentSpending(new BigDecimal("75.00"));
+
+        // When
+        boolean reached = testBudget.isAlertThresholdReached();
+
+        // Then
+        assertFalse(reached);
+    }
+
+    @Test
+    void testResetExpiredBudgets_DailyPeriod() {
+        // Given: Daily budget from yesterday
+        BudgetAlert expiredBudget = BudgetAlert.builder()
+                .id(1L)
+                .entityId("user-123")
+                .period(BudgetPeriod.DAILY)
+                .periodStart(LocalDateTime.now().minusDays(2))
+                .currentSpending(new BigDecimal("100.00"))
+                .alertTriggered(true)
+                .build();
+
+        when(budgetAlertRepository.findAll()).thenReturn(Arrays.asList(expiredBudget));
+        when(budgetAlertRepository.save(any())).thenReturn(expiredBudget);
+
+        // When
+        budgetManagementService.resetExpiredBudgets();
+
+        // Then: Budget should be reset
+        verify(budgetAlertRepository, times(1)).save(argThat(budget ->
+                budget.getCurrentSpending().compareTo(BigDecimal.ZERO) == 0 &&
+                !budget.getAlertTriggered()
+        ));
+    }
+
+    @Test
+    void testResetExpiredBudgets_WeeklyPeriod() {
+        // Given: Weekly budget from 10 days ago
+        BudgetAlert expiredBudget = BudgetAlert.builder()
+                .id(1L)
+                .entityId("user-123")
+                .period(BudgetPeriod.WEEKLY)
+                .periodStart(LocalDateTime.now().minusDays(10))
+                .currentSpending(new BigDecimal("100.00"))
+                .alertTriggered(true)
+                .build();
+
+        when(budgetAlertRepository.findAll()).thenReturn(Arrays.asList(expiredBudget));
+        when(budgetAlertRepository.save(any())).thenReturn(expiredBudget);
+
+        // When
+        budgetManagementService.resetExpiredBudgets();
+
+        // Then: Budget should be reset
+        verify(budgetAlertRepository, times(1)).save(any());
+    }
+
+    @Test
+    void testResetExpiredBudgets_NotExpired() {
+        // Given: Budget from today (not expired)
+        BudgetAlert currentBudget = BudgetAlert.builder()
+                .id(1L)
+                .entityId("user-123")
+                .period(BudgetPeriod.DAILY)
+                .periodStart(LocalDateTime.now())
+                .currentSpending(new BigDecimal("50.00"))
+                .build();
+
+        when(budgetAlertRepository.findAll()).thenReturn(Arrays.asList(currentBudget));
+
+        // When
+        budgetManagementService.resetExpiredBudgets();
+
+        // Then: Budget should NOT be reset
+        verify(budgetAlertRepository, never()).save(any());
+    }
+
+    @Test
+    void testTeamBudget_SeparateFromUserBudget() {
+        // Given: Team budget
+        BudgetAlert teamBudget = BudgetAlert.builder()
+                .id(2L)
+                .entityId("team-456")
+                .entityType(EntityType.TEAM)
+                .period(BudgetPeriod.MONTHLY)
+                .budgetLimit(new BigDecimal("1000.00"))
+                .currentSpending(new BigDecimal("0.00"))
+                .alertThreshold(90)
+                .enableThrottling(true)
+                .build();
+
+        when(budgetAlertRepository.save(any())).thenReturn(teamBudget);
+
+        // When
+        BudgetAlert result = budgetManagementService.createTeamBudget(
+                "team-456",
+                new BigDecimal("1000.00"),
+                BudgetPeriod.MONTHLY,
+                90,
+                true
+        );
+
+        // Then
+        assertNotNull(result);
+        assertEquals("team-456", result.getEntityId());
+        assertEquals(EntityType.TEAM, result.getEntityType());
+        assertEquals(new BigDecimal("1000.00"), result.getBudgetLimit());
+    }
+}

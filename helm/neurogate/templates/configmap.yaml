@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "neurogate.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "neurogate.labels" . | nindent 4 }}
+data:
+  application-prod.yml: |
+    server:
+      port: {{ .Values.config.server.port }}
+      shutdown: {{ .Values.config.server.shutdown }}
+      tomcat:
+        threads:
+          max: {{ .Values.config.server.tomcat.threads.max }}
+          min-spare: {{ .Values.config.server.tomcat.threads.minSpare }}
+        max-connections: {{ .Values.config.server.tomcat.maxConnections }}
+
+    spring:
+      application:
+        name: {{ include "neurogate.name" . }}
+
+      ai:
+        openai:
+          base-url: {{ .Values.config.openai.baseUrl }}
+
+      data:
+        redis:
+          host: {{ .Values.config.redis.host }}
+          port: {{ .Values.config.redis.port }}
+          timeout: {{ .Values.config.redis.timeout }}
+
+    neurogate:
+      qdrant:
+        host: {{ .Values.config.qdrant.host }}
+        grpc-port: {{ .Values.config.qdrant.grpcPort }}
+        rest-port: {{ .Values.config.qdrant.restPort }}
+        collection-name: {{ .Values.config.qdrant.collectionName }}
+        vector-size: {{ .Values.config.qdrant.vectorSize }}
+        similarity-threshold: {{ .Values.config.qdrant.similarityThreshold }}
+
+      router:
+        complexity-threshold: {{ .Values.config.router.complexityThreshold }}
+        enable-local-routing: {{ .Values.config.router.enableLocalRouting }}
+        enable-semantic-cache: {{ .Values.config.router.enableSemanticCache }}
+        cache-ttl-hours: {{ .Values.config.router.cacheTtlHours }}
+
+      rate-limit:
+        enabled: {{ .Values.config.rateLimit.enabled }}
+        default-rpm: {{ .Values.config.rateLimit.defaultRpm }}
+        burst-capacity: {{ .Values.config.rateLimit.burstCapacity }}
+
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+          base-path: /actuator
+      endpoint:
+        health:
+          show-details: when-authorized
+          probes:
+            enabled: true
+      metrics:
+        export:
+          prometheus:
+            enabled: true
+
+    logging:
+      level:
+        root: {{ .Values.config.logging.level.root }}
+        com.neurogate: {{ .Values.config.logging.level.neurogate }}

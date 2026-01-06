@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "neurogate.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "neurogate.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  {{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
+  {{- end }}
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.targetPort }}
+    protocol: TCP
+    name: http
+  selector:
+    {{- include "neurogate.selectorLabels" . | nindent 4 }}

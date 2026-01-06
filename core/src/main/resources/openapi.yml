@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: NeuroGate API
+  description: Agent-Native AI Gateway API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8080/api
+    description: Local Server
+
+paths:
+  /chat/completions:
+    post:
+      summary: Send a chat completion request
+      operationId: chatCompletions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+
+  /debug/sessions/{sessionId}/replay:
+    post:
+      summary: Replay a debug session
+      operationId: replaySession
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplayOptions'
+      responses:
+        '200':
+          description: Replay result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      properties:
+        model:
+          type: string
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        temperature:
+          type: number
+    
+    ChatResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        choices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Choice'
+            
+    Message:
+      type: object
+      properties:
+        role:
+          type: string
+        content:
+          type: string
+          
+    Choice:
+      type: object
+      properties:
+        message:
+          $ref: '#/components/schemas/Message'
+          
+    ReplayOptions:
+      type: object
+      properties:
+        model:
+          type: string
+        temperature:
+          type: number
+        bypassCache:
+          type: boolean

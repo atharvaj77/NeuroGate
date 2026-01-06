@@ -1,0 +1,11 @@
+neurogate:
+  qdrant:
+    enabled: false
+  anthropic:
+    enabled: false
+  gemini:
+    enabled: false
+  bedrock:
+    enabled: false
+  azure:
+    enabled: false

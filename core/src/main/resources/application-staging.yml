@@ -1,0 +1,68 @@
+# Staging Configuration Profile
+
+server:
+  port: 8080
+  shutdown: graceful
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+    max-connections: 10000
+
+spring:
+  application:
+    name: neurogate
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://api.openai.com
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis-service}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+neurogate:
+  qdrant:
+    host: ${QDRANT_HOST:qdrant-service}
+    grpc-port: 6334
+    rest-port: 6333
+    similarity-threshold: 0.92
+
+  router:
+    enable-semantic-cache: true
+    cache-ttl-hours: 24
+
+  rate-limit:
+    enabled: true
+    default-rpm: 1000
+    burst-capacity: 100
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 50
+        minimumNumberOfCalls: 5
+        waitDurationInOpenState: 30s
+        failureRateThreshold: 50
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.neurogate: DEBUG
+    org.springframework.ai: DEBUG
+    io.github.resilience4j: DEBUG

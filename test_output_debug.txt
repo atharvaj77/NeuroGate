@@ -1,0 +1,883 @@
+Initialized native services in: /Users/atharva.joshi/.gradle/native
+Initialized jansi services in: /Users/atharva.joshi/.gradle/native
+Received JVM installation metadata from '/Users/atharva.joshi/Library/Java/JavaVirtualMachines/corretto-17.0.17/Contents/Home': {JAVA_HOME=/Users/atharva.joshi/Library/Java/JavaVirtualMachines/corretto-17.0.17/Contents/Home, JAVA_VERSION=17.0.17, JAVA_VENDOR=Amazon.com Inc., RUNTIME_NAME=OpenJDK Runtime Environment, RUNTIME_VERSION=17.0.17+10-LTS, VM_NAME=OpenJDK 64-Bit Server VM, VM_VERSION=17.0.17+10-LTS, VM_VENDOR=Amazon.com Inc., OS_ARCH=aarch64}
+Found daemon DaemonInfo{pid=51827, address=[34fb515b-46cd-46d7-b7e2-5b7e6cd460e7 port:57258, addresses:[/127.0.0.1]], state=Idle, lastBusy=1767534452755, context=DefaultDaemonContext[uid=56557bee-f1a4-43aa-aaaa-69f4c5e8fbc8,javaHome=/Users/atharva.joshi/.antigravity/extensions/redhat.java-1.50.0-darwin-arm64/jre/21.0.9-macosx-aarch64,daemonRegistryDir=/Users/atharva.joshi/.gradle/daemon,pid=51827,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,daemonOpts=-XX:MaxMetaspaceSize=512m,--add-opens=java.base/java.util=ALL-UNNAMED,--add-opens=java.base/java.lang=ALL-UNNAMED,--add-opens=java.base/java.lang.invoke=ALL-UNNAMED,--add-opens=java.prefs/java.util.prefs=ALL-UNNAMED,--add-opens=java.base/java.nio.charset=ALL-UNNAMED,--add-opens=java.base/java.net=ALL-UNNAMED,--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED,-Xmx2048m,-Dfile.encoding=UTF-8,-Duser.country=IN,-Duser.language=en,-Duser.variant]} however its context does not match the desired criteria.
+Java home is different.
+Wanted: DefaultDaemonContext[uid=null,javaHome=/Users/atharva.joshi/Library/Java/JavaVirtualMachines/corretto-17.0.17/Contents/Home,daemonRegistryDir=/Users/atharva.joshi/.gradle/daemon,pid=58949,idleTimeout=null,priority=NORMAL,applyInstrumentationAgent=true,daemonOpts=-XX:MaxMetaspaceSize=512m,--add-opens=java.base/java.util=ALL-UNNAMED,--add-opens=java.base/java.lang=ALL-UNNAMED,--add-opens=java.base/java.lang.invoke=ALL-UNNAMED,--add-opens=java.prefs/java.util.prefs=ALL-UNNAMED,--add-opens=java.base/java.nio.charset=ALL-UNNAMED,--add-opens=java.base/java.net=ALL-UNNAMED,--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED,-Xmx2048m,-Dfile.encoding=UTF-8,-Duser.country=IN,-Duser.language=en,-Duser.variant]
+Actual: DefaultDaemonContext[uid=56557bee-f1a4-43aa-aaaa-69f4c5e8fbc8,javaHome=/Users/atharva.joshi/.antigravity/extensions/redhat.java-1.50.0-darwin-arm64/jre/21.0.9-macosx-aarch64,daemonRegistryDir=/Users/atharva.joshi/.gradle/daemon,pid=51827,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,daemonOpts=-XX:MaxMetaspaceSize=512m,--add-opens=java.base/java.util=ALL-UNNAMED,--add-opens=java.base/java.lang=ALL-UNNAMED,--add-opens=java.base/java.lang.invoke=ALL-UNNAMED,--add-opens=java.prefs/java.util.prefs=ALL-UNNAMED,--add-opens=java.base/java.nio.charset=ALL-UNNAMED,--add-opens=java.base/java.net=ALL-UNNAMED,--add-opens=java.base/java.util.concurrent.atomic=ALL-UNNAMED,-Xmx2048m,-Dfile.encoding=UTF-8,-Duser.country=IN,-Duser.language=en,-Duser.variant]
+
+  Looking for a different daemon...
+The client will now receive all logging from the daemon (pid: 53082). The daemon log file: /Users/atharva.joshi/.gradle/daemon/8.5/daemon-53082.out.log
+Starting 14th build in daemon [uptime: 18 mins 52.442 secs, performance: 100%, GC rate: 0.00/s, heap usage: 1% of 2 GiB, non-heap usage: 16% of 512 MiB]
+Using 12 worker leases.
+Now considering [/Users/atharva.joshi/PycharmProjects/NeuroGate] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Starting Build
+Settings evaluated using settings file '/Users/atharva.joshi/PycharmProjects/NeuroGate/settings.gradle.kts'.
+Using local directory build cache for the root build (location = /Users/atharva.joshi/.gradle/caches/build-cache-1, removeUnusedEntriesAfter = 7 days).
+Projects loaded. Root project using build file '/Users/atharva.joshi/PycharmProjects/NeuroGate/build.gradle.kts'.
+Included projects: [root project 'neurogate', project ':core', project ':enterprise']
+
+> Configure project :
+Evaluating root project 'neurogate' using build file '/Users/atharva.joshi/PycharmProjects/NeuroGate/build.gradle.kts'.
+Build cache key for Kotlin DSL accessors for root project 'neurogate' is 8e8b15e6fe1526b68656b0b02f9c3634
+Skipping Kotlin DSL accessors for root project 'neurogate' as it is up-to-date.
+Applying dependency management to configuration 'annotationProcessor' in project 'core'
+Applying dependency management to configuration 'apiElements' in project 'core'
+Applying dependency management to configuration 'archives' in project 'core'
+Applying dependency management to configuration 'bootArchives' in project 'core'
+Applying dependency management to configuration 'compileClasspath' in project 'core'
+Applying dependency management to configuration 'compileOnly' in project 'core'
+Applying dependency management to configuration 'default' in project 'core'
+Applying dependency management to configuration 'developmentOnly' in project 'core'
+Applying dependency management to configuration 'implementation' in project 'core'
+Applying dependency management to configuration 'mainSourceElements' in project 'core'
+Applying dependency management to configuration 'productionRuntimeClasspath' in project 'core'
+Applying dependency management to configuration 'runtimeClasspath' in project 'core'
+Applying dependency management to configuration 'runtimeElements' in project 'core'
+Applying dependency management to configuration 'runtimeOnly' in project 'core'
+Applying dependency management to configuration 'testAndDevelopmentOnly' in project 'core'
+Applying dependency management to configuration 'testAnnotationProcessor' in project 'core'
+Applying dependency management to configuration 'testCompileClasspath' in project 'core'
+Applying dependency management to configuration 'testCompileOnly' in project 'core'
+Applying dependency management to configuration 'testImplementation' in project 'core'
+Applying dependency management to configuration 'testResultsElementsForTest' in project 'core'
+Applying dependency management to configuration 'testRuntimeClasspath' in project 'core'
+Applying dependency management to configuration 'testRuntimeOnly' in project 'core'
+Applying dependency management to configuration 'annotationProcessor' in project 'enterprise'
+Applying dependency management to configuration 'apiElements' in project 'enterprise'
+Applying dependency management to configuration 'archives' in project 'enterprise'
+Applying dependency management to configuration 'bootArchives' in project 'enterprise'
+Applying dependency management to configuration 'compileClasspath' in project 'enterprise'
+Applying dependency management to configuration 'compileOnly' in project 'enterprise'
+Applying dependency management to configuration 'default' in project 'enterprise'
+Applying dependency management to configuration 'developmentOnly' in project 'enterprise'
+Applying dependency management to configuration 'implementation' in project 'enterprise'
+Applying dependency management to configuration 'mainSourceElements' in project 'enterprise'
+Applying dependency management to configuration 'productionRuntimeClasspath' in project 'enterprise'
+Applying dependency management to configuration 'runtimeClasspath' in project 'enterprise'
+Applying dependency management to configuration 'runtimeElements' in project 'enterprise'
+Applying dependency management to configuration 'runtimeOnly' in project 'enterprise'
+Applying dependency management to configuration 'testAndDevelopmentOnly' in project 'enterprise'
+Applying dependency management to configuration 'testAnnotationProcessor' in project 'enterprise'
+Applying dependency management to configuration 'testCompileClasspath' in project 'enterprise'
+Applying dependency management to configuration 'testCompileOnly' in project 'enterprise'
+Applying dependency management to configuration 'testImplementation' in project 'enterprise'
+Applying dependency management to configuration 'testResultsElementsForTest' in project 'enterprise'
+Applying dependency management to configuration 'testRuntimeClasspath' in project 'enterprise'
+Applying dependency management to configuration 'testRuntimeOnly' in project 'enterprise'
+
+> Configure project :core
+Evaluating project ':core' using build file '/Users/atharva.joshi/PycharmProjects/NeuroGate/core/build.gradle.kts'.
+Applying dependency management to configuration 'api' in project 'core'
+Applying dependency management to configuration 'compileOnlyApi' in project 'core'
+Build cache key for Kotlin DSL accessors for project ':core' is 0228a8ef9efdc897a1215f58b08f7f3e
+Skipping Kotlin DSL accessors for project ':core' as it is up-to-date.
+
+> Configure project :enterprise
+Evaluating project ':enterprise' using build file '/Users/atharva.joshi/PycharmProjects/NeuroGate/enterprise/build.gradle.kts'.
+Build cache key for Kotlin DSL accessors for project ':enterprise' is 5c31f18ac6dd1965ff187dc485e02bd2
+Skipping Kotlin DSL accessors for project ':enterprise' as it is up-to-date.
+All projects evaluated.
+Task name matched 'test'
+Selected primary task 'test' from project :
+Starting process 'command '/usr/libexec/java_home''. Working directory: /Users/atharva.joshi/.gradle/daemon/8.5 Command: /usr/libexec/java_home -V
+Successfully started process 'command '/usr/libexec/java_home''
+Resolving global dependency management for project 'core'
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Excluding []
+Excluding []
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Resolving global dependency management for project 'enterprise'
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Excluding []
+Excluding []
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Excluding [com.zaxxer:HikariCP-java7, com.mchange:c3p0, commons-logging:commons-logging]
+Tasks to be executed: [task ':compileJava', task ':processResources', task ':classes', task ':compileTestJava', task ':processTestResources', task ':testClasses', task ':test', task ':core:compileJava', task ':core:processResources', task ':core:classes', task ':core:jar', task ':core:compileTestJava', task ':core:processTestResources', task ':core:testClasses', task ':core:test', task ':enterprise:compileJava', task ':enterprise:processResources', task ':enterprise:classes', task ':enterprise:compileTestJava', task ':enterprise:processTestResources', task ':enterprise:testClasses', task ':enterprise:test']
+Tasks that were excluded: []
+Resolve mutations for :compileJava (Thread[Execution worker,5,main]) started.
+Resolve mutations for :core:compileJava (Thread[Execution worker Thread 2,5,main]) started.
+Resolve mutations for :enterprise:processResources (Thread[Execution worker Thread 3,5,main]) started.
+:core:compileJava (Thread[Execution worker Thread 6,5,main]) started.
+:enterprise:processResources (Thread[Execution worker Thread 3,5,main]) started.
+:compileJava (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:processResources NO-SOURCE
+Skipping task ':enterprise:processResources' as it has no source files and no previous output files.
+Resolve mutations for :enterprise:processTestResources (Thread[Execution worker Thread 3,5,main]) started.
+:enterprise:processTestResources (Thread[Execution worker Thread 3,5,main]) started.
+
+> Task :compileJava NO-SOURCE
+Skipping task ':compileJava' as it has no source files and no previous output files.
+Resolve mutations for :processResources (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:processTestResources NO-SOURCE
+Skipping task ':enterprise:processTestResources' as it has no source files and no previous output files.
+:processResources (Thread[Execution worker,5,main]) started.
+
+> Task :processResources NO-SOURCE
+Skipping task ':processResources' as it has no source files and no previous output files.
+Resolve mutations for :classes (Thread[Execution worker,5,main]) started.
+:classes (Thread[Execution worker,5,main]) started.
+
+> Task :classes UP-TO-DATE
+Skipping task ':classes' as it has no actions.
+Resolve mutations for :compileTestJava (Thread[Execution worker,5,main]) started.
+:compileTestJava (Thread[Execution worker,5,main]) started.
+
+> Task :compileTestJava NO-SOURCE
+Skipping task ':compileTestJava' as it has no source files and no previous output files.
+Resolve mutations for :processTestResources (Thread[Execution worker,5,main]) started.
+:processTestResources (Thread[Execution worker,5,main]) started.
+
+> Task :processTestResources NO-SOURCE
+Skipping task ':processTestResources' as it has no source files and no previous output files.
+Resolve mutations for :testClasses (Thread[Execution worker,5,main]) started.
+:testClasses (Thread[Execution worker,5,main]) started.
+
+> Task :testClasses UP-TO-DATE
+Skipping task ':testClasses' as it has no actions.
+Resolve mutations for :test (Thread[Execution worker,5,main]) started.
+:test (Thread[Execution worker,5,main]) started.
+
+> Task :test NO-SOURCE
+Skipping task ':test' as it has no source files and no previous output files.
+
+> Task :core:compileJava UP-TO-DATE
+Custom actions are attached to task ':core:compileJava'.
+Build cache key for task ':core:compileJava' is bff554022086220604a2421f51e3a5b0
+Skipping task ':core:compileJava' as it is up-to-date.
+work action resolve main (project :core) (Thread[Execution worker Thread 6,5,main]) started.
+Resolve mutations for :core:processResources (Thread[Execution worker Thread 6,5,main]) started.
+Resolve mutations for :enterprise:compileJava (Thread[Execution worker,5,main]) started.
+:core:processResources (Thread[Execution worker Thread 6,5,main]) started.
+:enterprise:compileJava (Thread[Execution worker,5,main]) started.
+
+> Task :core:processResources UP-TO-DATE
+Caching disabled for task ':core:processResources' because:
+  Not worth caching
+Skipping task ':core:processResources' as it is up-to-date.
+Resolve mutations for :core:classes (Thread[Execution worker Thread 6,5,main]) started.
+:core:classes (Thread[Execution worker Thread 6,5,main]) started.
+
+> Task :core:classes UP-TO-DATE
+Skipping task ':core:classes' as it has no actions.
+Resolve mutations for :core:jar (Thread[Execution worker Thread 6,5,main]) started.
+:core:jar (Thread[Execution worker Thread 6,5,main]) started.
+
+> Task :core:jar UP-TO-DATE
+Caching disabled for task ':core:jar' because:
+  Not worth caching
+Skipping task ':core:jar' as it is up-to-date.
+work action resolve core-plain.jar (project :core) (Thread[Execution worker Thread 6,5,main]) started.
+Resolve mutations for :core:compileTestJava (Thread[Execution worker Thread 6,5,main]) started.
+:core:compileTestJava (Thread[Execution worker Thread 6,5,main]) started.
+
+> Task :enterprise:compileJava UP-TO-DATE
+Custom actions are attached to task ':enterprise:compileJava'.
+Build cache key for task ':enterprise:compileJava' is e63091255e6b984dce8dbeba4ed4e424
+Skipping task ':enterprise:compileJava' as it is up-to-date.
+Resolve mutations for :enterprise:classes (Thread[Execution worker,5,main]) started.
+:enterprise:classes (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:classes UP-TO-DATE
+Skipping task ':enterprise:classes' as it has no actions.
+Resolve mutations for :enterprise:compileTestJava (Thread[Execution worker,5,main]) started.
+:enterprise:compileTestJava (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:compileTestJava NO-SOURCE
+Skipping task ':enterprise:compileTestJava' as it has no source files and no previous output files.
+Resolve mutations for :enterprise:testClasses (Thread[Execution worker,5,main]) started.
+:enterprise:testClasses (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:testClasses UP-TO-DATE
+Skipping task ':enterprise:testClasses' as it has no actions.
+Resolve mutations for :enterprise:test (Thread[Execution worker,5,main]) started.
+:enterprise:test (Thread[Execution worker,5,main]) started.
+
+> Task :enterprise:test NO-SOURCE
+Skipping task ':enterprise:test' as it has no source files and no previous output files.
+
+> Task :core:compileTestJava UP-TO-DATE
+Excluding []
+Custom actions are attached to task ':core:compileTestJava'.
+Build cache key for task ':core:compileTestJava' is 3eed19a32e7185d88cd00551a4caee4c
+Skipping task ':core:compileTestJava' as it is up-to-date.
+Resolve mutations for :core:processTestResources (Thread[Execution worker Thread 6,5,main]) started.
+:core:processTestResources (Thread[Execution worker Thread 6,5,main]) started.
+
+> Task :core:processTestResources NO-SOURCE
+Skipping task ':core:processTestResources' as it has no source files and no previous output files.
+Resolve mutations for :core:testClasses (Thread[Execution worker Thread 6,5,main]) started.
+:core:testClasses (Thread[Execution worker Thread 6,5,main]) started.
+
+> Task :core:testClasses UP-TO-DATE
+Skipping task ':core:testClasses' as it has no actions.
+Resolve mutations for :core:test (Thread[Execution worker Thread 6,5,main]) started.
+:core:test (Thread[Execution worker Thread 6,5,main]) started.
+Gradle Test Executor 13 started executing tests.
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+
+> Task :core:test
+Build cache key for task ':core:test' is cc560a2b90812414b3621afb1f5c4ae1
+Task ':core:test' is not up-to-date because:
+  Task has failed previously.
+Starting process 'Gradle Test Executor 13'. Working directory: /Users/atharva.joshi/PycharmProjects/NeuroGate/core Command: /Users/atharva.joshi/Library/Java/JavaVirtualMachines/corretto-17.0.17/Contents/Home/bin/java -Dorg.gradle.internal.worker.tmpdir=/Users/atharva.joshi/PycharmProjects/NeuroGate/core/build/tmp/test/work -Dorg.gradle.native=false @/Users/atharva.joshi/.gradle/.tmp/gradle-worker-classpath8321537001012981113txt -Xmx512m -Dfile.encoding=UTF-8 -Duser.country=IN -Duser.language=en -Duser.variant -ea worker.org.gradle.process.internal.worker.GradleWorkerMain 'Gradle Test Executor 13'
+Successfully started process 'Gradle Test Executor 13'
+
+ForgeIntegrationTest STANDARD_OUT
+    19:42:24.961 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.neurogate.forge.ForgeIntegrationTest]: ForgeIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+    19:42:25.016 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.neurogate.NeuroGateApplication for test class com.neurogate.forge.ForgeIntegrationTest
+
+      .   ____          _            __ _ _
+     /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+     \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+      '  |____| .__|_| |_|_| |_\__, | / / / /
+     =========|_|==============|___/=/_/_/_/
+
+     :: Spring Boot ::                (v3.4.0)
+
+    2026-01-04 19:42:25 - 
+
+    Found multiple occurrences of org.json.JSONObject on the class path:
+
+    	jar:file:/Users/atharva.joshi/.gradle/caches/modules-2/files-2.1/org.json/json/20231013/e22e0c040fe16f04ffdb85d851d77b07fc05ea52/json-20231013.jar!/org/json/JSONObject.class
+    	jar:file:/Users/atharva.joshi/.gradle/caches/modules-2/files-2.1/com.vaadin.external.google/android-json/0.0.20131108.vaadin1/fa26d351fe62a6a17f5cda1287c1c6110dec413f/android-json-0.0.20131108.vaadin1.jar!/org/json/JSONObject.class
+
+    You may wish to exclude one of them to ensure predictable runtime behavior
+
+    2026-01-04 19:42:25 - Starting ForgeIntegrationTest using Java 17.0.17 with PID 58963 (started by atharva.joshi in /Users/atharva.joshi/PycharmProjects/NeuroGate/core)
+    2026-01-04 19:42:25 - Running with Spring Boot v3.4.0, Spring v6.2.0
+    2026-01-04 19:42:25 - The following 1 profile is active: "test"
+    2026-01-04 19:42:25 - Multiple Spring Data modules found, entering strict repository configuration mode
+    2026-01-04 19:42:25 - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+    2026-01-04 19:42:25 - Spring Data JPA - Could not safely identify store assignment for repository candidate interface com.neurogate.synapse.PromptWorkflowRepository; If you want this repository to be a JPA repository, consider annotating your entities with one of these annotations: jakarta.persistence.Entity, jakarta.persistence.MappedSuperclass (preferred), or consider extending one of the following types with your repository: org.springframework.data.jpa.repository.JpaRepository
+    2026-01-04 19:42:25 - Finished Spring Data repository scanning in 78 ms. Found 8 JPA repository interfaces.
+    2026-01-04 19:42:26 - Multiple Spring Data modules found, entering strict repository configuration mode
+    2026-01-04 19:42:26 - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.analytics.BudgetAlertRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.analytics.UsageRecordRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.core.cortex.EvaluationCaseRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.core.cortex.EvaluationDatasetRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.core.cortex.EvaluationResultRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.core.cortex.EvaluationRunRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.forge.repository.DistillationJobRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.neurogate.reinforce.repository.AnnotationRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository
+    2026-01-04 19:42:26 - Finished Spring Data repository scanning in 12 ms. Found 1 Redis repository interface.
+    2026-01-04 19:42:27 - HikariPool-1 - Starting...
+    2026-01-04 19:42:27 - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:f6b719d6-ee3f-4661-b109-86d0ce897b7b user=SA
+    2026-01-04 19:42:27 - HikariPool-1 - Start completed.
+    2026-01-04 19:42:27 - HHH000204: Processing PersistenceUnitInfo [name: default]
+    2026-01-04 19:42:27 - HHH000412: Hibernate ORM core version 6.6.2.Final
+    2026-01-04 19:42:27 - HHH000026: Second-level cache disabled
+    2026-01-04 19:42:27 - No LoadTimeWeaver setup: ignoring JPA class transformer
+    2026-01-04 19:42:27 - HHH10001005: Database info:
+    	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+    	Database driver: undefined/unknown
+    	Database version: 2.3.232
+    	Autocommit mode: undefined/unknown
+    	Isolation level: undefined/unknown
+    	Minimum pool size: undefined/unknown
+    	Maximum pool size: undefined/unknown
+    2026-01-04 19:42:27 - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+    2026-01-04 19:42:28 - Initialized JPA EntityManagerFactory for persistence unit 'default'
+    2026-01-04 19:42:28 - Hibernate is in classpath; If applicable, HQL parser will be used.
+    2026-01-04 19:42:29 - Bedrock client initialized successfully for region: us-east-1
+    2026-01-04 19:42:30 - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+    2026-01-04 19:42:30 - Using default implementation for ThreadExecutor
+    2026-01-04 19:42:30 - Initialized Scheduler Signaller of type: class org.quartz.core.SchedulerSignalerImpl
+    2026-01-04 19:42:30 - Quartz Scheduler v.2.3.2 created.
+    2026-01-04 19:42:30 - RAMJobStore initialized.
+    2026-01-04 19:42:30 - Scheduler meta-data: Quartz Scheduler (v2.3.2) 'quartzScheduler' with instanceId 'NON_CLUSTERED'
+      Scheduler class: 'org.quartz.core.QuartzScheduler' - running locally.
+      NOT STARTED.
+      Currently in standby mode.
+      Number of jobs executed: 0
+      Using thread pool 'org.quartz.simpl.SimpleThreadPool' - with 10 threads.
+      Using job-store 'org.quartz.simpl.RAMJobStore' - which does not support persistence. and is not clustered.
+
+    2026-01-04 19:42:30 - Quartz scheduler 'quartzScheduler' initialized from an externally provided properties instance.
+    2026-01-04 19:42:30 - Quartz scheduler version: 2.3.2
+    2026-01-04 19:42:30 - JobFactory set to: org.springframework.scheduling.quartz.SpringBeanJobFactory@49b79071
+    2026-01-04 19:42:30 - Filter 'traceFilter' configured for use
+    2026-01-04 19:42:30 - Initializing Spring TestDispatcherServlet ''
+    2026-01-04 19:42:30 - Initializing Servlet ''
+    2026-01-04 19:42:30 - Exposing 3 endpoints beneath base path '/actuator'
+    2026-01-04 19:42:30 - Completed initialization in 21 ms
+    2026-01-04 19:42:31 - AdminClientConfig values: 
+    	auto.include.jmx.reporter = true
+    	bootstrap.controllers = []
+    	bootstrap.servers = [localhost:9092]
+    	client.dns.lookup = use_all_dns_ips
+    	client.id = neurogate-admin-0
+    	connections.max.idle.ms = 300000
+    	default.api.timeout.ms = 60000
+    	enable.metrics.push = true
+    	metadata.max.age.ms = 300000
+    	metadata.recovery.strategy = none
+    	metric.reporters = []
+    	metrics.num.samples = 2
+    	metrics.recording.level = INFO
+    	metrics.sample.window.ms = 30000
+    	receive.buffer.bytes = 65536
+    	reconnect.backoff.max.ms = 1000
+    	reconnect.backoff.ms = 50
+    	request.timeout.ms = 30000
+    	retries = 2147483647
+    	retry.backoff.max.ms = 1000
+    	retry.backoff.ms = 100
+    	sasl.client.callback.handler.class = null
+    	sasl.jaas.config = null
+    	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+    	sasl.kerberos.min.time.before.relogin = 60000
+    	sasl.kerberos.service.name = null
+    	sasl.kerberos.ticket.renew.jitter = 0.05
+    	sasl.kerberos.ticket.renew.window.factor = 0.8
+    	sasl.login.callback.handler.class = null
+    	sasl.login.class = null
+    	sasl.login.connect.timeout.ms = null
+    	sasl.login.read.timeout.ms = null
+    	sasl.login.refresh.buffer.seconds = 300
+    	sasl.login.refresh.min.period.seconds = 60
+    	sasl.login.refresh.window.factor = 0.8
+    	sasl.login.refresh.window.jitter = 0.05
+    	sasl.login.retry.backoff.max.ms = 10000
+    	sasl.login.retry.backoff.ms = 100
+    	sasl.mechanism = GSSAPI
+    	sasl.oauthbearer.clock.skew.seconds = 30
+    	sasl.oauthbearer.expected.audience = null
+    	sasl.oauthbearer.expected.issuer = null
+    	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+    	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+    	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+    	sasl.oauthbearer.jwks.endpoint.url = null
+    	sasl.oauthbearer.scope.claim.name = scope
+    	sasl.oauthbearer.sub.claim.name = sub
+    	sasl.oauthbearer.token.endpoint.url = null
+    	security.protocol = PLAINTEXT
+    	security.providers = null
+    	send.buffer.bytes = 131072
+    	socket.connection.setup.timeout.max.ms = 30000
+    	socket.connection.setup.timeout.ms = 10000
+    	ssl.cipher.suites = null
+    	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+    	ssl.endpoint.identification.algorithm = https
+    	ssl.engine.factory.class = null
+    	ssl.key.password = null
+    	ssl.keymanager.algorithm = SunX509
+    	ssl.keystore.certificate.chain = null
+    	ssl.keystore.key = null
+    	ssl.keystore.location = null
+    	ssl.keystore.password = null
+    	ssl.keystore.type = JKS
+    	ssl.protocol = TLSv1.3
+    	ssl.provider = null
+    	ssl.secure.random.implementation = null
+    	ssl.trustmanager.algorithm = PKIX
+    	ssl.truststore.certificates = null
+    	ssl.truststore.location = null
+    	ssl.truststore.password = null
+    	ssl.truststore.type = JKS
+
+    2026-01-04 19:42:31 - Kafka version: 3.8.1
+    2026-01-04 19:42:31 - Kafka commitId: 70d6ff42debf7e17
+    2026-01-04 19:42:31 - Kafka startTimeMs: 1767535951054
+    2026-01-04 19:42:31 - App info kafka.admin.client for neurogate-admin-0 unregistered
+    2026-01-04 19:42:31 - [AdminClient clientId=neurogate-admin-0] Metadata update failed
+    org.apache.kafka.common.errors.TimeoutException: Timed out waiting to send the call. Call: fetchMetadata
+    2026-01-04 19:42:31 - [AdminClient clientId=neurogate-admin-0] Timed out 2 remaining operation(s) during close.
+    2026-01-04 19:42:31 - Failed to create topics
+    org.apache.kafka.common.errors.TimeoutException: The AdminClient thread has exited.
+    2026-01-04 19:42:31 - Metrics scheduler closed
+    2026-01-04 19:42:31 - Closing reporter org.apache.kafka.common.metrics.JmxReporter
+    2026-01-04 19:42:31 - Metrics reporters closed
+    2026-01-04 19:42:31 - Uncaught exception in thread 'kafka-admin-client-thread | neurogate-admin-0':
+    java.lang.OutOfMemoryError: Java heap space
+    	at java.base/java.nio.HeapByteBuffer.<init>(HeapByteBuffer.java:64)
+    	at java.base/java.nio.ByteBuffer.allocate(ByteBuffer.java:363)
+    	at org.apache.kafka.common.memory.MemoryPool$1.tryAllocate(MemoryPool.java:30)
+    	at org.apache.kafka.common.network.NetworkReceive.readFrom(NetworkReceive.java:102)
+    	at org.apache.kafka.common.network.KafkaChannel.receive(KafkaChannel.java:462)
+    	at org.apache.kafka.common.network.KafkaChannel.read(KafkaChannel.java:412)
+    	at org.apache.kafka.common.network.Selector.attemptRead(Selector.java:678)
+    	at org.apache.kafka.common.network.Selector.pollSelectionKeys(Selector.java:580)
+    	at org.apache.kafka.common.network.Selector.poll(Selector.java:485)
+    	at org.apache.kafka.clients.NetworkClient.poll(NetworkClient.java:595)
+    	at org.apache.kafka.clients.admin.KafkaAdminClient$AdminClientRunnable.processRequests(KafkaAdminClient.java:1524)
+    	at org.apache.kafka.clients.admin.KafkaAdminClient$AdminClientRunnable.run(KafkaAdminClient.java:1455)
+    	at java.base/java.lang.Thread.run(Thread.java:840)
+    2026-01-04 19:42:31 - Could not configure topics
+    org.springframework.kafka.KafkaException: Failed to create topics
+    	at org.springframework.kafka.core.KafkaAdmin.addTopics(KafkaAdmin.java:585)
+    	at org.springframework.kafka.core.KafkaAdmin.addOrModifyTopicsIfNeeded(KafkaAdmin.java:432)
+    	at org.springframework.kafka.core.KafkaAdmin.initialize(KafkaAdmin.java:276)
+    	at org.springframework.kafka.core.KafkaAdmin.afterSingletonsInstantiated(KafkaAdmin.java:240)
+    	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1057)
+    	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+    	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+    	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+    	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+    	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+    	at org.springframework.boot.test.context.SpringBootContextLoader.lambda$loadContext$3(SpringBootContextLoader.java:137)
+    	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:58)
+    	at org.springframework.util.function.ThrowingSupplier.get(ThrowingSupplier.java:46)
+    	at org.springframework.boot.SpringApplication.withHook(SpringApplication.java:1461)
+    	at org.springframework.boot.test.context.SpringBootContextLoader$ContextLoaderHook.run(SpringBootContextLoader.java:553)
+    	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:137)
+    	at org.springframework.boot.test.context.SpringBootContextLoader.loadContext(SpringBootContextLoader.java:108)
+    	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContextInternal(DefaultCacheAwareContextLoaderDelegate.java:225)
+    	at org.springframework.test.context.cache.DefaultCacheAwareContextLoaderDelegate.loadContext(DefaultCacheAwareContextLoaderDelegate.java:152)
+    	at org.springframework.test.context.support.DefaultTestContext.getApplicationContext(DefaultTestContext.java:130)
+    	at org.springframework.test.context.web.ServletTestExecutionListener.setUpRequestContextIfNecessary(ServletTestExecutionListener.java:191)
+    	at org.springframework.test.context.web.ServletTestExecutionListener.prepareTestInstance(ServletTestExecutionListener.java:130)
+    	at org.springframework.test.context.TestContextManager.prepareTestInstance(TestContextManager.java:260)
+    	at org.springframework.test.context.junit.jupiter.SpringExtension.postProcessTestInstance(SpringExtension.java:160)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$11(ClassBasedTestDescriptor.java:378)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.executeAndMaskThrowable(ClassBasedTestDescriptor.java:383)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$invokeTestInstancePostProcessors$12(ClassBasedTestDescriptor.java:378)
+    	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:183)
+    	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+    	at java.base/java.util.stream.ReferencePipeline$2$1.accept(ReferencePipeline.java:179)
+    	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+    	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1625)
+    	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+    	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+    	at java.base/java.util.stream.ForEachOps$ForEachOp.evaluateSequential(ForEachOps.java:150)
+    	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.evaluateSequential(ForEachOps.java:173)
+    	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+    	at java.base/java.util.stream.ReferencePipeline.forEach(ReferencePipeline.java:596)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.invokeTestInstancePostProcessors(ClassBasedTestDescriptor.java:377)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$instantiateAndPostProcessTestInstance$7(ClassBasedTestDescriptor.java:290)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.instantiateAndPostProcessTestInstance(ClassBasedTestDescriptor.java:289)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$5(ClassBasedTestDescriptor.java:279)
+    	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+    	at org.junit.jupiter.engine.descriptor.ClassBasedTestDescriptor.lambda$testInstancesProvider$6(ClassBasedTestDescriptor.java:278)
+    	at org.junit.jupiter.engine.execution.TestInstancesProvider.getTestInstances(TestInstancesProvider.java:31)
+    	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$prepare$1(TestMethodTestDescriptor.java:105)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:104)
+    	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.prepare(TestMethodTestDescriptor.java:68)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$prepare$2(NodeTestTask.java:128)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.prepare(NodeTestTask.java:128)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95)
+    	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+    	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+    	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+    	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+    	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:160)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:146)
+    	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:144)
+    	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:143)
+    	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:100)
+    	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35)
+    	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57)
+    	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141)
+    	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57)
+    	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103)
+    	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85)
+    	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47)
+    	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.processAllTestClasses(JUnitPlatformTestClassProcessor.java:119)
+    	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor$CollectAllTestClassesExecutor.access$000(JUnitPlatformTestClassProcessor.java:94)
+    	at org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestClassProcessor.stop(JUnitPlatformTestClassProcessor.java:89)
+    	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.stop(SuiteTestClassProcessor.java:62)
+    	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+    	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+    	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+    	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+    	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+    	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+    	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
+    	at jdk.proxy1/jdk.proxy1.$Proxy2.stop(Unknown Source)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker$3.run(TestWorker.java:193)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
+    	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
+    	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:113)
+    	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:65)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+    	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+    Caused by: org.apache.kafka.common.errors.TimeoutException: The AdminClient thread has exited.
+    2026-01-04 19:42:31 - ConsumerConfig values: 
+    	allow.auto.create.topics = true
+    	auto.commit.interval.ms = 5000
+    	auto.include.jmx.reporter = true
+    	auto.offset.reset = latest
+    	bootstrap.servers = [localhost:9092]
+    	check.crcs = true
+    	client.dns.lookup = use_all_dns_ips
+    	client.id = consumer-reinforce-group-1
+    	client.rack = 
+    	connections.max.idle.ms = 540000
+    	default.api.timeout.ms = 60000
+    	enable.auto.commit = false
+    	enable.metrics.push = true
+    	exclude.internal.topics = true
+    	fetch.max.bytes = 52428800
+    	fetch.max.wait.ms = 500
+    	fetch.min.bytes = 1
+    	group.id = reinforce-group
+    	group.instance.id = null
+    	group.protocol = classic
+    	group.remote.assignor = null
+    	heartbeat.interval.ms = 3000
+    	interceptor.classes = []
+    	internal.leave.group.on.close = true
+    	internal.throw.on.fetch.stable.offset.unsupported = false
+    	isolation.level = read_uncommitted
+    	key.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+    	max.partition.fetch.bytes = 1048576
+    	max.poll.interval.ms = 300000
+    	max.poll.records = 500
+    	metadata.max.age.ms = 300000
+    	metadata.recovery.strategy = none
+    	metric.reporters = []
+    	metrics.num.samples = 2
+    	metrics.recording.level = INFO
+    	metrics.sample.window.ms = 30000
+    	partition.assignment.strategy = [class org.apache.kafka.clients.consumer.RangeAssignor, class org.apache.kafka.clients.consumer.CooperativeStickyAssignor]
+    	receive.buffer.bytes = 65536
+    	reconnect.backoff.max.ms = 1000
+    	reconnect.backoff.ms = 50
+    	request.timeout.ms = 30000
+    	retry.backoff.max.ms = 1000
+    	retry.backoff.ms = 100
+    	sasl.client.callback.handler.class = null
+    	sasl.jaas.config = null
+    	sasl.kerberos.kinit.cmd = /usr/bin/kinit
+    	sasl.kerberos.min.time.before.relogin = 60000
+    	sasl.kerberos.service.name = null
+    	sasl.kerberos.ticket.renew.jitter = 0.05
+    	sasl.kerberos.ticket.renew.window.factor = 0.8
+    	sasl.login.callback.handler.class = null
+    	sasl.login.class = null
+    	sasl.login.connect.timeout.ms = null
+    	sasl.login.read.timeout.ms = null
+    	sasl.login.refresh.buffer.seconds = 300
+    	sasl.login.refresh.min.period.seconds = 60
+    	sasl.login.refresh.window.factor = 0.8
+    	sasl.login.refresh.window.jitter = 0.05
+    	sasl.login.retry.backoff.max.ms = 10000
+    	sasl.login.retry.backoff.ms = 100
+    	sasl.mechanism = GSSAPI
+    	sasl.oauthbearer.clock.skew.seconds = 30
+    	sasl.oauthbearer.expected.audience = null
+    	sasl.oauthbearer.expected.issuer = null
+    	sasl.oauthbearer.jwks.endpoint.refresh.ms = 3600000
+    	sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms = 10000
+    	sasl.oauthbearer.jwks.endpoint.retry.backoff.ms = 100
+    	sasl.oauthbearer.jwks.endpoint.url = null
+    	sasl.oauthbearer.scope.claim.name = scope
+    	sasl.oauthbearer.sub.claim.name = sub
+    	sasl.oauthbearer.token.endpoint.url = null
+    	security.protocol = PLAINTEXT
+    	security.providers = null
+    	send.buffer.bytes = 131072
+    	session.timeout.ms = 45000
+    	socket.connection.setup.timeout.max.ms = 30000
+    	socket.connection.setup.timeout.ms = 10000
+    	ssl.cipher.suites = null
+    	ssl.enabled.protocols = [TLSv1.2, TLSv1.3]
+    	ssl.endpoint.identification.algorithm = https
+    	ssl.engine.factory.class = null
+    	ssl.key.password = null
+    	ssl.keymanager.algorithm = SunX509
+    	ssl.keystore.certificate.chain = null
+    	ssl.keystore.key = null
+    	ssl.keystore.location = null
+    	ssl.keystore.password = null
+    	ssl.keystore.type = JKS
+    	ssl.protocol = TLSv1.3
+    	ssl.provider = null
+    	ssl.secure.random.implementation = null
+    	ssl.trustmanager.algorithm = PKIX
+    	ssl.truststore.certificates = null
+    	ssl.truststore.location = null
+    	ssl.truststore.password = null
+    	ssl.truststore.type = JKS
+    	value.deserializer = class org.apache.kafka.common.serialization.StringDeserializer
+
+    2026-01-04 19:42:31 - initializing Kafka metrics collector
+    2026-01-04 19:42:31 - Kafka version: 3.8.1
+    2026-01-04 19:42:31 - Kafka commitId: 70d6ff42debf7e17
+    2026-01-04 19:42:31 - Kafka startTimeMs: 1767535951313
+    2026-01-04 19:42:31 - [Consumer clientId=consumer-reinforce-group-1, groupId=reinforce-group] Subscribed to topic(s): neurogate-annotations
+    2026-01-04 19:42:31 - Starting Quartz Scheduler now
+    2026-01-04 19:42:31 - Scheduler quartzScheduler_$_NON_CLUSTERED started.
+    2026-01-04 19:42:31 - Stopping container due to an Error
+    java.lang.OutOfMemoryError: Java heap space
+    	at java.base/java.nio.HeapByteBuffer.<init>(HeapByteBuffer.java:64)
+    	at java.base/java.nio.ByteBuffer.allocate(ByteBuffer.java:363)
+    	at org.apache.kafka.common.memory.MemoryPool$1.tryAllocate(MemoryPool.java:30)
+    	at org.apache.kafka.common.network.NetworkReceive.readFrom(NetworkReceive.java:102)
+    	at org.apache.kafka.common.network.KafkaChannel.receive(KafkaChannel.java:462)
+    	at org.apache.kafka.common.network.KafkaChannel.read(KafkaChannel.java:412)
+    	at org.apache.kafka.common.network.Selector.attemptRead(Selector.java:678)
+    	at org.apache.kafka.common.network.Selector.pollSelectionKeys(Selector.java:580)
+    	at org.apache.kafka.common.network.Selector.poll(Selector.java:485)
+    	at org.apache.kafka.clients.NetworkClient.poll(NetworkClient.java:595)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:281)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:231)
+    	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureCoordinatorReady(AbstractCoordinator.java:289)
+    	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureCoordinatorReady(AbstractCoordinator.java:263)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.coordinatorUnknownAndUnreadySync(ConsumerCoordinator.java:450)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:482)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.updateAssignmentMetadataIfNeeded(LegacyKafkaConsumer.java:652)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.poll(LegacyKafkaConsumer.java:611)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.poll(LegacyKafkaConsumer.java:591)
+    	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:874)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollConsumer(KafkaMessageListenerContainer.java:1684)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doPoll(KafkaMessageListenerContainer.java:1659)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollAndInvoke(KafkaMessageListenerContainer.java:1437)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1327)
+    	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+    	at java.base/java.lang.Thread.run(Thread.java:840)
+    2026-01-04 19:42:31 - [Consumer clientId=consumer-reinforce-group-1, groupId=reinforce-group] Resetting generation and member id due to: consumer pro-actively leaving the group
+    2026-01-04 19:42:31 - [Consumer clientId=consumer-reinforce-group-1, groupId=reinforce-group] Request joining group due to: consumer pro-actively leaving the group
+    2026-01-04 19:42:31 - Metrics scheduler closed
+    2026-01-04 19:42:31 - Closing reporter org.apache.kafka.common.metrics.JmxReporter
+    2026-01-04 19:42:31 - Closing reporter org.apache.kafka.common.telemetry.internals.ClientTelemetryReporter
+    2026-01-04 19:42:31 - Metrics reporters closed
+    2026-01-04 19:42:31 - App info kafka.consumer for consumer-reinforce-group-1 unregistered
+    2026-01-04 19:42:31 - Started ForgeIntegrationTest in 6.334 seconds (process running for 6.796)
+    2026-01-04 19:42:31 - reinforce-group: Consumer stopped
+    2026-01-04 19:42:31 - Error while stopping the container
+    java.util.concurrent.CompletionException: java.lang.OutOfMemoryError: Java heap space
+    	at java.base/java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:315)
+    	at java.base/java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:320)
+    	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1807)
+    	at java.base/java.lang.Thread.run(Thread.java:840)
+    Caused by: java.lang.OutOfMemoryError: Java heap space
+    	at java.base/java.nio.HeapByteBuffer.<init>(HeapByteBuffer.java:64)
+    	at java.base/java.nio.ByteBuffer.allocate(ByteBuffer.java:363)
+    	at org.apache.kafka.common.memory.MemoryPool$1.tryAllocate(MemoryPool.java:30)
+    	at org.apache.kafka.common.network.NetworkReceive.readFrom(NetworkReceive.java:102)
+    	at org.apache.kafka.common.network.KafkaChannel.receive(KafkaChannel.java:462)
+    	at org.apache.kafka.common.network.KafkaChannel.read(KafkaChannel.java:412)
+    	at org.apache.kafka.common.network.Selector.attemptRead(Selector.java:678)
+    	at org.apache.kafka.common.network.Selector.pollSelectionKeys(Selector.java:580)
+    	at org.apache.kafka.common.network.Selector.poll(Selector.java:485)
+    	at org.apache.kafka.clients.NetworkClient.poll(NetworkClient.java:595)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:281)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerNetworkClient.poll(ConsumerNetworkClient.java:231)
+    	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureCoordinatorReady(AbstractCoordinator.java:289)
+    	at org.apache.kafka.clients.consumer.internals.AbstractCoordinator.ensureCoordinatorReady(AbstractCoordinator.java:263)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.coordinatorUnknownAndUnreadySync(ConsumerCoordinator.java:450)
+    	at org.apache.kafka.clients.consumer.internals.ConsumerCoordinator.poll(ConsumerCoordinator.java:482)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.updateAssignmentMetadataIfNeeded(LegacyKafkaConsumer.java:652)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.poll(LegacyKafkaConsumer.java:611)
+    	at org.apache.kafka.clients.consumer.internals.LegacyKafkaConsumer.poll(LegacyKafkaConsumer.java:591)
+    	at org.apache.kafka.clients.consumer.KafkaConsumer.poll(KafkaConsumer.java:874)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollConsumer(KafkaMessageListenerContainer.java:1684)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.doPoll(KafkaMessageListenerContainer.java:1659)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.pollAndInvoke(KafkaMessageListenerContainer.java:1437)
+    	at org.springframework.kafka.listener.KafkaMessageListenerContainer$ListenerConsumer.run(KafkaMessageListenerContainer.java:1327)
+    	at java.base/java.util.concurrent.CompletableFuture$AsyncRun.run(CompletableFuture.java:1804)
+    	... 1 common frames omitted
+
+ForgeIntegrationTest > triggerDistillation_ShouldCreateJob_WhenEnoughData() STANDARD_OUT
+    2026-01-04 19:42:31 - Recording feedback for trace trace-integrated-1: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-0: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-1: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-2: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-3: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-4: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-5: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-6: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-7: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-8: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-9: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-10: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-11: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-12: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-13: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-14: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-15: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-16: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-17: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-18: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-19: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-20: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-21: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-22: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-23: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-24: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-25: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-26: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-27: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-28: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-29: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-30: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-31: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-32: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-33: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-34: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-35: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-36: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-37: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-38: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-39: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-40: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-41: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-42: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-43: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-44: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-45: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-46: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-47: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-48: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-49: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-50: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-51: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-52: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-53: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-54: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-55: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-56: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-57: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-58: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-59: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-60: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-61: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-62: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-63: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-64: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-65: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-66: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-67: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-68: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-69: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-70: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-71: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-72: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-73: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-74: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-75: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-76: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-77: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-78: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-79: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-80: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-81: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-82: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-83: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-84: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-85: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-86: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-87: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-88: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-89: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-90: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-91: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-92: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-93: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-94: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-95: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-96: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-97: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-98: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-99: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-100: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-101: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-102: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-103: rating=5
+    2026-01-04 19:42:31 - Recording feedback for trace trace-104: rating=5
+    2026-01-04 19:42:31 - Forge distillation is disabled. Skipping nightly cycle.
+
+    MockHttpServletRequest:
+          HTTP Method = POST
+          Request URI = /api/v1/forge/jobs/trigger
+           Parameters = {}
+              Headers = []
+                 Body = null
+        Session Attrs = {}
+
+    Handler:
+                 Type = com.neurogate.forge.controller.ForgeController
+               Method = com.neurogate.forge.controller.ForgeController#triggerDistillation()
+
+    Async:
+        Async started = false
+         Async result = null
+
+    Resolved Exception:
+                 Type = null
+
+    ModelAndView:
+            View name = null
+                 View = null
+                Model = null
+
+    FlashMap:
+           Attributes = null
+
+    MockHttpServletResponse:
+               Status = 204
+        Error message = null
+              Headers = [Vary:"Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"]
+         Content type = null
+                 Body = 
+        Forwarded URL = null
+       Redirected URL = null
+              Cookies = []
+
+ForgeIntegrationTest > triggerDistillation_ShouldCreateJob_WhenEnoughData() FAILED
+    java.lang.AssertionError: Status expected:<200> but was:<204>
+        at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:61)
+        at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:128)
+        at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$9(StatusResultMatchers.java:640)
+        at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:214)
+        at com.neurogate.forge.ForgeIntegrationTest.triggerDistillation_ShouldCreateJob_WhenEnoughData(ForgeIntegrationTest.java:102)
+
+Gradle Test Executor 13 finished executing tests.
+2026-01-04 19:42:31 - Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2026-01-04 19:42:33 - Shutting down Quartz Scheduler
+2026-01-04 19:42:33 - Scheduler quartzScheduler_$_NON_CLUSTERED shutting down.
+2026-01-04 19:42:33 - Scheduler quartzScheduler_$_NON_CLUSTERED paused.
+2026-01-04 19:42:33 - Scheduler quartzScheduler_$_NON_CLUSTERED shutdown complete.
+2026-01-04 19:42:33 - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-04 19:42:33 - HikariPool-1 - Shutdown initiated...
+2026-01-04 19:42:33 - HikariPool-1 - Shutdown completed.
+
+> Task :core:test FAILED
+
+2 tests completed, 1 failed
+Finished generating test XML results (0.001 secs) into: /Users/atharva.joshi/PycharmProjects/NeuroGate/core/build/test-results/test
+Generating HTML test report...
+Finished generating test html results (0.001 secs) into: /Users/atharva.joshi/PycharmProjects/NeuroGate/core/build/reports/tests/test
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':core:test'.
+> There were failing tests. See the report at: file:///Users/atharva.joshi/PycharmProjects/NeuroGate/core/build/reports/tests/test/index.html
+
+* Try:
+> Run with --scan to get full insights.
+
+BUILD FAILED in 9s
+6 actionable tasks: 1 executed, 5 up-to-date
+Watched directory hierarchies: [/Users/atharva.joshi/PycharmProjects/NeuroGate]

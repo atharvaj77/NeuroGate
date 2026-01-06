@@ -1,0 +1,13 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: neurogate-pdb
+  namespace: neurogate
+  labels:
+    app: neurogate
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: neurogate
+  unhealthyPodEvictionPolicy: AlwaysAllow

@@ -1,0 +1,305 @@
+package com.neurogate.rag;
+
+import com.neurogate.router.cache.EmbeddingService;
+import com.neurogate.router.cache.SemanticCacheService;
+import com.neurogate.router.intelligence.ComplexityAnalyzer;
+import com.neurogate.router.intelligence.ComplexityScore;
+import com.neurogate.sentinel.model.ChatRequest;
+import com.neurogate.sentinel.model.Message;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+/**
+ * Tests for Dynamic RAG Service
+ */
+@ExtendWith(MockitoExtension.class)
+class DynamicRAGServiceTest {
+
+    @Mock
+    private ComplexityAnalyzer complexityAnalyzer;
+
+    @Mock
+    private EmbeddingService embeddingService;
+
+    @Mock
+    private SemanticCacheService semanticCacheService;
+
+    private DynamicRAGService ragService;
+
+    @BeforeEach
+    void setUp() {
+        ragService = new DynamicRAGService(
+            complexityAnalyzer, embeddingService, semanticCacheService);
+    }
+
+    @Test
+    void testDetermineStrategy_SimpleQuery_NoRAG() {
+        // Given - Simple query (score < 30)
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-3.5-turbo")
+            .messages(List.of(Message.user("What is 2+2?")))
+            .build();
+
+        ComplexityScore score = ComplexityScore.builder()
+            .reasoning(1)
+            .domain(1)
+            .outputLength(1)
+            .creativity(1)
+            .build();
+
+        when(complexityAnalyzer.analyze(request)).thenReturn(score);
+        when(semanticCacheService.get(request)).thenReturn(Optional.empty());
+
+        // When
+        RAGStrategy strategy = ragService.determineStrategy(request);
+
+        // Then
+        assertThat(strategy.isEnabled()).isFalse();
+        assertThat(strategy.getNumDocuments()).isEqualTo(0);
+    }
+
+    @Test
+    void testDetermineStrategy_MediumQuery() {
+        // Given - Medium complexity (30-50)
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-3.5-turbo")
+            .messages(List.of(Message.user("Explain photosynthesis")))
+            .build();
+
+        ComplexityScore score = ComplexityScore.builder()
+            .reasoning(4)
+            .domain(5)
+            .outputLength(5)
+            .creativity(4)
+            .build();
+
+        when(complexityAnalyzer.analyze(request)).thenReturn(score);
+        when(semanticCacheService.get(request)).thenReturn(Optional.empty());
+
+        // When
+        RAGStrategy strategy = ragService.determineStrategy(request);
+
+        // Then
+        assertThat(strategy.isEnabled()).isTrue();
+        assertThat(strategy.getNumDocuments()).isEqualTo(3);
+        assertThat(strategy.getCompressionLevel())
+            .isEqualTo(RAGStrategy.CompressionLevel.MEDIUM);
+        assertThat(strategy.getSources()).contains(RAGStrategy.DataSource.VECTOR_DB);
+    }
+
+    @Test
+    void testDetermineStrategy_ComplexQuery() {
+        // Given - Complex query (50-70)
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-4")
+            .messages(List.of(Message.user(
+                "Analyze the impact of quantum computing on cryptography")))
+            .build();
+
+        ComplexityScore score = ComplexityScore.builder()
+            .reasoning(7)
+            .domain(8)
+            .outputLength(7)
+            .creativity(6)
+            .build();
+
+        when(complexityAnalyzer.analyze(request)).thenReturn(score);
+        when(semanticCacheService.get(request)).thenReturn(Optional.empty());
+
+        // When
+        RAGStrategy strategy = ragService.determineStrategy(request);
+
+        // Then
+        assertThat(strategy.isEnabled()).isTrue();
+        assertThat(strategy.getNumDocuments()).isEqualTo(5);
+        assertThat(strategy.getCompressionLevel())
+            .isEqualTo(RAGStrategy.CompressionLevel.LOW);
+        assertThat(strategy.getSources()).contains(
+            RAGStrategy.DataSource.VECTOR_DB,
+            RAGStrategy.DataSource.SQL
+        );
+    }
+
+    @Test
+    void testDetermineStrategy_VeryComplexQuery() {
+        // Given - Very complex (> 70)
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-4")
+            .messages(List.of(Message.user(
+                "Write a comprehensive research paper on AI governance")))
+            .build();
+
+        ComplexityScore score = ComplexityScore.builder()
+            .reasoning(9)
+            .domain(9)
+            .outputLength(10)
+            .creativity(8)
+            .build();
+
+        when(complexityAnalyzer.analyze(request)).thenReturn(score);
+        when(semanticCacheService.get(request)).thenReturn(Optional.empty());
+
+        // When
+        RAGStrategy strategy = ragService.determineStrategy(request);
+
+        // Then
+        assertThat(strategy.isEnabled()).isTrue();
+        assertThat(strategy.getNumDocuments()).isEqualTo(10);
+        assertThat(strategy.getCompressionLevel())
+            .isEqualTo(RAGStrategy.CompressionLevel.NONE);
+        assertThat(strategy.getSources()).contains(
+            RAGStrategy.DataSource.VECTOR_DB,
+            RAGStrategy.DataSource.SQL,
+            RAGStrategy.DataSource.GRAPH
+        );
+        assertThat(strategy.getMaxContextTokens()).isEqualTo(4000);
+    }
+
+    @Test
+    void testDetermineStrategy_CachedQuery() {
+        // Given - Query is cached
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-3.5-turbo")
+            .messages(List.of(Message.user("Cached query")))
+            .build();
+
+        when(semanticCacheService.get(request)).thenReturn(Optional.of(null));
+
+        // When
+        RAGStrategy strategy = ragService.determineStrategy(request);
+
+        // Then - Should skip RAG for cached queries
+        assertThat(strategy.isEnabled()).isFalse();
+    }
+
+    @Test
+    void testAddDocument() {
+        // Given
+        float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
+        when(embeddingService.generateEmbedding(any())).thenReturn(embedding);
+
+        String title = "Test Document";
+        String content = "This is a test document with some content";
+
+        // When
+        ragService.addDocument(title, content, "test-source");
+
+        // Then
+        RAGStats stats = ragService.getStats();
+        assertThat(stats.getTotalDocuments()).isEqualTo(1);
+    }
+
+    @Test
+    void testInjectContext_NoRAG() {
+        // Given
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-3.5-turbo")
+            .messages(List.of(Message.user("Simple query")))
+            .build();
+
+        RAGStrategy strategy = RAGStrategy.none();
+
+        // When
+        ChatRequest result = ragService.injectContext(request, strategy);
+
+        // Then - Should return unchanged
+        assertThat(result).isEqualTo(request);
+    }
+
+    @Test
+    void testInjectContext_WithRAG() {
+        // Given - Add some documents
+        float[] docEmbedding = new float[]{0.5f, 0.5f, 0.5f};
+        when(embeddingService.generateEmbedding(any())).thenReturn(docEmbedding);
+
+        ragService.addDocument("Doc 1", "Content about AI", "source1");
+        ragService.addDocument("Doc 2", "Content about ML", "source2");
+
+        ChatRequest request = ChatRequest.builder()
+            .model("gpt-3.5-turbo")
+            .messages(List.of(Message.user("What is AI?")))
+            .temperature(0.7)
+            .build();
+
+        RAGStrategy strategy = RAGStrategy.builder()
+            .numDocuments(2)
+            .compressionLevel(RAGStrategy.CompressionLevel.NONE)
+            .sources(List.of(RAGStrategy.DataSource.VECTOR_DB))
+            .maxContextTokens(2000)
+            .build();
+
+        // When
+        ChatRequest enhanced = ragService.injectContext(request, strategy);
+
+        // Then
+        assertThat(enhanced.getConcatenatedContent()).contains("Context:");
+        assertThat(enhanced.getConcatenatedContent()).contains("Question:");
+        assertThat(enhanced.getModel()).isEqualTo("gpt-3.5-turbo");
+        assertThat(enhanced.getTemperature()).isEqualTo(0.7);
+    }
+
+    @Test
+    void testDocumentCompression() {
+        // Given
+        Document doc = Document.builder()
+            .title("Test")
+            .content("This is a long document that needs compression for testing purposes")
+            .build();
+
+        // When - Test different compression levels
+        String none = doc.getCompressed(RAGStrategy.CompressionLevel.NONE);
+        String low = doc.getCompressed(RAGStrategy.CompressionLevel.LOW);
+        String medium = doc.getCompressed(RAGStrategy.CompressionLevel.MEDIUM);
+        String high = doc.getCompressed(RAGStrategy.CompressionLevel.HIGH);
+
+        // Then
+        assertThat(none).isEqualTo(doc.getContent());
+        assertThat(low.length()).isLessThan(none.length());
+        assertThat(medium.length()).isLessThan(low.length());
+        assertThat(high.length()).isLessThan(medium.length());
+    }
+
+    @Test
+    void testRAGStats() {
+        // Given
+        float[] embedding = new float[]{0.1f, 0.2f, 0.3f};
+        when(embeddingService.generateEmbedding(any())).thenReturn(embedding);
+
+        ragService.addDocument("Doc 1", "Short content", "source1");
+        ragService.addDocument("Doc 2", "A bit longer content here", "source2");
+        ragService.addDocument("Doc 3", "Even more content in this document", "source3");
+
+        // When
+        RAGStats stats = ragService.getStats();
+
+        // Then
+        assertThat(stats.getTotalDocuments()).isEqualTo(3);
+        assertThat(stats.getAverageTokenCount()).isPositive();
+    }
+
+    @Test
+    void testCostBenefitRatio() {
+        // Given
+        Document doc = Document.builder()
+            .relevanceScore(0.9)
+            .tokenCount(100)
+            .build();
+
+        // When
+        double ratio = doc.getCostBenefitRatio();
+
+        // Then
+        assertThat(ratio).isPositive();
+        // Higher relevance and lower token count = better ratio
+    }
+}

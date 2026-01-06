@@ -1,0 +1,150 @@
+# Phase 4: Resilience4j Configuration for Multi-Provider Support
+resilience4j:
+  circuitbreaker:
+    instances:
+      openai:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+        recordExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.client.HttpServerErrorException
+
+      anthropic:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+      gemini:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+  retry:
+    instances:
+      openai:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+
+      anthropic:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+      gemini:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+  ratelimiter:
+    instances:
+      openai:
+        limitForPeriod: 100
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+      anthropic:
+        limitForPeriod: 80
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+      gemini:
+        limitForPeriod: 60
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+  bulkhead:
+    instances:
+      openai:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 100ms
+
+      anthropic:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 100ms
+
+      gemini:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 100ms
+
+  # Phase 4 Enhancements: Additional Providers
+  circuitbreaker:
+    instances:
+      bedrock:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+      azure:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 60s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+
+  retry:
+    instances:
+      bedrock:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+      azure:
+        maxAttempts: 3
+        waitDuration: 1s
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+
+  ratelimiter:
+    instances:
+      bedrock:
+        limitForPeriod: 70
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+      azure:
+        limitForPeriod: 100
+        limitRefreshPeriod: 60s
+        timeoutDuration: 0s
+
+  bulkhead:
+    instances:
+      bedrock:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 100ms
+
+      azure:
+        maxConcurrentCalls: 50
+        maxWaitDuration: 100ms

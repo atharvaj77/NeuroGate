@@ -1,0 +1,307 @@
+# Default values for neurogate
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+global:
+  environment: production
+
+# Image configuration
+image:
+  repository: neurogate
+  pullPolicy: IfNotPresent
+  tag: "1.0.0"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Deployment configuration
+replicaCount: 3
+
+# Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "neurogate"
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/actuator/prometheus"
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+    - ALL
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  annotations: {}
+  sessionAffinity: ClientIP
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+  hosts:
+    - host: api.neurogate.yourdomain.com
+      paths:
+        - path: /v1
+          pathType: Prefix
+        - path: /actuator/health
+          pathType: Exact
+  tls:
+    - secretName: neurogate-tls-cert
+      hosts:
+        - api.neurogate.yourdomain.com
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity configuration
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - neurogate
+        topologyKey: kubernetes.io/hostname
+
+# Health check probes
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 5
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 30
+
+# Application configuration
+config:
+  # Spring profiles to activate
+  springProfilesActive: prod
+
+  # JVM options
+  javaOpts: >-
+    -XX:+UseZGC
+    -XX:MaxRAMPercentage=75.0
+    -XX:InitialRAMPercentage=50.0
+    -XX:+AlwaysPreTouch
+    -XX:+UseStringDeduplication
+    -Djava.security.egd=file:/dev/./urandom
+
+  # Graceful shutdown timeout
+  terminationGracePeriodSeconds: 30
+
+  # Application settings
+  server:
+    port: 8080
+    shutdown: graceful
+    tomcat:
+      threads:
+        max: 500
+        minSpare: 50
+      maxConnections: 20000
+
+  # OpenAI configuration
+  openai:
+    baseUrl: https://api.openai.com
+
+  # Redis configuration
+  redis:
+    host: redis-service
+    port: 6379
+    timeout: 3000ms
+
+  # Qdrant configuration
+  qdrant:
+    host: qdrant-service
+    grpcPort: 6334
+    restPort: 6333
+    collectionName: prompt_cache
+    vectorSize: 384
+    similarityThreshold: 0.92
+
+  # NeuroGate router configuration
+  router:
+    complexityThreshold: 50
+    enableLocalRouting: false
+    enableSemanticCache: true
+    cacheTtlHours: 48
+
+  # Rate limiting configuration
+  rateLimit:
+    enabled: true
+    defaultRpm: 5000
+    burstCapacity: 500
+
+  # Logging configuration
+  logging:
+    level:
+      root: INFO
+      neurogate: INFO
+
+# Secrets configuration
+secrets:
+  # OpenAI API key (required)
+  openaiApiKey: ""
+
+  # Anthropic API key (optional)
+  anthropicApiKey: ""
+
+  # Redis password (optional)
+  redisPassword: ""
+
+  # Create secret from values
+  create: true
+
+  # Use existing secret
+  existingSecret: ""
+
+# Network Policy
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+      - namespaceSelector:
+          matchLabels:
+            name: ingress-nginx
+  egress:
+    - to:
+      - namespaceSelector: {}
+      ports:
+      - protocol: TCP
+        port: 443
+
+# Dependencies configuration
+dependencies:
+  # Qdrant configuration
+  qdrant:
+    enabled: true
+    image: qdrant/qdrant:v1.7.4
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+
+  # Redis configuration
+  redis:
+    enabled: true
+    image: redis:7.2-alpine
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# Monitoring configuration
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    path: /actuator/prometheus
+
+  grafanaDashboard:
+    enabled: true
+
+  prometheusRule:
+    enabled: true
+    rules:
+      - alert: NeuroGateHighErrorRate
+        expr: rate(http_server_requests_seconds_count{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        annotations:
+          summary: "High error rate detected in NeuroGate"
+
+      - alert: NeuroGateLowCacheHitRatio
+        expr: rate(neurogate_cache_hits_total[10m]) / rate(neurogate_cache_total[10m]) < 0.3
+        for: 10m
+        annotations:
+          summary: "Cache hit ratio below 30%"

@@ -1,0 +1,83 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: neurogate
+  namespace: neurogate
+  labels:
+    app: neurogate
+  annotations:
+    # Certificate management
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # NGINX ingress controller annotations
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "5"
+
+    # Connection settings
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # Enable CORS (if needed)
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-NeuroGate-API-Key"
+
+    # Security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Referrer-Policy: strict-origin-when-cross-origin";
+
+    # Backend protocol
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+
+    # Session affinity
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "neurogate-session"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "3600"
+
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - api.neurogate.yourdomain.com
+    secretName: neurogate-tls-cert
+  rules:
+  - host: api.neurogate.yourdomain.com
+    http:
+      paths:
+      # Main API path
+      - path: /v1
+        pathType: Prefix
+        backend:
+          service:
+            name: neurogate
+            port:
+              number: 80
+
+      # Health check path (can be public for load balancer)
+      - path: /actuator/health
+        pathType: Exact
+        backend:
+          service:
+            name: neurogate
+            port:
+              number: 80
+
+      # Metrics path (should be protected in production)
+      - path: /actuator/prometheus
+        pathType: Exact
+        backend:
+          service:
+            name: neurogate
+            port:
+              number: 80

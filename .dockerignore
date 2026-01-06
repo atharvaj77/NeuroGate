@@ -1,0 +1,52 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Gradle
+.gradle
+gradle/wrapper/gradle-wrapper.jar
+
+# Build output (except JAR)
+build/
+!build/libs/*.jar
+target/
+
+# IDE
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests
+src/test/
+
+# CI/CD
+.github/
+
+# Kubernetes & Helm
+k8s/
+helm/
+
+# Scripts
+scripts/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Misc
+.DS_Store
+*.log
+tmp/
+temp/

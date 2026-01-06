@@ -1,0 +1,147 @@
+version: '3.8'
+
+services:
+  # Apache Zookeeper
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: neurogate-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - neurogate-network
+
+  # Apache Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: neurogate-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - neurogate-network
+
+  # Qdrant Vector Database for Semantic Caching
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    container_name: neurogate-qdrant
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - neurogate-network
+
+  # Redis for Rate Limiting and Session Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: neurogate-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - neurogate-network
+
+  # Ollama for Local SLM Inference
+  ollama:
+    image: ollama/ollama:latest
+    container_name: neurogate-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - neurogate-network
+
+  # Prometheus for Metrics Collection
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: neurogate-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neurogate-network
+
+  # Grafana for Visualization
+  grafana:
+    image: grafana/grafana:10.2.2
+    container_name: neurogate-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=neurogate2024
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - neurogate-network
+
+volumes:
+  qdrant_storage:
+    driver: local
+  redis_data:
+    driver: local
+  ollama_models:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  neurogate-network:
+    driver: bridge

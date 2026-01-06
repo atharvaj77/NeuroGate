@@ -1,0 +1,274 @@
+package com.neurogate.router.provider;
+
+import com.neurogate.router.cache.TieredCacheService;
+import com.neurogate.router.intelligence.HeuristicComplexityAnalyzer;
+import com.neurogate.router.intelligence.MLComplexityClassifier;
+import com.neurogate.sentinel.model.ChatRequest;
+import com.neurogate.sentinel.model.ChatResponse;
+import com.neurogate.sentinel.model.Message;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+/**
+ * Comprehensive tests for Multi-Provider Router
+ * Tests priority-based routing, failover, and circuit breaker integration
+ */
+@ExtendWith(MockitoExtension.class)
+class MultiProviderRouterTest {
+
+    @Mock
+    private OpenAiProvider openAiProvider;
+
+    @Mock
+    private AnthropicProvider anthropicProvider;
+
+    @Mock
+    private GeminiProvider geminiProvider;
+
+    @Mock
+    private BedrockProvider bedrockProvider;
+
+    @Mock
+    private AzureOpenAiProvider azureProvider;
+
+    @Mock
+    private TieredCacheService cacheService;
+
+    @Mock
+    private HeuristicComplexityAnalyzer complexityAnalyzer;
+
+    @Mock
+    private MLComplexityClassifier mlClassifier;
+
+    @Mock
+    private CircuitBreakerRegistry circuitBreakerRegistry;
+
+    @Mock
+    private CircuitBreaker circuitBreaker;
+
+    private MultiProviderRouter router;
+
+    private ChatRequest testRequest;
+    private ChatResponse testResponse;
+
+    @BeforeEach
+    void setUp() {
+        when(circuitBreakerRegistry.circuitBreaker(anyString())).thenReturn(circuitBreaker);
+        when(circuitBreaker.getState()).thenReturn(CircuitBreaker.State.CLOSED);
+
+        // Mock provider metadata
+        when(openAiProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("openai").priority(1).enabled(true).build()
+        );
+        when(anthropicProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("anthropic").priority(2).enabled(true).build()
+        );
+        when(geminiProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("gemini").priority(3).enabled(true).build()
+        );
+        when(bedrockProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("bedrock").priority(4).enabled(true).build()
+        );
+        when(azureProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("azure").priority(5).enabled(true).build()
+        );
+
+        List<LLMProvider> providers = Arrays.asList(
+                openAiProvider, anthropicProvider, geminiProvider, bedrockProvider, azureProvider
+        );
+
+        router = new MultiProviderRouter(
+                providers,
+                cacheService,
+                complexityAnalyzer,
+                mlClassifier,
+                circuitBreakerRegistry
+        );
+
+        // Create test request
+        testRequest = ChatRequest.builder()
+                .model("gpt-3.5-turbo")
+                .messages(List.of(
+                        Message.builder().role("user").content("Test prompt").build()
+                ))
+                .build();
+
+        // Create test response
+        testResponse = new ChatResponse();
+        testResponse.setModel("gpt-3.5-turbo");
+    }
+
+    @Test
+    void testPriorityBasedRouting_OpenAiFirst() {
+        // Given: Cache miss
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.chat(testRequest)).thenReturn(testResponse);
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should route to OpenAI (Priority 1)
+        assertNotNull(response);
+        verify(openAiProvider, times(1)).chat(testRequest);
+        verify(anthropicProvider, never()).chat(any());
+        verify(geminiProvider, never()).chat(any());
+    }
+
+    @Test
+    void testFailoverToAnthropic_WhenOpenAiFails() {
+        // Given: OpenAI fails, Anthropic succeeds
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.chat(testRequest)).thenThrow(new RuntimeException("OpenAI error"));
+        when(anthropicProvider.chat(testRequest)).thenReturn(testResponse);
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should failover to Anthropic
+        assertNotNull(response);
+        verify(openAiProvider, times(1)).chat(testRequest);
+        verify(anthropicProvider, times(1)).chat(testRequest);
+        verify(geminiProvider, never()).chat(any());
+    }
+
+    @Test
+    void testFailoverChain_AllProvidersUntilSuccess() {
+        // Given: First 4 providers fail, Azure succeeds
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.chat(testRequest)).thenThrow(new RuntimeException("OpenAI error"));
+        when(anthropicProvider.chat(testRequest)).thenThrow(new RuntimeException("Anthropic error"));
+        when(geminiProvider.chat(testRequest)).thenThrow(new RuntimeException("Gemini error"));
+        when(bedrockProvider.chat(testRequest)).thenThrow(new RuntimeException("Bedrock error"));
+        when(azureProvider.chat(testRequest)).thenReturn(testResponse);
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should try all providers until Azure succeeds
+        assertNotNull(response);
+        verify(openAiProvider, times(1)).chat(testRequest);
+        verify(anthropicProvider, times(1)).chat(testRequest);
+        verify(geminiProvider, times(1)).chat(testRequest);
+        verify(bedrockProvider, times(1)).chat(testRequest);
+        verify(azureProvider, times(1)).chat(testRequest);
+    }
+
+    @Test
+    void testCacheHit_NoProviderCalled() {
+        // Given: Cache hit
+        when(cacheService.get(any())).thenReturn(Optional.of(testResponse));
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should return cached response, no provider called
+        assertNotNull(response);
+        verify(openAiProvider, never()).chat(any());
+        verify(anthropicProvider, never()).chat(any());
+        verify(geminiProvider, never()).chat(any());
+        verify(bedrockProvider, never()).chat(any());
+        verify(azureProvider, never()).chat(any());
+    }
+
+    @Test
+    void testCircuitBreakerOpen_SkipsProvider() {
+        // Given: OpenAI circuit breaker is open
+        CircuitBreaker openCircuit = mock(CircuitBreaker.class);
+        when(openCircuit.getState()).thenReturn(CircuitBreaker.State.OPEN);
+        when(circuitBreakerRegistry.circuitBreaker("openai")).thenReturn(openCircuit);
+
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(anthropicProvider.chat(testRequest)).thenReturn(testResponse);
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should skip OpenAI and route to Anthropic
+        assertNotNull(response);
+        verify(openAiProvider, never()).chat(any());
+        verify(anthropicProvider, times(1)).chat(testRequest);
+    }
+
+    @Test
+    void testStreamingRoute_ReturnsFlux() {
+        // Given: Streaming request
+        testRequest.setStream(true);
+        Flux<ChatResponse> responseFlux = Flux.just(testResponse);
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.streamChat(testRequest)).thenReturn(responseFlux);
+
+        // When: Route streaming request
+        Flux<ChatResponse> result = router.routeStream(testRequest);
+
+        // Then: Should return streaming response
+        StepVerifier.create(result)
+                .expectNext(testResponse)
+                .verifyComplete();
+
+        verify(openAiProvider, times(1)).streamChat(testRequest);
+    }
+
+    @Test
+    void testAllProvidersFail_ThrowsException() {
+        // Given: All providers fail
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.chat(testRequest)).thenThrow(new RuntimeException("OpenAI error"));
+        when(anthropicProvider.chat(testRequest)).thenThrow(new RuntimeException("Anthropic error"));
+        when(geminiProvider.chat(testRequest)).thenThrow(new RuntimeException("Gemini error"));
+        when(bedrockProvider.chat(testRequest)).thenThrow(new RuntimeException("Bedrock error"));
+        when(azureProvider.chat(testRequest)).thenThrow(new RuntimeException("Azure error"));
+
+        // When/Then: Should throw exception after all providers fail
+        assertThrows(RuntimeException.class, () -> router.route(testRequest));
+    }
+
+    @Test
+    void testDisabledProvider_IsSkipped() {
+        // Given: Anthropic provider is disabled
+        when(anthropicProvider.getMetadata()).thenReturn(
+                ProviderMetadata.builder().name("anthropic").priority(2).enabled(false).build()
+        );
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+        when(openAiProvider.chat(testRequest)).thenThrow(new RuntimeException("OpenAI error"));
+        when(geminiProvider.chat(testRequest)).thenReturn(testResponse);
+
+        // When: Route request
+        ChatResponse response = router.route(testRequest);
+
+        // Then: Should skip disabled Anthropic and go to Gemini
+        assertNotNull(response);
+        verify(anthropicProvider, never()).chat(any());
+        verify(geminiProvider, times(1)).chat(testRequest);
+    }
+
+    @Test
+    void testProviderSelection_ByPriorityOrder() {
+        // Given: All providers enabled and healthy
+        when(cacheService.get(any())).thenReturn(Optional.empty());
+
+        // When: Route multiple requests
+        for (int i = 0; i < 5; i++) {
+            when(openAiProvider.chat(testRequest)).thenReturn(testResponse);
+            router.route(testRequest);
+        }
+
+        // Then: All requests should go to Priority 1 (OpenAI)
+        verify(openAiProvider, times(5)).chat(testRequest);
+        verify(anthropicProvider, never()).chat(any());
+    }
+}
