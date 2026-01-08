@@ -1,17 +1,25 @@
 import type { Metadata } from 'next'
-import { Outfit } from 'next/font/google'
+import { Outfit, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
-const outfit = Outfit({ subsets: ['latin'] })
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-outfit',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+})
 
 export const metadata: Metadata = {
-  title: 'NeuroKernel | The Agent-Native AI OS',
-  description: 'The Agent-Native Operating System. Intelligent routing, active defense, and time-travel debugging for autonomous agents.',
-  keywords: ['AI Kernel', 'AgentOps', 'Time Travel Debugger', 'Security', 'Hive Mind'],
+  title: 'NeuroGate | Open Source Agent Kernel',
+  description: 'The Open Source Neural Gateway for AI Agents. Orchestrate, Secure, and Optimize your LLM traffic with a production-ready kernel.',
+  keywords: ['AI Gateway', 'AgentOps', 'Open Source', 'LLM Security', 'RAG'],
   authors: [{ name: 'Atharva Joshi' }],
   openGraph: {
-    title: 'NeuroKernel | Agent-Native AI OS',
-    description: 'The complete kernel for autonomous AI agents',
+    title: 'NeuroGate | Open Source Agent Kernel',
+    description: 'The Open Source Neural Gateway for AI Agents.',
     type: 'website',
   },
 }
@@ -23,7 +31,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={outfit.className}>{children}</body>
+      <body className={`${outfit.variable} ${jetbrainsMono.variable} font-sans bg-black text-slate-100 anti-aliased selection:bg-primary-500/30`}>{children}</body>
     </html>
   )
 }

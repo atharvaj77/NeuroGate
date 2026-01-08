@@ -6,23 +6,27 @@ import Link from 'next/link'
 
 export default function Docs() {
   return (
-    <main className="min-h-screen bg-[url('/grid.svg')] bg-fixed selection:bg-primary-500/30">
+    <main className="min-h-screen bg-black text-slate-100 selection:bg-primary-500/30 overflow-hidden relative">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 pointer-events-none" />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 glass border-b border-white/5 bg-black/20 backdrop-blur-md">
+      <nav className="fixed top-0 w-full z-50 glass border-b border-white/5 bg-black/40 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            <Link href="/" className="flex items-center space-x-2 text-slate-400 hover:text-primary-400 transition-colors group">
-              <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
-              <span>Return to OS</span>
+            <Link href="/" className="flex items-center space-x-2 text-slate-400 hover:text-white transition-colors group">
+              <FaArrowLeft className="group-hover:-translate-x-1 transition-transform text-xs" />
+              <span className="font-mono text-sm">OS_ROOT</span>
             </Link>
-            <a href="https://github.com/atharvajoshi/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100">
+            <a href="https://github.com/atharvajoshi/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100 flex items-center gap-2">
               <FaGithub className="text-xl" />
+              <span className="font-mono text-xs hidden md:inline">Star on GitHub</span>
             </a>
           </div>
         </div>
       </nav>
 
-      <div className="pt-32 pb-20">
+      <div className="pt-32 pb-20 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
@@ -30,44 +34,46 @@ export default function Docs() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <div className="inline-block px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-medium mb-6">
-              NeuroKernel v1.0 Documentation
+            <div className="inline-block px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-mono tracking-wider mb-6">
+              KERNEL VERSION v1.0.0
             </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Kernel <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400">Reference</span>
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 font-mono tracking-tight">
+              KERNEL <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 animate-gradient-x">REFERENCE</span>
             </h1>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-              Technical specifications for the Agent-Native AI Kernel.
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto font-light leading-relaxed">
+              Technical specifications for the Open Source Agent-Native AI Kernel.
             </p>
           </motion.div>
 
           <div className="grid lg:grid-cols-[250px_1fr] gap-12">
             {/* Sidebar Navigation (Desktop) */}
             <div className="hidden lg:block sticky top-32 h-fit">
-              <h3 className="font-bold text-slate-200 mb-4 px-2">Table of Contents</h3>
-              <ul className="space-y-1 text-sm text-slate-400 border-l border-white/10">
-                <li className="font-bold text-synapse-400 uppercase text-xs tracking-wider pl-4 mt-4 mb-2 opacity-80">Build</li>
+              <h3 className="font-bold text-slate-200 mb-4 px-2 flex items-center gap-2">
+                <FaBook className="text-primary-500" /> Directory
+              </h3>
+              <ul className="space-y-1 text-sm text-slate-400 border-l border-white/10 pl-4">
+                <li className="font-bold text-slate-600 uppercase text-[10px] tracking-widest mt-4 mb-2">Build Layer</li>
                 {['Synapse', 'Python SDK'].map((item) => (
                   <li key={item}>
-                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 px-4 hover:text-synapse-300 hover:border-l border-transparent hover:border-synapse-400 -ml-px transition-all">
+                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 hover:text-primary-300 transition-colors font-mono text-xs">
                       {item}
                     </a>
                   </li>
                 ))}
 
-                <li className="font-bold text-nexus-400 uppercase text-xs tracking-wider pl-4 mt-6 mb-2 opacity-80">Run</li>
+                <li className="font-bold text-slate-600 uppercase text-[10px] tracking-widest mt-6 mb-2">Run Layer</li>
                 {['Nexus', 'Hive Mind', 'NeuroGuard', 'Iron Gate'].map((item) => (
                   <li key={item}>
-                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 px-4 hover:text-nexus-300 hover:border-l border-transparent hover:border-nexus-400 -ml-px transition-all">
+                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 hover:text-accent-300 transition-colors font-mono text-xs">
                       {item}
                     </a>
                   </li>
                 ))}
 
-                <li className="font-bold text-cortex-400 uppercase text-xs tracking-wider pl-4 mt-6 mb-2 opacity-80">Improve</li>
+                <li className="font-bold text-slate-600 uppercase text-[10px] tracking-widest mt-6 mb-2">Improve Layer</li>
                 {['Cortex', 'Reinforce', 'Forge'].map((item) => (
                   <li key={item}>
-                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 px-4 hover:text-cortex-300 hover:border-l border-transparent hover:border-cortex-400 -ml-px transition-all">
+                    <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 hover:text-green-300 transition-colors font-mono text-xs">
                       {item}
                     </a>
                   </li>
@@ -82,21 +88,21 @@ export default function Docs() {
 
               {/* Synapse */}
               <section id="synapse">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaMagic className="text-synapse-400" />
-                  Synapse: Prompt Studio
+                  01_Synapse.module
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6">
-                  <p className="text-slate-400">
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg leading-relaxed">
                     A web-based IDE for managing prompts as code. Features Git-like versioning, diff views, and hot-promotion to production.
                   </p>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-synapse-900/10 border border-synapse-500/20 p-4 rounded-lg">
-                      <h4 className="font-bold text-synapse-300 mb-2">Visual Editor</h4>
-                      <p className="text-sm text-slate-400">Monaco-based editor with variable highlighting. Type <code className="bg-white/10 px-1 rounded">{`{{ var }}`}</code> to auto-generate form fields.</p>
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-synapse-300 mb-2 font-mono text-sm">Visual Editor</h4>
+                      <p className="text-sm text-slate-400">Monaco-based editor with variable highlighting. Type <code className="bg-white/10 px-1 rounded text-primary-300">{`{{ var }}`}</code> to auto-generate form fields.</p>
                     </div>
-                    <div className="bg-synapse-900/10 border border-synapse-500/20 p-4 rounded-lg">
-                      <h4 className="font-bold text-synapse-300 mb-2">Registry & Routing</h4>
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-synapse-300 mb-2 font-mono text-sm">Registry & Routing</h4>
                       <p className="text-sm text-slate-400">Prompts are served via CDN-like edge cache. Updates in Synapse propagate to agents in &lt;100ms.</p>
                     </div>
                   </div>
@@ -105,15 +111,15 @@ export default function Docs() {
 
               {/* SDK */}
               <section id="pythonsdk">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaCode className="text-blue-400" />
-                  Python SDK
+                  02_Python_SDK
                 </h2>
-                <div className="glass p-8 rounded-xl">
-                  <p className="text-slate-400 mb-4">Drop-in replacement for specific agent implementations.</p>
-                  <div className="bg-[#0B0F19] p-4 rounded-lg border border-white/10 overflow-x-auto">
+                <div className="glass p-8 rounded-xl border border-white/5">
+                  <p className="text-slate-400 mb-6">Drop-in replacement for `langchain` or raw `openai` calls.</p>
+                  <div className="bg-gray-950 p-4 rounded-lg border border-white/10 overflow-x-auto shadow-inner">
                     <pre className="text-sm font-mono text-slate-300">
-                      <code>pip install neurogate-sdk</code>
+                      <code><span className="text-primary-400">$</span> pip install neurogate-sdk</code>
                     </pre>
                   </div>
                 </div>
@@ -123,30 +129,30 @@ export default function Docs() {
 
               {/* Nexus */}
               <section id="nexus">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaSearch className="text-nexus-400" />
-                  Nexus: RAG Gateway
+                  03_Nexus_Gateway
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6">
-                  <p className="text-slate-400">
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg">
                     Centralized Retrieval-Augmented Generation. Nexus intercepts queries, fetches context from Vector DBs (Qdrant), and injects it before the LLM sees the prompt.
                   </p>
-                  <ul className="space-y-2 text-slate-400 text-sm">
-                    <li className="flex gap-2"><span className="text-nexus-400">✓</span> <strong>ACL Enforcement:</strong> Users only retrieve documents matching their JWT permissions.</li>
-                    <li className="flex gap-2"><span className="text-nexus-400">✓</span> <strong>Hybrid Search:</strong> Combines dense vector similarity with keyword matching (BM25).</li>
+                  <ul className="space-y-3 text-slate-400 text-sm font-mono">
+                    <li className="flex gap-3 items-center"><span className="text-nexus-400">✓</span> <strong>ACL Enforcement:</strong> Users only retrieve documents matching their JWT permissions.</li>
+                    <li className="flex gap-3 items-center"><span className="text-nexus-400">✓</span> <strong>Hybrid Search:</strong> Combines dense vector similarity with keyword matching (BM25).</li>
                   </ul>
                 </div>
               </section>
 
               {/* Hive Mind */}
               <section id="hivemind">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaBrain className="text-purple-400" />
-                  Hive Mind: Consensus
+                  04_Hive_Mind
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6 text-slate-400">
-                  <p>For critical decisions, Hive Mind queries multiple frontier models (GPT-4, Claude 3, Gemini 1.5) and synthesizes their responses.</p>
-                  <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-lg font-mono text-sm">
+                <div className="glass p-8 rounded-xl space-y-6 text-slate-400 border border-white/5">
+                  <p className="text-lg">For critical decisions, Hive Mind queries multiple frontier models (GPT-4, Claude 3, Gemini 1.5) and synthesizes their responses.</p>
+                  <div className="p-4 bg-purple-900/10 border border-purple-500/20 rounded-lg font-mono text-sm text-purple-300">
                     x_neurogate_routing: &quot;consensus&quot;
                   </div>
                 </div>
@@ -154,12 +160,12 @@ export default function Docs() {
 
               {/* NeuroGuard */}
               <section id="neuroguard">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaShieldAlt className="text-cyan-400" />
-                  NeuroGuard: Security
+                  05_NeuroGuard
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-4 text-slate-400">
-                  <p>Zero-trust security layer. Detects PII (SSN, Credit Cards) and replaces them with reversible tokens (e.g., <code className="text-xs">&lt;CREDIT_CARD_1&gt;</code>) before sending to the LLM.</p>
+                <div className="glass p-8 rounded-xl space-y-4 text-slate-400 border border-white/5">
+                  <p className="text-lg">Zero-trust security layer. Detects PII (SSN, Credit Cards) and replaces them with reversible tokens (e.g., <code className="text-xs bg-red-500/10 text-red-400 px-1 rounded">&lt;CREDIT_CARD_1&gt;</code>) before sending to the LLM.</p>
                 </div>
               </section>
 
@@ -167,30 +173,30 @@ export default function Docs() {
 
               {/* Cortex */}
               <section id="cortex">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaChartLine className="text-cortex-400" />
-                  Cortex: Evaluation Engine
+                  06_Cortex_Eval
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6">
-                  <p className="text-slate-400">
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg">
                     &quot;Unit Testing for Intelligence&quot;. Cortex runs offline evaluation suites against your agents using LLM-as-a-Judge.
                   </p>
                   <div className="flex gap-4 flex-wrap">
-                    <span className="px-3 py-1 rounded-full bg-cortex-500/20 text-cortex-300 text-sm border border-cortex-500/30">Faithfulness</span>
-                    <span className="px-3 py-1 rounded-full bg-cortex-500/20 text-cortex-300 text-sm border border-cortex-500/30">Relevance</span>
-                    <span className="px-3 py-1 rounded-full bg-cortex-500/20 text-cortex-300 text-sm border border-cortex-500/30">Coherence</span>
+                    <span className="px-3 py-1 rounded-full bg-cortex-500/10 text-cortex-300 text-xs font-mono border border-cortex-500/30">Faithfulness</span>
+                    <span className="px-3 py-1 rounded-full bg-cortex-500/10 text-cortex-300 text-xs font-mono border border-cortex-500/30">Relevance</span>
+                    <span className="px-3 py-1 rounded-full bg-cortex-500/10 text-cortex-300 text-xs font-mono border border-cortex-500/30">Coherence</span>
                   </div>
                 </div>
               </section>
 
               {/* Reinforce */}
               <section id="reinforce">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaUserEdit className="text-reinforce-400" />
-                  Reinforce: Human Feedback
+                  07_Reinforce_RLHF
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6">
-                  <p className="text-slate-400">
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg">
                     Human-in-the-Loop (HitL) workflow. Domain experts review sampled logs, correct bad answers, and create &quot;Golden Traces&quot;.
                   </p>
                 </div>
@@ -198,12 +204,12 @@ export default function Docs() {
 
               {/* Forge */}
               <section id="forge">
-                <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaFire className="text-forge-400" />
-                  Forge: Distillation
+                  08_Forge_Distill
                 </h2>
-                <div className="glass p-8 rounded-xl space-y-6">
-                  <p className="text-slate-400">
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg">
                     Automated Fine-Tuning pipeline. Forge takes &quot;Golden Traces&quot; from Reinforce/Cortex and fine-tunes smaller, cheaper models (e.g., Llama 3 8B) to match GPT-4 performance.
                   </p>
                 </div>

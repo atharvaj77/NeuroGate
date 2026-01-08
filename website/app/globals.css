@@ -4,36 +4,33 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    /* Rich dark #020617 */
+    --background: 0 0% 0%; /* True Black */
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 0 0% 3%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 0 0% 3%;
     --popover-foreground: 0 0% 98%;
-    --primary: 263 70% 50%;
-    /* Violet */
+    --primary: 171 77% 40%; /* Teal */
     --primary-foreground: 210 40% 98%;
-    --secondary: 240 3.7% 15.9%;
+    --secondary: 240 4% 16%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 240 4% 16%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 290 70% 50%;
+    --accent: 263 70% 50%; /* Electric Violet */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263 70% 50%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 171 77% 50%;
   }
 
   body {
-    @apply bg-[#020617] text-slate-100;
+    @apply bg-black text-slate-100;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
-      radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.08), transparent 25%),
-      radial-gradient(circle at 85% 30%, rgba(34, 211, 238, 0.08), transparent 25%),
-      linear-gradient(to bottom, transparent, rgba(2, 6, 23, 1));
+      radial-gradient(circle at 15% 50%, rgba(20, 184, 166, 0.05), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.05), transparent 25%);
   }
 }
 
@@ -43,11 +40,11 @@
   }
 
   .neon-text {
-    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3);
+    text-shadow: 0 0 10px rgba(20, 184, 166, 0.5), 0 0 20px rgba(20, 184, 166, 0.3);
   }
 
   .neon-border {
-    box-shadow: 0 0 5px rgba(34, 211, 238, 0.5), inset 0 0 5px rgba(34, 211, 238, 0.5);
+    box-shadow: 0 0 5px rgba(139, 92, 246, 0.5), inset 0 0 5px rgba(139, 92, 246, 0.5);
   }
 }
 
@@ -57,15 +54,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-950;
+  @apply bg-neutral-950;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-800 rounded-full border-2 border-slate-950;
+  @apply bg-neutral-800 rounded-full border-2 border-neutral-950;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-700;
+  @apply bg-neutral-700;
 }
 
 /* Animated gradient text */
@@ -77,18 +74,17 @@
 
 /* Selection color */
 ::selection {
-  background-color: #8b5cf6;
+  background-color: #14b8a6;
   /* Primary 500 */
   color: #ffffff;
 }
 
 /* Enhanced Glass morphism */
 .glass {
-  background: rgba(2, 6, 23, 0.7);
-  /* Darker base for better contrast */
+  background: rgba(10, 10, 10, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
@@ -97,9 +93,9 @@
 }
 
 .glass-card:hover {
-  background: rgba(2, 6, 23, 0.8);
-  border-color: rgba(139, 92, 246, 0.3);
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
+  background: rgba(20, 20, 20, 0.8);
+  border-color: rgba(20, 184, 166, 0.3);
+  box-shadow: 0 0 25px rgba(20, 184, 166, 0.15);
   transform: translateY(-2px);
 }
 
@@ -110,7 +106,7 @@
 
 .glass-button:hover {
   @apply text-white border-primary-500/50 bg-primary-500/10;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 15px rgba(20, 184, 166, 0.2);
 }
 
 /* Focus styles for accessibility */

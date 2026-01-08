@@ -7,7 +7,6 @@ import { BiSolidServer, BiTestTube } from 'react-icons/bi'
 import Link from 'next/link'
 import AnimatedCounter from './components/AnimatedCounter'
 import ScrollToTop from './components/ScrollToTop'
-import CodeBlock from './components/CodeBlock'
 import FeatureCard from './components/FeatureCard'
 import ArchitectureDiagram from './components/ArchitectureDiagram'
 
@@ -28,7 +27,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-primary-500 blur-lg opacity-50 group-hover:opacity-100 transition-opacity" />
                 <BiSolidServer className="text-3xl text-primary-400 relative z-10" />
               </div>
-              <span className="text-xl font-bold tracking-tight">Neuro<span className="text-primary-400">Gate</span></span>
+              <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-accent-400">NeuroGate</span>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -39,7 +38,7 @@ export default function Home() {
               <Link href="/debugger" className="text-sm font-medium hover:text-primary-400 transition-colors">Debugger</Link>
               <Link href="/playground" className="text-sm font-medium hover:text-primary-400 transition-colors">Terminal</Link>
               <Link href="/docs" className="text-sm font-medium hover:text-primary-400 transition-colors">Docs</Link>
-              <a href="https://github.com/atharvajoshi/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100">
+              <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100">
                 <FaGithub className="text-xl" />
               </a>
             </motion.div>
@@ -74,9 +73,9 @@ export default function Home() {
             transition={{ duration: 0.8 }}
             className="mb-8 flex justify-center"
           >
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-medium backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              The AI Kernel is Live
+            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-medium backdrop-blur-sm shadow-[0_0_10px_rgba(20,184,166,0.2)]">
+              <span className="w-2 h-2 rounded-full bg-primary-400 animate-pulse-glow" />
+              v1.0 Public Release
             </span>
           </motion.div>
 
@@ -86,8 +85,8 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-5xl sm:text-7xl md:text-8xl font-bold mb-8 leading-tight tracking-tight"
           >
-            Build. Run. <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 animate-gradient-x">Improve.</span><br />
-            <span className="text-3xl sm:text-5xl md:text-6xl text-slate-300 font-semibold mt-4 block">The Open Source Agent Platform.</span>
+            The Open Source <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 via-accent-400 to-primary-400 animate-gradient-x">Agent Kernel.</span>
           </motion.h1>
 
           <motion.p
@@ -96,7 +95,8 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-lg sm:text-xl md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
-            Stop building spaghetti code. NeuroGate provides the <span className="text-slate-200">RAG Gateway</span>, <span className="text-slate-200">Evaluation Engine</span>, and <span className="text-slate-200">Fine-Tuning Loop</span> you need to scale autonomous agents.
+            Orchestrate, Secure, and Optimize your LLM fleet. <br className="hidden md:block" />
+            <span className="text-slate-200">Production-ready RAG Gateway</span> and <span className="text-slate-200">Evaluation Engine</span> in one Docker container.
           </motion.p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
@@ -104,10 +104,10 @@ export default function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold text-lg shadow-[0_0_40px_-10px_rgba(139,92,246,0.5)] transition-all flex items-center gap-3 group"
+                className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold text-lg shadow-[0_0_40px_-10px_rgba(20,184,166,0.5)] transition-all flex items-center gap-3 group border border-primary-400/20"
               >
                 <FaPlay className="text-sm group-hover:translate-x-1 transition-transform" />
-                Launch Terminal
+                Live Demo
               </motion.button>
             </Link>
             <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer">
@@ -117,7 +117,7 @@ export default function Home() {
                 className="px-8 py-4 glass rounded-xl font-semibold text-lg hover:bg-white/5 transition-all flex items-center gap-3 border border-white/10"
               >
                 <FaGithub className="text-white" />
-                View Source
+                Star on GitHub
               </motion.button>
             </a>
           </div>
@@ -160,7 +160,7 @@ export default function Home() {
               The <span className="text-primary-400">Agent Kernel</span>
             </h2>
             <p className="text-xl text-slate-400 max-w-2xl mx-auto">
-              Everything you need to go from &quot;Prototype&quot; to &quot;Production&quot;.
+              A comprehensive suite of tools to take agents from prototype to production.
             </p>
           </motion.div>
 
@@ -358,7 +358,7 @@ export default function Home() {
                 Drop-in <span className="text-primary-400">Compatibility</span>
               </h2>
               <p className="text-xl text-slate-400 mb-8 leading-relaxed">
-                NeuroGate intercepts standard OpenAI API calls. No SDK rewrite required. Just change the <code className="text-primary-300 bg-primary-900/20 px-2 py-1 rounded text-sm">baseURL</code>.
+                NeuroGate intercepts standard OpenAI API calls. No SDK rewrite required. Just change the <code className="text-primary-300 bg-primary-900/20 px-2 py-1 rounded text-sm font-mono">baseURL</code>.
               </p>
               <ul className="space-y-4 text-lg text-slate-300">
                 <li className="flex items-center gap-3">
@@ -390,13 +390,13 @@ export default function Home() {
                 </div>
                 <div className="p-6 overflow-x-auto">
                   <code className="text-sm font-mono leading-relaxed">
-                    <span className="text-purple-400">const</span> client = <span className="text-purple-400">new</span> <span className="text-yellow-300">OpenAI</span>({'{'}<br />
-                    &nbsp;&nbsp;<span className="text-slate-400">{`// Point to your NeuroGate instance`}</span><br />
+                    <span className="text-accent-400">const</span> client = <span className="text-accent-400">new</span> <span className="text-yellow-300">OpenAI</span>({'{'}<br />
+                    &nbsp;&nbsp;<span className="text-slate-500">{`// Point to your NeuroGate instance`}</span><br />
                     &nbsp;&nbsp;baseURL: <span className="text-green-400">&apos;https://gateway.internal/v1&apos;</span>,<br />
                     &nbsp;&nbsp;apiKey: <span className="text-green-400">&apos;sk-neurogate-key&apos;</span><br />
                     {'}'});<br /><br />
-                    <span className="text-slate-400">{`// ⚡️ Now protected by NeuroGuard & Hive Mind`}</span><br />
-                    <span className="text-purple-400">await</span> client.chat.completions.<span className="text-blue-400">create</span>({'{'}...{'}'});
+                    <span className="text-slate-500">{`// ⚡️ Now protected by NeuroGuard & Hive Mind`}</span><br />
+                    <span className="text-accent-400">await</span> client.chat.completions.<span className="text-blue-400">create</span>({'{'}...{'}'});
                   </code>
                 </div>
               </div>
@@ -592,7 +592,7 @@ export default function Home() {
           <p className="text-center text-sm text-slate-500 uppercase tracking-widest mb-12">Powered by Modern Infrastructure</p>
           <div className="flex flex-wrap justify-center gap-12 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
             {[SiSpringboot, SiKubernetes, SiDocker, SiRedis, SiApachekafka, SiApachespark, SiPrometheus].map((Icon, i) => (
-              <Icon key={i} className="text-5xl hover:scale-110 transition-transform" />
+              <Icon key={i} className="text-5xl hover:scale-110 transition-transform hover:text-primary-400" />
             ))}
           </div>
         </div>
