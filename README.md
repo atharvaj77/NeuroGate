@@ -1,237 +1,127 @@
-# NeuroGate AI Gateway
+# NeuroGate: The Open Source Agent Kernel
 
-**The Open Source AI Gateway for Enterprise. MIT Licensed Core.**
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Java](https://img.shields.io/badge/Java-21%2B-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-brightgreen)
+![Docker](https://img.shields.io/badge/Docker-Ready-blue)
 
-[![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-brightgreen)](https://spring.io/projects/spring-boot)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+**Orchestrate, Secure, and Optimize your LLM fleet.**
+NeuroGate is a high-performance AI Gateway and "Agent Kernel" built on **Java 21 Virtual Threads**. It transforms simple LLM API calls into a robust, enterprise-grade AI infrastructure.
 
-## Overview
+---
 
-NeuroGate is a high-performance AI Gateway built on **Java 21 Virtual Threads**.
+## 🚀 Why NeuroGate?
 
-It solves three critical challenges for AI-native applications:
+NeuroGate currently sits at "Level 3+ (Intelligence)" maturity for AI Gateways. It goes beyond simple proxying to provide a full-stack **OS for Agents**.
 
-- **Cost Reduction (40-60%)**: Through semantic caching and intelligent model routing
-- **Privacy & Compliance**: Zero-trust PII redaction before data leaves your network
-- **Performance**: Built on Java 21 Virtual Threads to handle 10k+ concurrent connections
+*   **🛡️ Active Defense**: Zero-trust PII redaction and prompt injection defense *before* requests leave your network.
+*   **⚡ Performance**: Built on Java 21 Virtual Threads to handle 10k+ concurrent connections with <10ms overhead.
+*   **💰 Cost Engineering**: Semantic caching (Qdrant) and smart routing reduce LLM costs by 40-60%.
+*   **🧠 Collective Intelligence**: "Hive Mind" consensus engine uses multiple models (GPT-4 + Claude + Gemini) to synthesize the best answer.
+
+---
+
+## 🏗️ Platform Capabilities
+
+NeuroGate is organized into three "Organelles" to take agents from prototype to production:
+
+### 1. Build & Design (Synapse)
+*   **Synapse Studio**: A VS Code-like environment in the browser for visual Prompt Engineering.
+*   **Version Control**: Git-like versioning for prompts with branching and rollback.
+*   **Interactive Playground**: Test prompts against the real NeuroGate router with "Compare V1 vs V2" diffs.
+*   **Python SDK**: Type-safe, async-ready SDK for seamless agent integration.
+
+### 2. Run & Secure (The Kernel)
+*   **Nexus (RAG Gateway)**: Centralized RAG service. Inject context, manage vector DB connections (Qdrant), and enforce ACLs at the gateway level.
+*   **NeuroGuard**: Defense-in-depth security layer.
+    *   **PII Vault**: Detects and tokenizes sensitive data (SSN, Email, Credit Cards) before it hits the LLM.
+    *   **Zero-Copy Tokenization**: LLMs see `<EMAIL_1>`, users see `john@example.com`.
+*   **Iron Gate**: Resilience patterns including Circuit Breakers, Rate Limiting (Redis), and Fallback chains (OpenAI -> Azure -> Bedrock).
+*   **Hive Mind**: Neural routing and consensus voting for critical queries requiring high accuracy.
+
+### 3. Measure & Improve (Cortex & Forge)
+*   **Cortex**: Automated Evaluation Engine using "LLM-as-a-Judge" to score responses on Faithfulness, Relevance, and Safety.
+*   **Reinforce**: Human-in-the-Loop (HITL) workflow. "Tinder-like" swipe interface for experts to curate "Golden Traces".
+*   **Forge**: Auto-distillation pipeline. Turns your Golden Traces into fine-tuning datasets to train smaller, cheaper models (e.g., Llama 3).
+
+---
 
 ## 📚 Documentation
 
-**Complete documentation suite available:**
+*   **[Quick Start Guide](QUICKSTART.md)** ⚡ - Get running in 5 minutes with Docker.
+*   **[Documentation Index](docs/INDEX.md)** - Full documentation map.
+*   **[Architecture Details](docs/technical/ARCHITECTURE_DETAILED.md)** - Deep dive into the "Kernel" design.
+*   **[API Reference](docs/api/API_DOCUMENTATION.md)** - OpenAI-compatible API guide.
+*   **[Innovation Roadmap](docs/INNOVATION.md)** - Future vision (Flux, Specter, Aegis).
 
-- **[Quick Start Guide](QUICKSTART.md)** ⚡ - Get running in 5 minutes (all deployment options)
-- **[Documentation Index](docs/INDEX.md)** - Start here for navigation
-- **[Local Deployment Guide](docs/LOCAL_DEPLOYMENT.md)** - Detailed local development guide
-- **[API Reference](docs/api/API_DOCUMENTATION.md)** - OpenAI-compatible REST API
-- **[Architecture Details](docs/technical/ARCHITECTURE_DETAILED.md)** - Deep technical dive
-- **[Deployment Guide](docs/technical/DEPLOYMENT_GUIDE.md)** - Docker, K8s, Cloud deployment
+---
 
-## Architecture
+## 🛠️ Tech Stack
 
-```
-User Request → "Email john@example.com about the meeting"
-    ↓
-┌───────────────────────────────────────────────────┐
-│  NeuroGate Gateway (Java 21 Virtual Threads)     │
-│                                                   │
-│  ┌─────────────────────────────────────────────┐ │
-│  │  1. PII Vault ✅                           │ │
-│  │     - Detect: EMAIL, SSN, PHONE, CC, IP     │ │
-│  │     - Tokenize: john@example.com → <EMAIL_1>│ │
-│  │     - Request-scoped isolation              │ │
-│  └─────────────────────────────────────────────┘ │
-│                   ↓ "Email <EMAIL_1> about..."   │
-│  ┌─────────────────────────────────────────────┐ │
-│  │  2. Semantic Cache (Qdrant)                │ │
-│  │     - Check for similar queries             │ │
-│  │     - Return cached response if hit         │ │
-│  └─────────────────────────────────────────────┘ │
-│                   ↓                              │
-│  ┌─────────────────────────────────────────────┐ │
-│  │  3. Smart Router                            │ │
-│  │     - Route to OpenAI with sanitized prompt │ │
-│  │     - Restore PII tokens in response        │ │
-│  └─────────────────────────────────────────────┘ │
-66: └───────────────────────────────────────────────────┘
-67:     ↓ Sanitized: "Email <EMAIL_1>..."
-68: External LLM (OpenAI) - Never sees real PII
-69:     ↓ Response: "Dear <EMAIL_1>,..."
-70: User receives: "Dear john@example.com,..." ✅
-```
+*   **Language**: Java 21 (Virtual Threads / Project Loom)
+*   **Framework**: Spring Boot 3.4 + Spring AI
+*   **Vector DB**: Qdrant (Semantic Caching & RAG)
+*   **Cache/State**: Redis (Rate Limiting, Circuit Breakers)
+*   **Streaming**: Apache Kafka (Telemetry & Trace Logging)
+*   **Data Processing**: Apache Spark (Offline Analytics)
+*   **Observability**: Prometheus + Grafana
 
-## Tech Stack
+---
 
-- **Language**: Java 21 (Virtual Threads / Project Loom)
-- **Framework**: Spring Boot 3.4 + Spring AI
-- **Vector DB**: Qdrant (for semantic caching)
-- **Cache/Rate Limiting**: Redis
-- **Local Inference**: Ollama (Llama-3-8B)
-- **Observability**: Prometheus + Grafana
-- **Build**: Gradle 8.5 (Kotlin DSL)
+## 🏁 Quick Start
 
-## Feature Capabilities
-
-### 🛡️ Security & PII Protection (NeuroGuard)
-- **Active Defense**: Full scanning of prompts for Injection Attacks and Jailbreaks.
-- **PII Detection**: Regex-based detection for 5 types (EMAIL, SSN, PHONE, CC, IP).
-- **Reversible Tokenization**: Replaces sensitive data with tokens (`<EMAIL_1>`) before sending to LLMs, and restores them in the response.
-- **Zero Trust**: PII never leaves your network boundary.
-
-### 🧠 Intelligence & Routing (Iron Gate & Hive Mind)
-- **Multi-Provider Support**: Connects to OpenAI, Anthropic Claude, Google Gemini, AWS Bedrock, and Azure OpenAI.
-- **Neural Routing**: Dynamically routes traffic based on real-time Latency, Error Rate, and Cost metrics.
-- **Consensus Engine**: "Hive Mind" feature executes parallel queries to multiple models (e.g., GPT-4 + Claude + Gemini) and synthesizes the best answer using an LLM Judge.
-- **Priority Failover**: Automatic fallback chain (P1 -> P2 -> P3) ensures high availability.
-
-### ⚡ Performance & Caching
-- **4-Tier Caching**:
-    1.  **L1 Caffeine**: In-memory, ultra-fast for hot keys.
-    2.  **L2 Redis**: Distributed cache for shared state.
-    3.  **L3 Qdrant**: Semantic cache for similar query retrieval.
-    4.  **L4 S3**: Cold storage for long-term retention.
-- **Streaming**: Full WebSocket and SSE support with real-time PII restoration.
-- **Virtual Threads**: Java 21 architecture handles 10k+ concurrent connections with minimal overhead.
-
-### 📊 Observability & Analytics (Pulse)
-- **Real-Time Dashboard**: "Pulse" UI visualizes kernel activity via WebSocket streaming.
-- **Cost Management**: Tracks cost per user/team with budget alerts (50/80/90/100%) and automatic throttling.
-- **Prometheus Metrics**: Comprehensive metrics for cache hits, routing decisions, latency, and PII detections.
-
-### 🔄 Improvement Loops (Forge & Reinforce)
-- **Reinforce (RLHF)**: Built-in workflow for human-in-the-loop annotation of traces.
-- **Forge (Distillation)**: Automated extraction of "Golden Traces" to create fine-tuning datasets for smaller, cheaper models.
-
-## Deployment & Production Readiness
-
-### Production Features
-- **Kubernetes Ready**: Includes Helm Chart v1.0.0, manifests, HPA, and PDB.
-- **Resilience**: Circuit Breakers (Resilience4j), Bulkheads, and Rate Limiting built-in.
-- **CI/CD**: GitHub Actions pipeline with security scanning.
-- **Health Checks**: Liveness, readiness, and startup probes for k8s orchestration.
-
-## Prerequisites
-
-- Java 21 (Temurin JDK recommended)
-- Docker & Docker Compose
-- OpenAI API Key (for initial setup)
-
-## Quick Start
-### 1. Start Infrastructure Services
-
+### 1. Start Infrastructure
 ```bash
 # Start Qdrant, Redis, Ollama, Prometheus, Grafana
 docker-compose up -d
 
-# Verify services are running
+# Verify services
 docker-compose ps
 ```
 
-### 2. Configure Application
-
-Set your OpenAI API key:
-
+### 2. Configure & Run
+Set your API keys in `src/main/resources/application.yml` or via environment variables:
 ```bash
-export OPENAI_API_KEY="sk-your-api-key-here"
-```
-
-Or edit `src/main/resources/application.yml`.
-
-### 3. Build and Run
-
-```bash
-# Build the application
-./gradlew build
-
-# Run the application
+export OPENAI_API_KEY="sk-..."
 ./gradlew bootRun
 ```
 
-The application will start on `http://localhost:8080`
+### 3. Drop-in Replacement
+NeuroGate is wire-compatible with the OpenAI API. Just change the `baseURL`:
 
-### 4. Test the API
+```javascript
+import OpenAI from 'openai';
 
-```bash
-# Send a chat request
-curl -X POST http://localhost:8080/v1/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "gpt-3.5-turbo",
-    "messages": [
-      {"role": "user", "content": "What is Java?"}
-    ]
-  }'
+const client = new OpenAI({
+  apiKey: 'sk-neurogate-key', // Any string works here if auth is disabled
+  baseURL: 'http://localhost:8080/v1' // Point to NeuroGate
+});
+
+async function main() {
+  const chatCompletion = await client.chat.completions.create({
+    messages: [{ role: 'user', content: 'Hello agent world!' }],
+    model: 'gpt-4', // NeuroGate routes this intelligently
+  });
+}
 ```
-
-The second request should return with `"x_neurogate_cache_hit": true`
-
-### 5. View Metrics
-
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/neurogate2024)
-- **Application Health**: http://localhost:8080/actuator/health
-- **Metrics Endpoint**: http://localhost:8080/actuator/prometheus
-
-## Project Structure
-
-```
-neurogate/
-├── src/main/java/com/neurogate/
-│   ├── NeuroGateApplication.java         # Main application entry point
-│   ├── config/                           # Configuration classes
-│   ├── sentinel/                         # Entry layer (API controllers)
-│   ├── vault/                            # PII Protection & NeuroGuard
-│   ├── router/                           # Routing, caching & Hive Mind logic
-│   ├── metrics/                          # Promethenus metrics
-│   ├── forge/                            # Distillation service
-│   ├── reinforce/                        # RLHF service
-│   └── pulse/                            # Real-time telemetry
-├── src/test/java/com/neurogate/          # Comprehensive test suite (~21+ tests)
-├── docs/                                 # Documentation
-├── docker-compose.yml                    # Infrastructure services
-└── helm/                                 # Kubernetes charts
-```
-
-## Development
-
-### Running Tests
-
-```bash
-./gradlew test
-```
-
-### Building for Production
-
-```bash
-./gradlew clean build
-java -jar build/libs/neurogate-0.0.1-SNAPSHOT.jar
-```
-
-
-## Engineering Highlights (for Recruiters)
-
-> **End-to-End AI Gateway Architecture**: Designed and implemented a high-performance AI Gateway using **Java 21 Virtual Threads**, capable of handling 10k+ concurrent connections. Built a custom **4-tier caching system** (L1 Caffeine / L2 Redis / L3 Qdrant / L4 S3) achieving a 90% cache hit rate.
-
-> **Distributed Systems Engineering**: Engineered a robust **multi-provider routing engine** supporting OpenAI, Claude, Gemini, and Bedrock with **priority-based failover** and **circuit breakers** (Resilience4j). Implemented distributed rate limiting using Redis Lua scripts.
-
-> **ML Ops & Data Pipelines**: Built a "Data Flywheel" pipeline using **Apache Kafka** and **PySpark** to capture, sanitize, and analyze agent interaction traces. Developed an automated **distillation loop** (Forge) that selects "Golden Traces" and fine-tunes smaller models.
-
-> **Zero-Trust Security**: Implemented a defense-in-depth security layer (**NeuroGuard**) featuring real-time **PII masking** (Regex + NER), **Prompt Injection detection**, and request-scoped token vaults. Ensured 100% compliance by sanitizing data before it crosses the network boundary.
-
-> **System Observability**: Deployed a complete stack with **Prometheus** for metrics (latency, error rates, token usage) and **Grafana** for dashboards. Built a real-time React-based "Live Kernel" UI using **WebSockets**.
-
-## Contributing
-
-This is a portfolio project. Feel free to fork and customize for your own use case!
-
-## License
-
-MIT License - See LICENSE file for details
-
-## Contact
-
-Built by Atharva Joshi as a senior engineering portfolio project.
 
 ---
 
-**⚡ Powered by Java 21 Virtual Threads | 🎯 Built for Enterprise Scale | 🔒 Privacy-First Architecture**
+## 🏆 Engineering Highlights (For Recruiters)
+
+> **End-to-End specific "Agent Kernel" Architecture**: Designed a high-performance gateway using **Java 21 Virtual Threads**, handling 10k+ concurrent connections with non-blocking I/O.
+
+> **Distributed Systems & Resilience**: Engineered a **multi-provider routing engine** with priority failover, hedging, and semantic caching (L1-L4 tiered architecture) achieving >90% cache hit rates.
+
+> **Zero-Trust Security (NeuroGuard)**: Implemented a reversible PII tokenization system that ensures sensitive data never leaves the network boundary, compliant with GDPR/HIPAA requirements.
+
+> **Data-Driven Feedback Loops**: Built "Forge" and "Reinforce" modules to create a **Data Flywheel**, automating the collection of "Golden Traces" for model distillation and fine-tuning.
+
+---
+
+## 🤝 Contributing
+
+NeuroGate is an open-source research project exploring the future of Agentic Infrastructure.
+Built by **Atharva Joshi** as a senior engineering portfolio project.
+
+**MIT Licensed. Free for everyone.**
