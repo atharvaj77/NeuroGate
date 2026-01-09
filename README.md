@@ -107,7 +107,7 @@ async function main() {
 
 ---
 
-## 🏆 Engineering Highlights (For Recruiters)
+## 🏆 Engineering Highlights
 
 > **End-to-End specific "Agent Kernel" Architecture**: Designed a high-performance gateway using **Java 21 Virtual Threads**, handling 10k+ concurrent connections with non-blocking I/O.
 
