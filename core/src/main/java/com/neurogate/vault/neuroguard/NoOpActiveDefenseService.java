@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 public class NoOpActiveDefenseService implements ActiveDefenseService {
 
     @Override
-    public void validatePrompt(String prompt) {
+    public String validatePrompt(String prompt) {
         // No-op for Community Edition
         log.trace("Active Defense check skipped (Community Edition)");
+        return prompt;
     }
 
     @Override

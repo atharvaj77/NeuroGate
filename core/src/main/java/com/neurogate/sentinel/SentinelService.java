@@ -130,7 +130,14 @@ public class SentinelService {
             request.getMessages().stream()
                     .filter(m -> "user".equals(m.getRole()))
                     .reduce((first, second) -> second)
-                    .ifPresent(msg -> activeDefenseService.validatePrompt(msg.getStrContent()));
+                    .ifPresent(msg -> {
+                        String original = msg.getStrContent();
+                        String sanitized = activeDefenseService.validatePrompt(original);
+                        if (!original.equals(sanitized)) {
+                            log.info("Prompt sanitized by Active Defense: {} -> {}", original, sanitized);
+                            msg.setContent(sanitized);
+                        }
+                    });
         }
     }
 

@@ -29,22 +29,25 @@ const PromptEditor: React.FC<PromptEditorProps> = ({ value, onChange, theme = 'v
             },
         });
 
-        // Define theme colors
+        // Define "Deep Space" theme colors
         monaco.editor.defineTheme('prompt-theme', {
             base: 'vs-dark',
             inherit: true,
             rules: [
-                { token: 'variable', foreground: 'FFA500', fontStyle: 'bold' }, // Orange for variables
-                { token: 'mention', foreground: '00FFFF' }, // Cyan for mentions
+                { token: 'variable', foreground: 'A855F7', fontStyle: 'bold' }, // Purple-500 for variables
+                { token: 'mention', foreground: '34D399' }, // Emerald-400 for mentions
+                { token: 'text', foreground: 'E2E8F0' }, // Slate-200
             ],
             colors: {
-                'editor.background': '#1e1e1e',
+                'editor.background': '#020617', // Slate-950
+                'editor.lineHighlightBackground': '#1e293b',
+                'editor.selectionBackground': '#3b82f640',
             },
         });
     };
 
     return (
-        <div className="h-full w-full rounded-lg overflow-hidden border border-gray-700 shadow-xl">
+        <div className="h-full w-full rounded-lg overflow-hidden bg-transparent">
             <Editor
                 height="100%"
                 defaultLanguage="prompt-lang"

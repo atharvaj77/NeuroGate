@@ -33,14 +33,14 @@ const VariableForm: React.FC<VariableFormProps> = ({ promptContent, variables, o
             </h3>
             {detectedVariables.map((varName) => (
                 <div key={varName} className="group">
-                    <label className="block text-xs font-medium text-gray-300 mb-1">
+                    <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide group-hover:text-purple-400 transition-colors">
                         {varName}
                     </label>
                     <input
                         type="text"
                         value={variables[varName as any] || ''}
                         onChange={(e) => onChange(varName, e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all placeholder:text-slate-600 shadow-inner hover:border-white/20"
                         placeholder={`Value for ${varName}`}
                     />
                 </div>

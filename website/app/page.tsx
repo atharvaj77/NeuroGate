@@ -35,6 +35,8 @@ export default function Home() {
               className="hidden md:flex items-center space-x-8"
             >
               <Link href="#features" className="text-sm font-medium hover:text-primary-400 transition-colors">Platform</Link>
+              <Link href="/use-cases" className="text-sm font-medium hover:text-primary-400 transition-colors">Use Cases</Link>
+              <Link href="/synapse" className="text-sm font-medium hover:text-primary-400 transition-colors">Synapse</Link>
               <Link href="/debugger" className="text-sm font-medium hover:text-primary-400 transition-colors">Debugger</Link>
               <Link href="/playground" className="text-sm font-medium hover:text-primary-400 transition-colors">Terminal</Link>
               <Link href="/docs" className="text-sm font-medium hover:text-primary-400 transition-colors">Docs</Link>
@@ -96,7 +98,7 @@ export default function Home() {
             className="text-lg sm:text-xl md:text-2xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed"
           >
             Orchestrate, Secure, and Optimize your LLM fleet. <br className="hidden md:block" />
-            <span className="text-slate-200">Production-ready RAG Gateway</span> and <span className="text-slate-200">Evaluation Engine</span> in one Docker container.
+            The complete <span className="text-slate-200">Open Source Agent Platform</span> in a single deployable stack.
           </motion.p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
@@ -107,7 +109,7 @@ export default function Home() {
                 className="px-8 py-4 bg-primary-600 hover:bg-primary-500 rounded-xl font-semibold text-lg shadow-[0_0_40px_-10px_rgba(20,184,166,0.5)] transition-all flex items-center gap-3 group border border-primary-400/20"
               >
                 <FaPlay className="text-sm group-hover:translate-x-1 transition-transform" />
-                Live Demo
+                Launch Simulation
               </motion.button>
             </Link>
             <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer">
@@ -130,8 +132,8 @@ export default function Home() {
           >
             {[
               { value: 5, suffix: '', label: 'Kernel Modules' },
-              { value: 99, suffix: '%', label: 'Cache Hit Ratio' },
-              { value: 1, suffix: 'ms', label: 'L1 Latency' },
+              { value: 99, suffix: '%', label: 'Cache Hit Ratio*' },
+              { value: 1, suffix: 'ms', label: 'L1 Latency*' },
               { value: 100, suffix: '%', label: 'Open Source' }
             ].map((stat, index) => (
               <div key={index} className="text-center group hover:bg-white/5 p-4 rounded-lg transition-colors">
@@ -142,6 +144,16 @@ export default function Home() {
               </div>
             ))}
           </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 1 }}
+            className="mt-6 text-xs text-slate-600 max-w-3xl mx-auto"
+          >
+            * Measured in optimal local environment benchmarks using L1 (In-Memory) Cache implementation.
+            Actual production latency and hit ratios depend on workload patterns, deployment topology, and network conditions.
+          </motion.p>
         </div>
       </section>
 
@@ -319,6 +331,8 @@ export default function Home() {
 
         </div>
       </section>
+
+
 
       {/* Architecture Section */}
       <section id="architecture" className="py-24 relative overflow-hidden">

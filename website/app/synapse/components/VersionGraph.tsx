@@ -13,43 +13,59 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
-const initialNodes: Node[] = [
-    {
-        id: '1',
-        type: 'input',
-        data: { label: 'v1.0 (Init)' },
-        position: { x: 250, y: 0 },
-        style: { background: '#1e293b', color: 'white', border: '1px solid #475569' },
-    },
-    {
-        id: '2',
-        data: { label: 'v1.1 (Tone fix)' },
-        position: { x: 250, y: 100 },
-        style: { background: '#1e293b', color: 'white', border: '1px solid #475569' },
-    },
-    {
-        id: '3',
-        data: { label: 'v2.0 (Major)' },
-        position: { x: 100, y: 200 },
-        style: { background: '#0f172a', color: '#60a5fa', border: '1px solid #3b82f6', fontWeight: 'bold' },
-    },
-    {
-        id: '4',
-        data: { label: 'v1.2 (Patch)' },
-        position: { x: 400, y: 200 },
-        style: { background: '#1e293b', color: 'white', border: '1px solid #475569' },
-    },
-];
+interface Version {
+    id: string;
+    tag: string;
+    content: string;
+    timestamp: string;
+    author: string;
+    active: boolean;
+}
 
-const initialEdges: Edge[] = [
-    { id: 'e1-2', source: '1', target: '2', markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e2-3', source: '2', target: '3', animated: true, markerEnd: { type: MarkerType.ArrowClosed } },
-    { id: 'e2-4', source: '2', target: '4', markerEnd: { type: MarkerType.ArrowClosed } },
-];
+interface VersionGraphProps {
+    versions: Version[];
+}
 
-const VersionGraph = () => {
+const VersionGraph: React.FC<VersionGraphProps> = ({ versions }) => {
+    // Dynamically generate nodes based on versions history
+    // For this mock simplification, we'll map the versions list to a linear graph
+    // In a real app, this would need a DAG structure from the backend
+
+    // Sort versions by ID (mock heuristic) or reverse order of array
+    // Assuming versions[0] is latest
+    const reversedVersions = [...versions].reverse();
+
+    const initialNodes: Node[] = reversedVersions.map((v, index) => ({
+        id: v.id,
+        data: { label: `${v.tag} (${v.active ? 'Active' : 'History'})` },
+        position: { x: 150 + (index * 120), y: 100 + (index % 2 === 0 ? 0 : 50) }, // Zig-zag layout
+        style: {
+            background: v.active ? '#581c87' : '#1e293b',
+            color: v.active ? '#e9d5ff' : '#cbd5e1',
+            border: v.active ? '1px solid #a855f7' : '1px solid #475569',
+            borderRadius: '8px',
+            fontSize: '10px',
+            width: 120,
+            boxShadow: v.active ? '0 0 15px rgba(168, 85, 247, 0.4)' : 'none'
+        },
+    }));
+
+    const initialEdges: Edge[] = reversedVersions.slice(0, -1).map((v, index) => ({
+        id: `e-${v.id}-${reversedVersions[index + 1].id}`,
+        source: v.id,
+        target: reversedVersions[index + 1].id,
+        markerEnd: { type: MarkerType.ArrowClosed },
+        style: { stroke: v.active ? '#a855f7' : '#475569', strokeWidth: v.active ? 2 : 1 }
+    }));
+
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+    // Update graph when versions prop changes
+    React.useEffect(() => {
+        setNodes(initialNodes);
+        setEdges(initialEdges);
+    }, [versions, setNodes, setEdges]);
 
     return (
         <div style={{ height: '100%', width: '100%' }}>
@@ -59,10 +75,11 @@ const VersionGraph = () => {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 fitView
+                fitViewOptions={{ padding: 0.2 }}
+                attributionPosition="bottom-right"
             >
-                <Background color="#333" gap={16} />
-                <Controls />
-                <MiniMap style={{ background: '#1a1a1a' }} nodeColor={() => '#4a5568'} />
+                <Background color="#555" gap={20} size={1} />
+                <Controls showInteractive={false} className="bg-black/50 border-white/10" />
             </ReactFlow>
         </div>
     );

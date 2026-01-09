@@ -6,6 +6,7 @@ import com.neurogate.prompts.PromptRepository;
 import com.neurogate.prompts.PromptVersion;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -18,6 +19,10 @@ public class PromptRegistry {
 
     private final PromptWorkflowRepository workflowRepository;
     private final PromptRepository promptRepository;
+    private final StringRedisTemplate redisTemplate; // Redis for Hot-Swapping
+
+    private static final String REDIS_KEY_PREFIX = "neurogate:prompts:";
+    private static final String REDIS_UPDATE_CHANNEL = "neurogate:prompts:updates";
 
     // Fast in-memory cache for production prompts to avoid Redis round-trip on
     // every request
@@ -34,6 +39,19 @@ public class PromptRegistry {
     }
 
     private PromptVersion loadProductionFromSource(String promptName) {
+        // 1. Try Redis Hot-Swap Key first (Fastest, Distributed)
+        try {
+            String redisKey = REDIS_KEY_PREFIX + "production:" + promptName;
+            String activeVersionId = redisTemplate.opsForValue().get(redisKey);
+
+            if (activeVersionId != null) {
+                return promptRepository.findVersionById(activeVersionId).orElse(null);
+            }
+        } catch (Exception e) {
+            log.warn("Redis unavailable, falling back to DB for prompt: {}", promptName);
+        }
+
+        // 2. Fallback to Database (Reliable)
         PromptWorkflow workflow = workflowRepository.findById(promptName).orElse(null);
         if (workflow == null || workflow.getActiveProductionVersionId() == null) {
             return null;
@@ -45,6 +63,8 @@ public class PromptRegistry {
      * Get active staging prompt version
      */
     public PromptVersion getStagingPrompt(String promptName) {
+        // Similar logic could apply to staging, but we usually want latest DB state for
+        // testing
         PromptWorkflow workflow = workflowRepository.findById(promptName).orElse(null);
         if (workflow == null || workflow.getActiveStagingVersionId() == null) {
             return null;
@@ -64,7 +84,20 @@ public class PromptRegistry {
             workflow.setLastDeployedToProduction(Instant.now());
             workflow.setProductionDeployedBy(user);
 
-            // Invalidate cache
+            // 1. Update Redis Hot-Swap Key
+            try {
+                String redisKey = REDIS_KEY_PREFIX + "production:" + promptName;
+                redisTemplate.opsForValue().set(redisKey, versionId);
+
+                // 2. Publish invalidation event for other nodes' L1 Caffeine cache
+                redisTemplate.convertAndSend(REDIS_UPDATE_CHANNEL, promptName);
+                log.info("Hot-swapped prompt '{}' to version '{}' in Redis", promptName, versionId);
+            } catch (Exception e) {
+                log.error("Failed to update Redis during promotion", e);
+                // We typically don't fail the transaction, as DB source of truth is updated
+            }
+
+            // Invalidate local cache
             productionCache.invalidate(promptName);
         } else {
             workflow.setActiveStagingVersionId(versionId);

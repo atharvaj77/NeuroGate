@@ -4,7 +4,7 @@ package com.neurogate.vault.neuroguard;
  * Interface for Active Defense capabilities (PII detection, Prompt Injection).
  */
 public interface ActiveDefenseService {
-    void validatePrompt(String prompt);
+    String validatePrompt(String prompt);
 
     com.neurogate.vault.neuroguard.model.ThreatDetectionResult analyzePrompt(String prompt);
 

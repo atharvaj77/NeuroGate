@@ -34,13 +34,16 @@ public class NeuroGuardService implements ActiveDefenseService {
      * Validate a prompt for security threats.
      */
     @Override
-    public void validatePrompt(String prompt) {
+    public String validatePrompt(String prompt) {
         ThreatDetectionResult result = analyzePrompt(prompt);
 
         if (result.isBlocked()) {
             log.error("Request blocked due to security threat: {}", result.getThreatType());
             throw new SecurityThreatException(result);
         }
+
+        // Return sanitized content if available, otherwise original
+        return result.getSanitizedContent() != null ? result.getSanitizedContent() : prompt;
     }
 
     /**
@@ -81,17 +84,38 @@ public class NeuroGuardService implements ActiveDefenseService {
                 .max(java.util.Comparator.comparingDouble(com.neurogate.vault.model.PiiEntity::getConfidence))
                 .orElseThrow();
 
-        double confidence = topEntity.getConfidence();
-        boolean blocked = confidence > 0.8; // Block on high confidence PII
+        // Perform Masking (Token Replacement)
+        String maskedContent = maskPii(prompt, entities);
 
         return ThreatDetectionResult.builder()
                 .threatDetected(true)
                 .threatType(ThreatDetectionResult.ThreatType.PII_LEAK)
-                .confidenceScore(confidence)
-                .message("PII Detected: " + entities.size() + " entities found (Top: " + topEntity.getType() + ")")
+                .confidenceScore(topEntity.getConfidence())
+                .message("PII Detected & Masked: " + entities.size() + " entities found (Top: " + topEntity.getType()
+                        + ")")
                 .matchedPatterns(entities.stream().map(com.neurogate.vault.model.PiiEntity::getValue).toList())
-                .blocked(blocked)
+                .sanitizedContent(maskedContent)
+                .blocked(false) // Do not block, we masked it!
                 .build();
+    }
+
+    /**
+     * Replaces detected PII entities with tokens <TYPE>.
+     */
+    public String maskPii(String prompt, java.util.List<com.neurogate.vault.model.PiiEntity> entities) {
+        if (entities == null || entities.isEmpty()) {
+            return prompt;
+        }
+
+        // Sort entities by start index descending to avoid shifting indices
+        entities.sort((a, b) -> Integer.compare(b.getStart(), a.getStart()));
+
+        StringBuilder sb = new StringBuilder(prompt);
+        for (com.neurogate.vault.model.PiiEntity entity : entities) {
+            String token = "<" + entity.getType().name() + ">";
+            sb.replace(entity.getStart(), entity.getEnd(), token);
+        }
+        return sb.toString();
     }
 
     /**

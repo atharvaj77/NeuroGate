@@ -26,6 +26,7 @@ public class Span {
     private String spanId;
 
     @JsonProperty("trace_id")
+    @Column(name = "trace_id", insertable = false, updatable = false)
     private String traceId;
 
     @JsonProperty("parent_span_id")
