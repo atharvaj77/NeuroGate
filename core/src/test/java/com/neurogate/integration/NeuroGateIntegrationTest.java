@@ -44,6 +44,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NeuroGateIntegrationTest {
 
+        @org.springframework.boot.test.mock.mockito.MockBean
+        private com.neurogate.synapse.optimizer.OptimizerService optimizerService;
+
         @LocalServerPort
         private int port;
 
@@ -807,6 +810,111 @@ class NeuroGateIntegrationTest {
                 // We primarily verify that the request wasn't BLOCKED (previous behavior).
                 // It should be 200 OK now.
                 assertEquals(HttpStatus.OK, response.getStatusCode());
+        }
+
+        // =====================================================
+        // TEST 28: Specter Mode (Shadow Deployment)
+        // =====================================================
+        @Test
+        @Order(28)
+        @DisplayName("Specter Mode - Should compare production and shadow versions")
+        void testSpecterModeInteraction() {
+                // Since we haven't deployed properly in this test suite, we expect 404 or 200
+                // but NOT 500 error.
+                // If the PromptRegistry finds nothing, it returns 404.
+
+                String payload = """
+                                {
+                                    "promptName": "shadow-integration-test",
+                                    "variables": { "user": "Tester" },
+                                    "model": "gpt-3.5-turbo"
+                                }
+                                """;
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+
+                ResponseEntity<String> response = restTemplate.postForEntity(
+                                baseUrl + "/api/v1/synapse/shadow/compare",
+                                entity,
+                                String.class);
+
+                // 404 is valid if data doesn't exist, 200 if it does. 500 is failure.
+                assertNotEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        }
+
+        // =====================================================
+        // TEST 29: Cortex Ad-Hoc Evaluation
+        // =====================================================
+        @Test
+        @Order(29)
+        @DisplayName("Cortex Ad-Hoc - Should evaluate test cases")
+        void testCortexAdHocEvaluation() {
+                String payload = """
+                                {
+                                    "promptTemplate": "Hello {{ name }}",
+                                    "testCases": [
+                                        {
+                                            "id": "1",
+                                            "input": "{\\"name\\": \\"World\\"}",
+                                            "expectedOutput": "Hello World"
+                                        }
+                                    ],
+                                    "model": "gpt-3.5-turbo"
+                                }
+                                """;
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+
+                ResponseEntity<String> response = restTemplate.postForEntity(
+                                baseUrl + "/api/v1/cortex/evaluate",
+                                entity,
+                                String.class);
+
+                // Should be 200 OK
+                assertEquals(HttpStatus.OK, response.getStatusCode());
+                assertNotNull(response.getBody());
+        }
+
+        // =====================================================
+        // TEST 30: Neuro-Optimizer
+        // =====================================================
+        @Test
+        @Order(30)
+        @DisplayName("Optimizer - Should optimize prompt text")
+        void testNeuroOptimizer() {
+                String payload = """
+                                {
+                                    "originalPrompt": "plz fix grammar",
+                                    "objective": "FIX_GRAMMAR",
+                                    "modelPreference": "gpt-3.5-turbo"
+                                }
+                                """;
+
+                // Mock the service to return a dummy response
+                org.mockito.Mockito.when(optimizerService.optimize(org.mockito.ArgumentMatchers.any()))
+                                .thenReturn(com.neurogate.synapse.optimizer.OptimizerResponse.builder()
+                                                .originalPrompt("plz fix grammar")
+                                                .optimizedPrompt("Please fix the grammar.")
+                                                .explanation("Fixed grammar.")
+                                                .objective(com.neurogate.synapse.optimizer.OptimizationObjective.FIX_GRAMMAR)
+                                                .build());
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<>(payload, headers);
+
+                ResponseEntity<String> response = restTemplate.postForEntity(
+                                baseUrl + "/api/v1/synapse/optimize",
+                                entity,
+                                String.class);
+
+                // Should be 200 OK
+                assertEquals(HttpStatus.OK, response.getStatusCode());
+                assertNotNull(response.getBody());
         }
 
         @AfterAll
