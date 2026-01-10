@@ -35,9 +35,8 @@ export default function Home() {
               className="hidden md:flex items-center space-x-8"
             >
               <Link href="#features" className="text-sm font-medium hover:text-primary-400 transition-colors">Platform</Link>
+              <Link href="/pulse" className="text-sm font-medium hover:text-primary-400 transition-colors">Pulse</Link>
               <Link href="/use-cases" className="text-sm font-medium hover:text-primary-400 transition-colors">Use Cases</Link>
-              <Link href="/synapse" className="text-sm font-medium hover:text-primary-400 transition-colors">Synapse</Link>
-              <Link href="/debugger" className="text-sm font-medium hover:text-primary-400 transition-colors">Debugger</Link>
               <Link href="/playground" className="text-sm font-medium hover:text-primary-400 transition-colors">Terminal</Link>
               <Link href="/docs" className="text-sm font-medium hover:text-primary-400 transition-colors">Docs</Link>
               <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100">
@@ -197,6 +196,8 @@ export default function Home() {
                 ]}
                 gradient="from-synapse-500 to-purple-500"
                 delay={0}
+                href="/synapse"
+                cta="Launch Studio"
               />
               <FeatureCard
                 icon={<FaBook className="text-5xl" />}
@@ -210,6 +211,7 @@ export default function Home() {
                 ]}
                 gradient="from-blue-400 to-cyan-400"
                 delay={0.1}
+                href="/docs"
               />
             </div>
           </div>
@@ -235,6 +237,8 @@ export default function Home() {
                 ]}
                 gradient="from-nexus-500 to-blue-500"
                 delay={0}
+                href="/nexus"
+                cta="Open Explorer"
               />
               <FeatureCard
                 icon={<FaBrain className="text-5xl" />}
@@ -248,6 +252,8 @@ export default function Home() {
                 ]}
                 gradient="from-violet-500 to-fuchsia-500"
                 delay={0.1}
+                href="/hive-mind"
+                cta="Launch Console"
               />
               <FeatureCard
                 icon={<FaShieldAlt className="text-5xl" />}
@@ -261,6 +267,8 @@ export default function Home() {
                 ]}
                 gradient="from-cyan-500 to-blue-500"
                 delay={0.2}
+                href="/pulse"
+                cta="View Dashboard"
               />
               <FeatureCard
                 icon={<FaNetworkWired className="text-5xl" />}
@@ -274,6 +282,8 @@ export default function Home() {
                 ]}
                 gradient="from-emerald-500 to-teal-500"
                 delay={0.3}
+                href="/pulse"
+                cta="View Dashboard"
               />
             </div>
           </div>
@@ -299,6 +309,8 @@ export default function Home() {
                 ]}
                 gradient="from-cortex-500 to-orange-500"
                 delay={0}
+                href="/cortex"
+                cta="Run Tests"
               />
               <FeatureCard
                 icon={<FaUserEdit className="text-5xl" />}
@@ -312,6 +324,8 @@ export default function Home() {
                 ]}
                 gradient="from-reinforce-500 to-green-500"
                 delay={0.1}
+                href="/reinforce"
+                cta="Start Review"
               />
               <FeatureCard
                 icon={<FaFire className="text-5xl" />}
@@ -325,6 +339,8 @@ export default function Home() {
                 ]}
                 gradient="from-forge-500 to-red-600"
                 delay={0.2}
+                href="/forge"
+                cta="Open Dashboard"
               />
             </div>
           </div>

@@ -99,4 +99,49 @@ class SynapseControllerTest {
                                 .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isOk());
         }
+
+        @Test
+        void testCompareShadow_Success() throws Exception {
+                // Arrange
+                String promptName = "shadow-test-prompt";
+                SynapseController.ShadowCompareRequest request = new SynapseController.ShadowCompareRequest();
+                request.setPromptName(promptName);
+                request.setVariables(Map.of("user", "Tester"));
+                request.setModel("gpt-4");
+
+                com.neurogate.prompts.PromptVersion prodVersion = new com.neurogate.prompts.PromptVersion();
+                prodVersion.setVersionId("v1-prod");
+                prodVersion.setPromptText("Hello {{ user }} from Prod");
+
+                com.neurogate.prompts.PromptVersion shadowVersion = new com.neurogate.prompts.PromptVersion();
+                shadowVersion.setVersionId("v2-shadow");
+                shadowVersion.setPromptText("Hello {{ user }} from Shadow");
+
+                when(promptRegistry.getProductionPrompt(promptName)).thenReturn(prodVersion);
+                when(promptRegistry.getShadowPrompt(promptName)).thenReturn(shadowVersion);
+
+                ChatResponse mockProdResponse = ChatResponse.builder()
+                                .choices(List.of(Choice.builder()
+                                                .message(Message.builder().content("Prod Output").build()).build()))
+                                .build();
+
+                ChatResponse mockShadowResponse = ChatResponse.builder()
+                                .choices(List.of(Choice.builder()
+                                                .message(Message.builder().content("Shadow Output").build()).build()))
+                                .build();
+
+                // Mocking router calls - effectively making it look like parallel execution
+                // happened
+                when(routerService.route(any())).thenReturn(mockProdResponse, mockShadowResponse);
+
+                // Act & Assert
+                mockMvc.perform(post("/api/v1/synapse/shadow/compare")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.productionVersionId").value("v1-prod"))
+                                .andExpect(jsonPath("$.shadowVersionId").value("v2-shadow"))
+                                .andExpect(jsonPath("$.productionResponse.choices[0].message.content")
+                                                .value("Prod Output"));
+        }
 }

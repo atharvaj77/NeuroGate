@@ -26,14 +26,18 @@ public class EvaluationResult {
 
     private int score; // 0-100
 
+    @Column(length = 20)
+    private String status; // PASS, FAIL, WARN
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "run_id", nullable = false)
     private EvaluationRun run;
 
-    public EvaluationResult(String caseId, String agentOutput, String judgeReasoning, int score) {
+    public EvaluationResult(String caseId, String agentOutput, String judgeReasoning, int score, String status) {
         this.caseId = caseId;
         this.agentOutput = agentOutput;
         this.judgeReasoning = judgeReasoning;
         this.score = score;
+        this.status = status;
     }
 }

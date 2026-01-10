@@ -34,4 +34,9 @@ public class PromptWorkflow implements Serializable {
 
     private String productionDeployedBy; // User who deployed
     private String stagingDeployedBy;
+
+    // Shadow Deployment (Specter Mode)
+    private String activeShadowVersionId;
+    private Instant lastDeployedToShadow;
+    private String shadowDeployedBy;
 }

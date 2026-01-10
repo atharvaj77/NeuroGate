@@ -53,7 +53,25 @@ export default function DebuggerPage() {
                     <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-400 to-accent-400 font-mono">
                         Time Travel Debugger
                     </h1>
-                    <div className="flex items-center gap-2 mt-2">
+                    {/* Simulation Mode Indicator */}
+                    <div className="mt-3 flex items-center gap-2 px-3 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 group relative cursor-help w-fit text-xs">
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                        SIMULATION MODE
+
+                        {/* Tooltip */}
+                        <div className="absolute top-full left-0 mt-2 w-72 p-3 bg-black border border-white/20 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                            <p className="text-slate-400 mb-2">Session data mocked for demo.</p>
+                            <div className="p-2 bg-white/5 rounded border border-white/10 font-mono text-[10px] text-cyan-300 break-all mb-1">
+                                POST /api/debug/sessions
+                            </div>
+                            <div className="p-2 bg-white/5 rounded border border-white/10 font-mono text-[10px] text-slate-400 break-all">
+                                {`{ "requestId": "req_123" }`}
+                            </div>
+                            <p className="text-slate-500 mt-2 font-normal">Connects to &apos;DebuggerController&apos;.</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-3">
                         <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse-glow"></span>
                         <p className="text-xs text-primary-300 font-mono">Session: {session.sessionId}</p>
                     </div>
@@ -88,28 +106,87 @@ export default function DebuggerPage() {
                     <AnimatePresence>
                         {showInfo && (
                             <motion.div
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 20 }}
-                                className="absolute top-16 right-4 w-80 glass p-6 rounded-xl z-30 border-l-2 border-l-accent-500 shadow-2xl shadow-black/50"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="absolute top-16 right-4 w-[600px] glass p-8 rounded-2xl z-30 border border-white/10 shadow-2xl shadow-black/80 backdrop-blur-xl"
                             >
-                                <h3 className="font-bold text-accent-400 mb-4 flex items-center gap-2">
-                                    <FaBug /> Debugging Capabilities
-                                </h3>
-                                <ul className="space-y-3 text-sm text-slate-400">
-                                    <li className="flex gap-2">
-                                        <span className="text-primary-400">01.</span>
-                                        <span><strong>Time Travel:</strong> Scrub through the agent&apos;s execution history step-by-step.</span>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <span className="text-primary-400">02.</span>
-                                        <span><strong>State Inspection:</strong> View the exact memory, context window, and tool outputs at any point in time.</span>
-                                    </li>
-                                    <li className="flex gap-2">
-                                        <span className="text-primary-400">03.</span>
-                                        <span><strong>Counterfactuals:</strong> Fork the session at any step to test &quot;what if&quot; scenarios.</span>
-                                    </li>
-                                </ul>
+                                <div className="flex justify-between items-start mb-6">
+                                    <div>
+                                        <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-3">
+                                            <FaBug className="text-primary-400" />
+                                            NeuroGate Time Travel
+                                        </h3>
+                                        <p className="text-slate-400 text-sm">Deterministic Replay & Counterfactual Analysis Engine</p>
+                                    </div>
+                                    <button onClick={() => setShowInfo(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                        <div className="w-6 h-6 flex items-center justify-center text-slate-500">✕</div>
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="space-y-6">
+                                        <div className="group">
+                                            <h4 className="flex items-center gap-2 text-primary-300 font-bold mb-2 text-sm uppercase tracking-wider">
+                                                <span className="w-6 h-6 rounded bg-primary-500/10 flex items-center justify-center text-primary-400 border border-primary-500/20">1</span>
+                                                Capture Phase
+                                            </h4>
+                                            <p className="text-xs text-slate-400 leading-relaxed">
+                                                The <code className="text-orange-300">AIDebuggerService</code> acts as a hypervisor, intercepting every LLM call. It creates an immutable snapshot of:
+                                                <br />• Input/Output Tensors
+                                                <br />• Memory Context Window
+                                                <br />• Tool Execution Results
+                                            </p>
+                                        </div>
+
+                                        <div className="group">
+                                            <h4 className="flex items-center gap-2 text-accent-300 font-bold mb-2 text-sm uppercase tracking-wider">
+                                                <span className="w-6 h-6 rounded bg-accent-500/10 flex items-center justify-center text-accent-400 border border-accent-500/20">2</span>
+                                                Replay Engine
+                                            </h4>
+                                            <p className="text-xs text-slate-400 leading-relaxed">
+                                                The <code className="text-orange-300">DebuggerController</code> re-hydrates the agent&apos;s state from any timestamp.
+                                                It allows <strong>deterministic step-through</strong>, guaranteeing the exact same random seed and environment variables as the original run.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="group">
+                                            <h4 className="flex items-center gap-2 text-green-300 font-bold mb-2 text-sm uppercase tracking-wider">
+                                                <span className="w-6 h-6 rounded bg-green-500/10 flex items-center justify-center text-green-400 border border-green-500/20">3</span>
+                                                Branching Timelines
+                                            </h4>
+                                            <p className="text-xs text-slate-400 leading-relaxed mb-3">
+                                                Execute <strong>Counterfactuals</strong> by forking the session.
+                                            </p>
+                                            <div className="bg-black/40 rounded border border-white/5 p-3 font-mono text-[10px] text-slate-300">
+                                                <div className="flex items-center gap-2 text-green-400 mb-1">
+                                                    <FaCodeBranch /> forkSession(stepId)
+                                                </div>
+                                                <span className="text-slate-500">{`// Creates parallel universe`}</span><br />
+                                                <span className="text-purple-400">const</span> diff = <span className="text-blue-300">compare</span>(original, fork);
+                                            </div>
+                                        </div>
+
+                                        <div className="p-4 rounded-xl bg-gradient-to-br from-primary-900/20 to-accent-900/20 border border-white/5">
+                                            <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-2">Architecture</div>
+                                            <div className="flex justify-between items-center text-xs font-mono">
+                                                <div className="text-center">
+                                                    <div className="p-2 bg-slate-800 rounded mb-1">Agent</div>
+                                                </div>
+                                                <div className="h-px w-8 bg-slate-600"></div>
+                                                <div className="text-center">
+                                                    <div className="p-2 bg-primary-900/50 border border-primary-500/30 rounded mb-1 text-primary-300">Trace</div>
+                                                </div>
+                                                <div className="h-px w-8 bg-slate-600"></div>
+                                                <div className="text-center">
+                                                    <div className="p-2 bg-slate-800 rounded mb-1">DB</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>

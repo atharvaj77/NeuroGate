@@ -32,7 +32,9 @@ public class CortexServiceIntegrationTest {
         cortexService.addCase(dataset.getId(), c);
 
         // Mock Judge
-        when(judge.grade(anyString(), anyString(), anyString())).thenReturn(0.9);
+        when(judge.getType()).thenReturn("faithfulness");
+        when(judge.grade(anyString(), anyString(), anyString()))
+                .thenReturn(new JudgeResult(0.9, "Automated Logic", "PASS"));
 
         // 3. Run Evaluation
         EvaluationRun run = cortexService.runEvaluation(dataset.getId(), "v1.test");
@@ -45,5 +47,6 @@ public class CortexServiceIntegrationTest {
         EvaluationResult result = run.getResults().get(0);
         assertThat(result.getScore()).isEqualTo(90);
         assertThat(result.getJudgeReasoning()).contains("Automated Logic");
+        assertThat(result.getStatus()).isEqualTo("PASS");
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaTag, FaCheck, FaUndo } from 'react-icons/fa';
+import { FaTag, FaCheck, FaUndo, FaGhost } from 'react-icons/fa';
 
 interface Version {
     id: string;
@@ -7,6 +7,8 @@ interface Version {
     timestamp: string;
     author: string;
     active: boolean;
+    isLive?: boolean;
+    isShadow?: boolean;
 }
 
 interface VersionsListProps {
@@ -37,9 +39,14 @@ const VersionsList: React.FC<VersionsListProps> = ({ versions, onRestore }) => {
                                     <FaTag size={12} />
                                 </div>
                                 <span className={`text-sm font-bold ${ver.active ? 'text-purple-100' : 'text-slate-300'}`}>{ver.tag}</span>
-                                {ver.active && (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold tracking-wide shadow-[0_0_10px_rgba(168,85,247,0.2)]">
-                                        LIVE
+                                {ver.isLive && (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold tracking-wide shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                                        PROD
+                                    </span>
+                                )}
+                                {ver.isShadow && (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold tracking-wide shadow-[0_0_10px_rgba(168,85,247,0.2)] flex items-center gap-1">
+                                        <FaGhost size={8} /> SHADOW
                                     </span>
                                 )}
                             </div>

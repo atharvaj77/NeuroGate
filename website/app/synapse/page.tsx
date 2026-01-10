@@ -1,12 +1,34 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import PromptEditor from './components/PromptEditor';
 import VariableForm from './components/VariableForm';
 import VersionGraph from './components/VersionGraph';
 import HistoryList from './components/HistoryList';
 import VersionsList from './components/VersionsList';
-import { FaPlay, FaSave, FaRocket, FaCodeBranch, FaHistory, FaColumns, FaTerminal, FaCog } from 'react-icons/fa';
+import TestsPanel from './components/TestsPanel';
+import OptimizationModal from './components/OptimizationModal';
+import DeployModal from './components/DeployModal';
+import { FaPlay, FaSave, FaRocket, FaCodeBranch, FaHistory, FaColumns, FaTerminal, FaCog, FaSpinner, FaRobot, FaMagic, FaTimes, FaCheck, FaFlask } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { DiffEditor } from '@monaco-editor/react';
+
+// --- Interfaces ---
+
+interface PromptVersionDTO {
+    versionId: string;
+    promptText: string;
+    majorVersion: number;
+    minorVersion: number;
+    patchVersion: number;
+    author: string;
+    timestamp: string; // ISO string
+    commitMessage: string;
+    branchName: string;
+    // metrics
+    averageLatency?: number;
+    usageCount?: number;
+}
 
 interface Version {
     id: string;
@@ -14,7 +36,8 @@ interface Version {
     content: string;
     timestamp: string;
     author: string;
-    active: boolean;
+    active: boolean; // active in UI viewer
+    isLive?: boolean; // deployed to prod
 }
 
 interface HistoryItem {
@@ -24,6 +47,22 @@ interface HistoryItem {
     user: string;
     details: string;
 }
+
+interface OptimizationResult {
+    originalPrompt: string;
+    optimizedPrompt: string;
+    explanation: string;
+    objective: string;
+}
+
+const OPTIMIZATION_OBJECTIVES = [
+    { id: 'FIX_GRAMMAR', label: 'Fix Grammar & Tone' },
+    { id: 'CONCISE', label: 'Make Concise' },
+    { id: 'REASONING', label: 'Enhance Reasoning (CoT)' },
+    { id: 'FEW_SHOT', label: 'Generate Few-Shot Examples' }
+];
+
+// --- Component ---
 
 export default function SynapsePage() {
     // -- State --
@@ -36,10 +75,24 @@ export default function SynapsePage() {
         user_query: "How do I optimize my LLM costs?"
     });
 
-    const [activeRightTab, setActiveRightTab] = useState<'variables' | 'versions'>('variables');
+    const [activeRightTab, setActiveRightTab] = useState<'variables' | 'versions' | 'tests'>('variables');
     const [showHistory, setShowHistory] = useState(false);
+
+    // Testing State
+    const [testCases, setTestCases] = useState<any[]>([]); // Using 'any' for now to match TestsPanel interface
+    const [isRunningTests, setIsRunningTests] = useState(false);
     const [consoleOutput, setConsoleOutput] = useState<string>("// Ready to run...");
     const [isRunning, setIsRunning] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeploying, setIsDeploying] = useState(false);
+    const [showDeployModal, setShowDeployModal] = useState(false);
+    const [isLoadingVersions, setIsLoadingVersions] = useState(false);
+
+    // Optimizer State
+    const [showOptimizer, setShowOptimizer] = useState(false);
+    const [optimizationObjective, setOptimizationObjective] = useState(OPTIMIZATION_OBJECTIVES[0].id);
+    const [isOptimizing, setIsOptimizing] = useState(false);
+    const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
 
     // Backend Configuration
     const [simulationMode, setSimulationMode] = useState(true);
@@ -49,17 +102,84 @@ export default function SynapsePage() {
         port: '8080'
     });
 
-    // Mock Data State
-    const [versions, setVersions] = useState<Version[]>([
-        { id: 'v1.0', tag: 'v1.0', content: "You are a specialized assistant...", timestamp: '2 days ago', author: 'System', active: false },
-        { id: 'v1.1', tag: 'v1.1', content: "You are a helpful AI assistant...", timestamp: 'Yesterday', author: 'User', active: false },
-        { id: 'v1.2', tag: 'v1.2-draft', content: "You are a helpful AI assistant named {{ bot_name }}...", timestamp: 'Today', author: 'You', active: true },
+    // Data State
+    const [versions, setVersions] = useState<Version[]>([]);
+    const [history, setHistory] = useState<HistoryItem[]>([
+        { id: 'h1', timestamp: '10:00', action: 'System Init', user: 'System', details: 'Synapse Studio Loaded' }
     ]);
 
-    const [history, setHistory] = useState<HistoryItem[]>([
-        { id: 'h1', timestamp: '10:00 AM', action: 'Deployed v1.1', user: 'Admin', details: 'Promoted to Production' },
-        { id: 'h2', timestamp: '10:05 AM', action: 'Created v1.2-draft', user: 'You', details: 'Started editing' },
-    ]);
+    // -- Helpers --
+
+    const addToHistory = (action: string, details: string) => {
+        const newItem: HistoryItem = {
+            id: Date.now().toString(),
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            action,
+            user: 'You',
+            details
+        };
+        setHistory(prev => [newItem, ...prev]);
+    };
+
+    const getBaseUrl = () => `${backendConfig.url}:${backendConfig.port}`;
+
+    // -- Effects --
+
+    // Fetch versions when switching to Real Backend or on mount if already real
+    useEffect(() => {
+        if (!simulationMode) {
+            fetchVersions();
+        } else {
+            // Load mock versions for simulation mode
+            setVersions([
+                { id: 'v1.0', tag: 'v1.0.0', content: "You are a specialized assistant...", timestamp: '2 days ago', author: 'System', active: false },
+                { id: 'v1.1', tag: 'v1.1.0', content: "You are a helpful AI assistant...", timestamp: 'Yesterday', author: 'User', active: false },
+                { id: 'v1.2', tag: 'v1.2.0-draft', content: promptContent, timestamp: 'Today', author: 'You', active: true },
+            ]);
+        }
+    }, [simulationMode]);
+
+    const fetchVersions = async () => {
+        setIsLoadingVersions(true);
+        try {
+            // Fetch versions
+            const versionsRes = await fetch(`${getBaseUrl()}/api/prompts/versions?branchName=main`);
+            if (!versionsRes.ok) throw new Error("Failed to fetch versions");
+            const data: PromptVersionDTO[] = await versionsRes.json();
+
+            // Fetch workflow status
+            let workflow: any = null;
+            try {
+                const wfRes = await fetch(`${getBaseUrl()}/api/v1/synapse/prompts/default-prompt/workflow`);
+                if (wfRes.ok) {
+                    workflow = await wfRes.json();
+                }
+            } catch (e) {
+                console.warn("Could not fetch workflow", e);
+            }
+
+            const mappedVersions: Version[] = data.map((v, idx) => ({
+                id: v.versionId,
+                tag: `v${v.majorVersion}.${v.minorVersion}.${v.patchVersion}`,
+                content: v.promptText,
+                timestamp: new Date(v.timestamp).toLocaleString(),
+                author: v.author || 'Unknown',
+                active: idx === 0,
+                isLive: workflow ? workflow.activeProductionVersionId === v.versionId : v.branchName === 'main',
+                isShadow: workflow ? workflow.activeShadowVersionId === v.versionId : false
+            }));
+
+            // Sort by timestamp desc
+            mappedVersions.sort((a, b) => new Date(b.timestamp).valueOf() - new Date(a.timestamp).valueOf());
+
+            setVersions(mappedVersions);
+        } catch (err) {
+            console.error(err);
+            addToHistory('Fetch Error', 'Could not load versions');
+        } finally {
+            setIsLoadingVersions(false);
+        }
+    };
 
     // -- Handlers --
 
@@ -72,8 +192,6 @@ export default function SynapsePage() {
             // Simulate API call delay
             setTimeout(() => {
                 let result = promptContent;
-
-                // Basic variable substitution for preview
                 Object.entries(variables).forEach(([key, val]) => {
                     result = result.replace(new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g'), val);
                 });
@@ -91,14 +209,13 @@ export default function SynapsePage() {
 
                 addToHistory('Run Simulation', 'Success (432ms)');
                 setIsRunning(false);
-            }, 1200);
+            }, 1000);
         } else {
             // Real Backend Call
-            const baseUrl = `${backendConfig.url}:${backendConfig.port}`;
-            setConsoleOutput(`// Connecting to NeuroGate Core at ${baseUrl}...\n`);
+            setConsoleOutput(`// Connecting to NeuroGate Core at ${getBaseUrl()}...\n`);
 
             try {
-                const response = await fetch(`${baseUrl}/api/v1/synapse/play`, {
+                const response = await fetch(`${getBaseUrl()}/api/v1/synapse/play`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -108,7 +225,10 @@ export default function SynapsePage() {
                     })
                 });
 
-                if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+                if (!response.ok) {
+                    const errText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errText}`);
+                }
 
                 const data = await response.json();
                 const content = data?.content || JSON.stringify(data, null, 2);
@@ -129,91 +249,149 @@ export default function SynapsePage() {
         }
     };
 
-    // -- Smart Versioning Helper (Levenshtein Distance) --
-    const calculateSimilarity = (s1: string, s2: string): number => {
-        const longer = s1.length > s2.length ? s1 : s2;
-        const shorter = s1.length > s2.length ? s2 : s1;
-        if (longer.length === 0) return 1.0;
+    const handleSave = async () => {
+        setIsSaving(true);
+        if (simulationMode) {
+            // Mock Save
+            setTimeout(() => {
+                const parts = versions.length > 0 ? versions[0].tag.replace('v', '').split('.').map(Number) : [1, 0, 0];
+                parts[2]++; // patch bump
+                const nextVer = `v${parts.join('.')}`;
 
-        let costs = new Array();
-        for (let i = 0; i <= longer.length; i++) {
-            let lastValue = i;
-            for (let j = 0; j <= shorter.length; j++) {
-                if (i == 0) {
-                    costs[j] = j;
-                } else {
-                    if (j > 0) {
-                        let newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
-                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                        }
-                        costs[j - 1] = lastValue;
-                        lastValue = newValue;
-                    }
-                }
-            }
-            if (i > 0)
-                costs[shorter.length] = lastValue;
-        }
-        return (longer.length - costs[shorter.length]) / longer.length;
-    }
-
-    const handleSave = () => {
-        // Get latest version content to compare
-        const latestVersion = versions[0];
-        const similarity = calculateSimilarity(latestVersion.content, promptContent);
-
-        let bumpType = "PATCH";
-        let nextVer = "v1.0.0";
-
-        // Parse latest tag (assuming vX.Y.Z format, fallback to 1.2.0 if draft)
-        const parts = latestVersion.tag.replace(/[^0-9.]/g, '').split('.').map(Number);
-        if (parts.length < 3) while (parts.length < 3) parts.push(0);
-
-        if (similarity < 0.60) {
-            bumpType = "MAJOR (Breaking Change)";
-            parts[0]++; parts[1] = 0; parts[2] = 0;
-        } else if (similarity < 0.95) {
-            bumpType = "MINOR (Feature Update)";
-            parts[1]++; parts[2] = 0;
+                const newVer: Version = {
+                    id: nextVer,
+                    tag: nextVer,
+                    content: promptContent,
+                    timestamp: 'Just now',
+                    author: 'You',
+                    active: false
+                };
+                setVersions(prev => [newVer, ...prev]);
+                setActiveRightTab('versions');
+                addToHistory('Saved Snapshot', nextVer);
+                setIsSaving(false);
+            }, 800);
         } else {
-            bumpType = "PATCH (Tiny Fix)";
-            parts[2]++;
+            // Real Commit
+            try {
+                const res = await fetch(`${getBaseUrl()}/api/prompts/commit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        promptText: promptContent,
+                        commitMessage: "Update from Synapse Studio",
+                        author: "User", // TODO: Get real user
+                        branchName: "main"
+                    })
+                });
+
+                if (!res.ok) throw new Error("Failed to commit");
+
+                await fetchVersions();
+                setActiveRightTab('versions');
+                addToHistory('Committed', 'Saved to Main Branch');
+            } catch (err: any) {
+                setConsoleOutput(`// ERROR: Failed to save.\n// ${err.message}`);
+                addToHistory('Save Failed', err.message);
+            } finally {
+                setIsSaving(false);
+            }
         }
-
-        nextVer = `v${parts.join('.')}`;
-
-        setConsoleOutput(prev => prev +
-            `\n\n// Calculating Semantic Diff...\n` +
-            `// Similarity Score: ${(similarity * 100).toFixed(1)}%\n` +
-            `// Detected Change: ${bumpType}\n` +
-            `// Saving snapshot ${nextVer}... Done.`
-        );
-
-        const newVer: Version = {
-            id: nextVer,
-            tag: nextVer,
-            content: promptContent,
-            timestamp: 'Just now',
-            author: 'You',
-            active: false
-        };
-
-        setVersions(prev => [newVer, ...prev]);
-        setActiveRightTab('versions');
-        addToHistory('Saved Version', nextVer);
     };
 
-    const handleDeploy = () => {
-        setConsoleOutput(prev => prev + `\n\n// Deploying to Production... Success!\n// Traffic shifting: 0% -> 100%`);
+    const handleDeployClick = () => {
+        setShowDeployModal(true);
+    };
 
-        // Mark current top version as active
-        setVersions(prev => prev.map((v, i) => ({
-            ...v,
-            active: i === 0 // Make the most recent one active for simulation
-        })));
+    const handleConfirmDeploy = async (environment: string) => {
+        setIsDeploying(true);
+        if (simulationMode) {
+            setTimeout(() => {
+                setConsoleOutput(prev => prev + `\n\n// Deploying to ${environment.toUpperCase()}... Success!\n// Traffic shifting to ${environment}...`);
+                addToHistory(`Deployed to ${environment}`, 'Success');
+                setIsDeploying(false);
+                setShowDeployModal(false);
+            }, 1000);
+        } else {
+            try {
+                if (versions.length === 0) throw new Error("No version to deploy");
+                const versionId = versions[0].id; // Latest for now
 
-        addToHistory('Deployed to Prod', 'Traffic: 100%');
+                const res = await fetch(`${getBaseUrl()}/api/v1/synapse/deploy`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        promptName: "default-prompt", // TODO real name
+                        versionId: versionId,
+                        environment: environment,
+                        user: "User"
+                    })
+                });
+
+                if (!res.ok) throw new Error("Deploy failed");
+
+                addToHistory('Deployed', `Version ${versionId} to ${environment}`);
+                setConsoleOutput(prev => prev + `\n// Deployment to ${environment} Successful!`);
+
+                // Refresh workflow/versions to show new badges
+                await fetchVersions();
+            } catch (err: any) {
+                setConsoleOutput(`// DEPLOY ERROR: ${err.message}`);
+                addToHistory('Deploy Failed', err.message);
+            } finally {
+                setIsDeploying(false);
+                setShowDeployModal(false);
+            }
+        }
+    };
+
+
+
+    const handleOptimize = async () => {
+        setIsOptimizing(true);
+        setOptimizationResult(null);
+        try {
+            if (simulationMode) {
+                // Mock Optimization
+                setTimeout(() => {
+                    setOptimizationResult({
+                        originalPrompt: promptContent,
+                        optimizedPrompt: "You are a highly capable AI assistant named {{ bot_name }}.\n\nContext: Current date is {{ date }}.\n\nTask:\nUser asks: {{ user_query }}\n\nStep-by-step reasoning:\n1. Analyze the user's intent.\n2. Formulate a concise and accurate response.\n3. Ensure tone is professional.\n\nAnswer:",
+                        explanation: "Added 'highly capable' persona, structured the prompt with 'Context' and 'Task' sections, and included a 'Step-by-step reasoning' block (Chain-of-Thought) to improve logic.",
+                        objective: optimizationObjective
+                    });
+                    setIsOptimizing(false);
+                }, 1500);
+            } else {
+                // Real Backend
+                const res = await fetch(`${getBaseUrl()}/api/v1/synapse/optimize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        originalPrompt: promptContent,
+                        objective: optimizationObjective,
+                        modelPreference: 'gpt-4'
+                    })
+                });
+
+                if (!res.ok) throw new Error("Optimization failed");
+                const data = await res.json();
+                setOptimizationResult(data);
+                setIsOptimizing(false);
+            }
+        } catch (err: any) {
+            setConsoleOutput(`// OPTIMIZER ERROR: ${err.message}`);
+            setIsOptimizing(false);
+        }
+    };
+
+    const handleAcceptOptimization = () => {
+        if (optimizationResult) {
+            setPromptContent(optimizationResult.optimizedPrompt);
+            setShowOptimizer(false);
+            setOptimizationResult(null);
+            addToHistory('Optimized Prompt', optimizationResult.objective);
+        }
     };
 
     const handleRestore = (verId: string) => {
@@ -222,6 +400,69 @@ export default function SynapsePage() {
             setPromptContent(target.content);
             setConsoleOutput(`// Restored content from ${target.tag}`);
             addToHistory('Restored Version', target.tag);
+            // set this version as active in UI
+            setVersions(prev => prev.map(v => ({ ...v, active: v.id === verId })));
+        }
+    };
+
+    const handleRunTests = async (cases: any[]) => {
+        setIsRunningTests(true);
+        try {
+            if (simulationMode) {
+                // Mock Test Run
+                setTimeout(() => {
+                    const results = cases.map(c => ({
+                        ...c,
+                        status: Math.random() > 0.3 ? 'pass' : 'fail',
+                        actual: c.status === 'pass' ? c.expected : "Unexpected output from model...",
+                        score: Math.random() > 0.3 ? 100 : 45,
+                        reason: "Eval score based on semantic similarity."
+                    }));
+                    setTestCases(results);
+                    setIsRunningTests(false);
+                    addToHistory('Run Tests', `Completed (${results.filter((r: any) => r.status === 'pass').length}/${results.length} Passed)`);
+                }, 2000);
+            } else {
+                // Real Backend Ad-Hoc Eval
+                const res = await fetch(`${getBaseUrl()}/api/v1/cortex/evaluate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        promptTemplate: promptContent,
+                        model: "gpt-4",
+                        testCases: cases.map(c => ({
+                            id: c.id,
+                            input: c.input,
+                            expectedOutput: c.expected
+                        }))
+                    })
+                });
+
+                if (!res.ok) throw new Error("Evaluation failed");
+                const data = await res.json();
+
+                // Merge results back
+                const updatedCases = cases.map(c => {
+                    const result = data.results.find((r: any) => r.caseId === c.id);
+                    if (result) {
+                        return {
+                            ...c,
+                            status: result.passed ? 'pass' : 'fail',
+                            actual: result.actualOutput,
+                            score: result.score,
+                            reason: result.reason
+                        };
+                    }
+                    return c;
+                });
+
+                setTestCases(updatedCases);
+                setIsRunningTests(false);
+                addToHistory('Run Tests', `Completed (Score: ${data.overallScore.toFixed(0)}%)`);
+            }
+        } catch (err: any) {
+            setConsoleOutput(`// TEST ERROR: ${err.message}`);
+            setIsRunningTests(false);
         }
     };
 
@@ -229,25 +470,14 @@ export default function SynapsePage() {
     const [sidebarWidth, setSidebarWidth] = useState(320);
     const [isResizing, setIsResizing] = useState(false);
 
-    const startResizing = useCallback((mouseDownEvent: React.MouseEvent) => {
-        setIsResizing(true);
-    }, []);
-
-    const stopResizing = useCallback(() => {
-        setIsResizing(false);
-    }, []);
-
-    const resize = useCallback(
-        (mouseMoveEvent: MouseEvent) => {
-            if (isResizing) {
-                const newWidth = window.innerWidth - mouseMoveEvent.clientX;
-                if (newWidth > 250 && newWidth < 800) {
-                    setSidebarWidth(newWidth);
-                }
-            }
-        },
-        [isResizing]
-    );
+    const startResizing = useCallback(() => setIsResizing(true), []);
+    const stopResizing = useCallback(() => setIsResizing(false), []);
+    const resize = useCallback((e: MouseEvent) => {
+        if (isResizing) {
+            const newWidth = window.innerWidth - e.clientX;
+            if (newWidth > 250 && newWidth < 800) setSidebarWidth(newWidth);
+        }
+    }, [isResizing]);
 
     useEffect(() => {
         window.addEventListener("mousemove", resize);
@@ -258,46 +488,27 @@ export default function SynapsePage() {
         };
     }, [resize, stopResizing]);
 
-    const addToHistory = (action: string, details: string) => {
-        const newItem: HistoryItem = {
-            id: Date.now().toString(),
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            action,
-            user: 'You',
-            details
-        };
-        setHistory(prev => [newItem, ...prev]);
-    };
-
     return (
         <div className="flex h-screen bg-slate-950 text-white overflow-hidden font-sans selection:bg-purple-500/30">
             {/* Background Effects */}
             <div className="fixed inset-0 bg-[url('/grid.svg')] bg-center opacity-20 pointer-events-none" />
-            <div className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
-            <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.15, 0.1] }}
+                transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+                className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none"
+            />
+            <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.1, 0.15, 0.1] }}
+                transition={{ duration: 8, repeat: Infinity, repeatType: "reverse", delay: 2 }}
+                className="fixed bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"
+            />
 
             {/* Sidebar (Navigation) */}
             <div className="w-16 flex flex-col items-center py-6 border-r border-white/5 bg-slate-900/50 backdrop-blur-md z-20">
                 <div className="mb-8 text-purple-400 text-2xl font-bold font-mono animate-pulse">N</div>
                 <div className="space-y-6 w-full px-3">
-                    <button
-                        onClick={() => setShowHistory(false)}
-                        className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-300 ${!showHistory
-                            ? 'bg-purple-500/20 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-                            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                        title="Editor"
-                    >
-                        <FaCodeBranch size={20} />
-                    </button>
-                    <button
-                        onClick={() => setShowHistory(!showHistory)}
-                        className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-300 ${showHistory
-                            ? 'bg-purple-500/20 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-                            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                        title="History"
-                    >
-                        <FaHistory size={20} />
-                    </button>
+                    <NavIcon icon={<FaCodeBranch size={20} />} active={!showHistory} onClick={() => setShowHistory(false)} tooltip="Editor" />
+                    <NavIcon icon={<FaHistory size={20} />} active={showHistory} onClick={() => setShowHistory(true)} tooltip="History" />
                 </div>
             </div>
 
@@ -311,38 +522,60 @@ export default function SynapsePage() {
                             <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
                                 Synapse Studio
                                 <span className="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px] text-purple-300 font-medium uppercase tracking-wider">
-                                    v2.4.0
+                                    beta
                                 </span>
                             </h1>
                             <span className="flex items-center space-x-2 text-xs text-slate-400 font-mono">
                                 <FaTerminal size={10} className="text-slate-500" />
-                                <span>prompt-engineering / support-bot</span>
+                                <span>main / playground-prompt</span>
                             </span>
                         </div>
                     </div>
 
                     <div className="flex items-center space-x-3">
-                        <div className="flex items-center bg-black/40 rounded-lg px-3 py-1.5 border border-white/5 mr-4 shadow-inner">
-                            <span className="text-xs text-emerald-400 font-mono flex items-center gap-2">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                Redis Connected
+                        <AnimatePresence>
+                            {!simulationMode && (
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    className="flex items-center bg-emerald-500/10 rounded-lg px-3 py-1.5 border border-emerald-500/20 mr-4 shadow-inner"
+                                >
+                                    <span className="text-xs text-emerald-400 font-mono flex items-center gap-2">
+                                        <div className="relative flex h-2 w-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                        </div>
+                                        Core Connected
+                                    </span>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Optimizer Button */}
+                        <button
+                            onClick={() => setShowOptimizer(true)}
+                            className="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 hover:text-white transition-all mr-2 group relative"
+                            title="Neuro-Optimizer"
+                        >
+                            <FaMagic size={14} className="group-hover:animate-pulse" />
+                            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
                             </span>
-                        </div>
+                        </button>
 
                         {/* Simulation Toggle */}
                         <div className="flex items-center bg-white/5 rounded-lg p-1 mr-2 border border-white/10">
                             <button
                                 onClick={() => setSimulationMode(true)}
-                                className={`px-3 py-1 text-xs font-medium rounded transition-all ${simulationMode ? 'bg-purple-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3 py-1 text-xs font-medium rounded transition-all ${simulationMode ? 'bg-purple-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                             >
                                 Simulation
                             </button>
                             <button
                                 onClick={() => setSimulationMode(false)}
-                                className={`px-3 py-1 text-xs font-medium rounded transition-all ${!simulationMode ? 'bg-emerald-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                                className={`px-3 py-1 text-xs font-medium rounded transition-all ${!simulationMode ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                             >
                                 Real Backend
                             </button>
@@ -358,62 +591,47 @@ export default function SynapsePage() {
                             </button>
 
                             {/* Settings Popup */}
-                            {showSettings && (
-                                <div className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl p-4 z-50 backdrop-blur-xl">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Backend Configuration</h3>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">Base URL</label>
-                                            <input
-                                                type="text"
-                                                value={backendConfig.url}
-                                                onChange={(e) => setBackendConfig(prev => ({ ...prev, url: e.target.value }))}
-                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white focus:border-purple-500 outline-none"
-                                            />
+                            <AnimatePresence>
+                                {showSettings && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                                        className="absolute top-full right-0 mt-2 w-64 bg-slate-900 border border-white/10 rounded-xl shadow-2xl p-4 z-50 backdrop-blur-xl"
+                                    >
+                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Backend Configuration</h3>
+                                        <div className="space-y-3">
+                                            <InputGroup label="Base URL" value={backendConfig.url} onChange={v => setBackendConfig({ ...backendConfig, url: v })} />
+                                            <InputGroup label="Port" value={backendConfig.port} onChange={v => setBackendConfig({ ...backendConfig, port: v })} />
                                         </div>
-                                        <div>
-                                            <label className="text-[10px] text-slate-500 block mb-1">Port</label>
-                                            <input
-                                                type="text"
-                                                value={backendConfig.port}
-                                                onChange={(e) => setBackendConfig(prev => ({ ...prev, port: e.target.value }))}
-                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white focus:border-purple-500 outline-none"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
-                        <button
+                        <ActionButton
                             onClick={handleRun}
                             disabled={isRunning}
-                            className={`flex items-center space-x-2 px-5 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-300 ${isRunning
-                                ? 'bg-slate-700 cursor-not-allowed opacity-50'
-                                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:scale-105'
-                                }`}
-                        >
-                            <FaPlay size={10} className={isRunning ? 'animate-spin' : ''} />
-                            <span>{isRunning ? 'Running...' : 'Run'}</span>
-                        </button>
+                            icon={isRunning ? <FaSpinner className="animate-spin" /> : <FaPlay />}
+                            label={isRunning ? 'Running...' : 'Run'}
+                            variant="primary"
+                        />
 
                         <div className="h-6 w-px bg-white/10 mx-2" />
 
-                        <button
+                        <ActionButton
                             onClick={handleSave}
-                            className="flex items-center space-x-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-lg text-xs font-semibold transition-all hover:border-white/20"
-                        >
-                            <FaSave size={12} />
-                            <span>Save Snapshot</span>
-                        </button>
+                            disabled={isSaving}
+                            icon={isSaving ? <FaSpinner className="animate-spin" /> : <FaSave />}
+                            label="Save"
+                            variant="secondary"
+                        />
 
-                        <button
-                            onClick={handleDeploy}
-                            className="flex items-center space-x-2 px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-semibold transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:scale-105 group"
-                        >
-                            <FaRocket size={12} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                            <span>Deploy</span>
-                        </button>
+                        <ActionButton
+                            onClick={handleDeployClick}
+                            disabled={isDeploying}
+                            icon={isDeploying ? <FaSpinner className="animate-spin" /> : <FaRocket />}
+                            label="Deploy"
+                            variant="deploy"
+                        />
                     </div>
                 </div>
 
@@ -421,19 +639,26 @@ export default function SynapsePage() {
                 <div className="flex-1 flex overflow-hidden">
 
                     {/* Left Pane: History (Conditional) */}
-                    {showHistory ? (
-                        <div className="w-80 border-r border-white/5 bg-black/20 backdrop-blur-sm p-4 overflow-auto">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Timeline</h3>
-                            <HistoryList history={history} />
-                        </div>
-                    ) : null}
+                    <AnimatePresence mode="popLayout">
+                        {showHistory && (
+                            <motion.div
+                                initial={{ width: 0, opacity: 0 }}
+                                animate={{ width: 320, opacity: 1 }}
+                                exit={{ width: 0, opacity: 0 }}
+                                className="border-r border-white/5 bg-black/20 backdrop-blur-sm p-4 overflow-auto"
+                            >
+                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 px-2">Timeline</h3>
+                                <HistoryList history={history} />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Center Pane: Editor & Console */}
                     <div className="flex-1 flex flex-col min-w-0 bg-black/40">
                         {/* Editor */}
                         <div className="flex-1 relative p-6">
                             <div className="absolute inset-0 p-6 flex flex-col">
-                                <div className="flex-1 rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group">
+                                <div className="flex-1 rounded-xl overflow-hidden border border-white/10 shadow-2xl relative group bg-slate-900/50">
                                     <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-purple-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
                                     <PromptEditor
                                         value={promptContent}
@@ -479,46 +704,73 @@ export default function SynapsePage() {
                         className="border-l border-white/5 bg-slate-900/40 backdrop-blur-md flex flex-col shrink-0"
                     >
                         <div className="flex border-b border-white/5">
-                            <button
-                                onClick={() => setActiveRightTab('variables')}
-                                className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${activeRightTab === 'variables'
-                                    ? 'text-purple-400 border-b-2 border-purple-500 bg-purple-500/5'
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                            >
-                                Variables
-                            </button>
-                            <button
-                                onClick={() => setActiveRightTab('versions')}
-                                className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${activeRightTab === 'versions'
-                                    ? 'text-purple-400 border-b-2 border-purple-500 bg-purple-500/5'
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                            >
-                                Versions
-                            </button>
+                            <TabButton label="Variables" active={activeRightTab === 'variables'} onClick={() => setActiveRightTab('variables')} />
+                            <TabButton label="Versions" active={activeRightTab === 'versions'} onClick={() => setActiveRightTab('versions')} />
+                            <TabButton label="Tests" active={activeRightTab === 'tests'} onClick={() => setActiveRightTab('tests')} />
                         </div>
 
-                        <div className="flex-1 overflow-auto p-0 custom-scrollbar">
-                            {activeRightTab === 'variables' ? (
-                                <div className="p-4 space-y-4">
-                                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20 mb-4">
-                                        <p className="text-xs text-purple-200 leading-relaxed">
-                                            Define variables for your prompt template. These mock values will be injected during simulation runs.
-                                        </p>
-                                    </div>
-                                    <VariableForm
-                                        promptContent={promptContent}
-                                        variables={variables}
-                                        onChange={(key, val) => setVariables(prev => ({ ...prev, [key]: val }))}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="p-0">
-                                    <VersionsList
-                                        versions={versions}
-                                        onRestore={handleRestore}
-                                    />
+                        <div className="flex-1 overflow-auto p-0 custom-scrollbar relative">
+                            {isLoadingVersions && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-20">
+                                    <FaSpinner className="animate-spin text-purple-500" size={24} />
                                 </div>
                             )}
+
+                            <AnimatePresence mode="wait">
+                                {activeRightTab === 'variables' ? (
+                                    <motion.div
+                                        key="vars"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="p-4 space-y-4"
+                                    >
+                                        <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20 mb-4">
+                                            <p className="text-xs text-purple-200 leading-relaxed flex items-start gap-2">
+                                                <FaRobot className="mt-1 shrink-0" />
+                                                Define variables for your prompt template. Mock values are injected during simulation.
+                                            </p>
+                                        </div>
+                                        <VariableForm
+                                            promptContent={promptContent}
+                                            variables={variables}
+                                            onChange={(key, val) => setVariables(prev => ({ ...prev, [key]: val }))}
+                                        />
+                                    </motion.div>
+                                ) : activeRightTab === 'versions' ? (
+                                    <motion.div
+                                        key="vers"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="p-0"
+                                    >
+                                        <VersionsList
+                                            versions={versions}
+                                            onRestore={handleRestore}
+                                        />
+                                    </motion.div>
+                                ) : (
+                                    <motion.div
+                                        key="tests"
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -20 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="h-full"
+                                    >
+                                        <TestsPanel
+                                            testCases={testCases}
+                                            setTestCases={setTestCases}
+                                            onRunTests={handleRunTests}
+                                            isRunning={isRunningTests}
+                                            promptContent={promptContent}
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {/* Mini Graph Preview */}
@@ -533,6 +785,82 @@ export default function SynapsePage() {
                     </div>
                 </div>
             </div>
+
+            <OptimizationModal
+                isOpen={showOptimizer}
+                onClose={() => setShowOptimizer(false)}
+                original={promptContent}
+                result={optimizationResult}
+                isOptimizing={isOptimizing}
+                objective={optimizationObjective}
+                setObjective={setOptimizationObjective}
+                objectives={OPTIMIZATION_OBJECTIVES}
+                onOptimize={handleOptimize}
+                onAccept={handleAcceptOptimization}
+            />
+
+            <DeployModal
+                isOpen={showDeployModal}
+                onClose={() => setShowDeployModal(false)}
+                onDeploy={handleConfirmDeploy}
+                isDeploying={isDeploying}
+            />
         </div>
     );
 }
+
+// --- Sub Components ---
+
+const NavIcon = ({ icon, active, onClick, tooltip }: any) => (
+    <button
+        onClick={onClick}
+        className={`w-full aspect-square rounded-xl flex items-center justify-center transition-all duration-300 ${active
+            ? 'bg-purple-500/20 text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+        title={tooltip}
+    >
+        {icon}
+    </button>
+);
+
+const ActionButton = ({ onClick, disabled, icon, label, variant }: any) => {
+    const styles: any = {
+        primary: 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]',
+        secondary: 'bg-white/5 hover:bg-white/10 border border-white/10 text-white hover:border-white/20',
+        deploy: 'bg-purple-600 hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(147,51,234,0.4)]'
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold tracking-wide transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${styles[variant]}`}
+        >
+            <span className="text-xs">{icon}</span>
+            <span className="text-xs">{label}</span>
+        </button>
+    );
+};
+
+const TabButton = ({ label, active, onClick }: any) => (
+    <button
+        onClick={onClick}
+        className={`flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition-all ${active
+            ? 'text-purple-400 border-b-2 border-purple-500 bg-purple-500/5'
+            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+    >
+        {label}
+    </button>
+);
+
+const InputGroup = ({ label, value, onChange }: any) => (
+    <div>
+        <label className="text-[10px] text-slate-500 block mb-1">{label}</label>
+        <input
+            type="text"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1 text-xs text-white focus:border-purple-500 outline-none transition-colors"
+        />
+    </div>
+);

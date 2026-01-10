@@ -72,6 +72,14 @@ public class PromptRegistry {
         return promptRepository.findVersionById(workflow.getActiveStagingVersionId()).orElse(null);
     }
 
+    public PromptVersion getShadowPrompt(String promptName) {
+        PromptWorkflow workflow = workflowRepository.findById(promptName).orElse(null);
+        if (workflow == null || workflow.getActiveShadowVersionId() == null) {
+            return null;
+        }
+        return promptRepository.findVersionById(workflow.getActiveShadowVersionId()).orElse(null);
+    }
+
     /**
      * Promote a specific version to an environment (production/staging)
      */
@@ -99,6 +107,10 @@ public class PromptRegistry {
 
             // Invalidate local cache
             productionCache.invalidate(promptName);
+        } else if ("shadow".equalsIgnoreCase(environment)) {
+            workflow.setActiveShadowVersionId(versionId);
+            workflow.setLastDeployedToShadow(Instant.now());
+            workflow.setShadowDeployedBy(user);
         } else {
             workflow.setActiveStagingVersionId(versionId);
             workflow.setLastDeployedToStaging(Instant.now());
