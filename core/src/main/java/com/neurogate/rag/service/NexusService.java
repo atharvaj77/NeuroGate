@@ -41,19 +41,45 @@ public class NexusService {
         String query = getLastUserMessage(request);
         if (query == null)
             return Collections.emptyList();
+
+        Integer topK = null;
+        List<String> collectionNames = null;
+
+        // Allow overriding via request options
+        if (request.getRagOptions() != null) {
+            topK = request.getRagOptions().getTopK();
+            collectionNames = request.getRagOptions().getCollectionNames();
+        }
+
+        List<ScoredPoint> docs = search(query, userId, topK, collectionNames);
+
+        if (docs.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String contextBlock = contextInjector.formatContext(docs);
+        injectSystemMessage(request, contextBlock);
+
+        log.info("Injected {} documents into context.", docs.size());
+
+        return docs.stream().map(ScoredPoint::id).collect(Collectors.toList());
+    }
+
+    /**
+     * Public search method for Nexus RAG Gateway.
+     */
+    public List<ScoredPoint> search(String query, String userId, Integer topKOverride,
+            List<String> collectionNamesOverride) {
         List<Double> queryVector = embeddingService.embed(query);
 
         String collection = ragConfig.getVectorDb().getCollection();
         int topK = ragConfig.getRetrieval().getTopK();
 
-        // Allow overriding via request options
-        if (request.getRagOptions() != null) {
-            if (request.getRagOptions().getTopK() != null)
-                topK = request.getRagOptions().getTopK();
-            if (request.getRagOptions().getCollectionNames() != null
-                    && !request.getRagOptions().getCollectionNames().isEmpty()) {
-                collection = request.getRagOptions().getCollectionNames().get(0); // Support single collection for now
-            }
+        if (topKOverride != null) {
+            topK = topKOverride;
+        }
+        if (collectionNamesOverride != null && !collectionNamesOverride.isEmpty()) {
+            collection = collectionNamesOverride.get(0); // Support single collection for now
         }
 
         Map<String, Object> filter = new HashMap<>();
@@ -77,15 +103,9 @@ public class NexusService {
 
         if (docs.isEmpty()) {
             log.info("No relevant documents found for query.");
-            return Collections.emptyList();
         }
 
-        String contextBlock = contextInjector.formatContext(docs);
-        injectSystemMessage(request, contextBlock);
-
-        log.info("Injected {} documents into context.", docs.size());
-
-        return docs.stream().map(ScoredPoint::id).collect(Collectors.toList());
+        return docs;
     }
 
     private boolean shouldRun(ChatRequest request) {

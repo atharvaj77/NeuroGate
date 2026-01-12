@@ -80,7 +80,7 @@ class HiveMindIntegrationTest {
                 // behavior.
 
                 try {
-                        String result = consensusService.reachConsensus(request);
+                        com.neurogate.consensus.ConsensusResult result = consensusService.reachConsensus(request);
                         // If it reaches here without error (unlikely without mocks), check result
                         // assertNotNull(result);
                 } catch (Exception e) {

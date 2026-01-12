@@ -31,7 +31,7 @@ public class ConsensusService {
      * @param originalRequest User query request
      * @return Synthesized answer
      */
-    public String reachConsensus(ChatRequest originalRequest) {
+    public ConsensusResult reachConsensus(ChatRequest originalRequest) {
         log.info("Initiating Hive Consensus for request: '{}' with {} providers",
                 originalRequest.getModel(), providers.size());
 
@@ -61,7 +61,13 @@ public class ConsensusService {
         log.info("Received {} responses. Aggregating...", responses.size());
 
         // 3. Synthesize (Judge)
-        return synthesize(originalRequest, responses);
+        String synthesis = synthesize(originalRequest, responses);
+
+        return ConsensusResult.builder()
+                .synthesis(synthesis)
+                .individualResponses(responses)
+                .confidence(0.99) // Mock confidence for now
+                .build();
     }
 
     /**

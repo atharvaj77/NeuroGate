@@ -1,5 +1,6 @@
 package com.neurogate.core.cortex;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,12 @@ public class EvaluationResult {
     private String caseId;
 
     @Column(columnDefinition = "TEXT")
+    private String input;
+
+    @Column(columnDefinition = "TEXT")
+    private String idealOutput;
+
+    @Column(columnDefinition = "TEXT")
     private String agentOutput;
 
     @Column(columnDefinition = "TEXT")
@@ -29,6 +36,7 @@ public class EvaluationResult {
     @Column(length = 20)
     private String status; // PASS, FAIL, WARN
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "run_id", nullable = false)
     private EvaluationRun run;

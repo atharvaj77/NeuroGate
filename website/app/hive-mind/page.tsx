@@ -4,7 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FaArrowLeft, FaBrain, FaRobot, FaCheckCircle, FaNetworkWired, FaBolt } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { HiveMindClient } from './HiveMindClient';
 
+// Mock Responses for Simulation
 // Mock Responses for Simulation
 const PROMPT_SCENARIOS = {
     default: {
@@ -18,49 +20,124 @@ const PROMPT_SCENARIOS = {
     }
 };
 
+const MODEL_STYLES = [
+    { color: "text-purple-400", bg: "from-purple-500/20", border: "border-purple-500/50" },
+    { color: "text-orange-400", bg: "from-orange-500/20", border: "border-orange-500/50" },
+    { color: "text-blue-400", bg: "from-blue-500/20", border: "border-blue-500/50" }
+];
+
 export default function HiveMindPage() {
     const [query, setQuery] = useState(PROMPT_SCENARIOS.default.query);
     const [isSimulating, setIsSimulating] = useState(false);
+    const [simulationMode, setSimulationMode] = useState(true);
+
+    // Dynamic State
+    const [activeModels, setActiveModels] = useState(PROMPT_SCENARIOS.default.models);
     const [streamedContent, setStreamedContent] = useState(['', '', '']);
     const [consensusContent, setConsensusContent] = useState('');
     const [showConsensus, setShowConsensus] = useState(false);
+    const [finalConsensusText, setFinalConsensusText] = useState('');
 
-    const startSimulation = () => {
+    const runConsensus = async () => {
         setIsSimulating(true);
         setStreamedContent(['', '', '']);
         setConsensusContent('');
         setShowConsensus(false);
 
-        // Simulate Streaming for 3 models
-        const modelIntervals: NodeJS.Timeout[] = [];
+        if (simulationMode) {
+            // --- SIMULATION MODE ---
+            setActiveModels(PROMPT_SCENARIOS.default.models);
+            setFinalConsensusText(PROMPT_SCENARIOS.default.consensus);
 
-        PROMPT_SCENARIOS.default.models.forEach((model, index) => {
-            let charIndex = 0;
-            const interval = setInterval(() => {
-                setStreamedContent(prev => {
-                    const next = [...prev];
-                    next[index] = model.content.substring(0, charIndex + 1);
-                    return next;
-                });
-                charIndex++;
-                if (charIndex >= model.content.length) clearInterval(interval);
-            }, 30 + Math.random() * 20); // Random typing speed
-            modelIntervals.push(interval);
-        });
+            // Simulate Streaming
+            const modelIntervals: NodeJS.Timeout[] = [];
+            PROMPT_SCENARIOS.default.models.forEach((model, index) => {
+                let charIndex = 0;
+                const interval = setInterval(() => {
+                    setStreamedContent(prev => {
+                        const next = [...prev];
+                        next[index] = model.content.substring(0, charIndex + 1);
+                        return next;
+                    });
+                    charIndex++;
+                    if (charIndex >= model.content.length) clearInterval(interval);
+                }, 30 + Math.random() * 20);
+                modelIntervals.push(interval);
+            });
 
-        // Start Consensus after models finish (approx 3.5s)
-        setTimeout(() => {
-            setShowConsensus(true);
-            let charIndex = 0;
-            const consensusInterval = setInterval(() => {
-                setConsensusContent(PROMPT_SCENARIOS.default.consensus.substring(0, charIndex + 1));
-                charIndex++;
-                if (charIndex >= PROMPT_SCENARIOS.default.consensus.length) {
-                    clearInterval(consensusInterval);
-                    setIsSimulating(false);
+            // Start Consensus after models finish
+            setTimeout(() => {
+                setShowConsensus(true);
+                let charIndex = 0;
+                const consensusInterval = setInterval(() => {
+                    setConsensusContent(PROMPT_SCENARIOS.default.consensus.substring(0, charIndex + 1));
+                    charIndex++;
+                    if (charIndex >= PROMPT_SCENARIOS.default.consensus.length) {
+                        clearInterval(consensusInterval);
+                        setIsSimulating(false);
+                    }
+                }, 20);
+            }, 3500);
+
+        } else {
+            // --- REAL BACKEND MODE ---
+            try {
+                // Call Backend
+                const result = await HiveMindClient.runConsensus(query);
+
+                if (result) {
+                    // Map Real Responses to UI Models
+                    const mappedModels = result.individualResponses.map((resp, i) => {
+                        const style = MODEL_STYLES[i % MODEL_STYLES.length];
+                        return {
+                            name: resp.x_neurogate_route.toUpperCase(), // e.g. "OPENAI"
+                            color: style.color,
+                            bg: style.bg,
+                            border: style.border,
+                            content: resp.choices[0]?.message?.content || "No response"
+                        };
+                    });
+
+                    setActiveModels(mappedModels);
+                    setFinalConsensusText(result.synthesis);
+
+                    // Fast "Replay" Animation for Real Data
+                    const modelIntervals: NodeJS.Timeout[] = [];
+                    mappedModels.forEach((model, index) => {
+                        let charIndex = 0;
+                        const interval = setInterval(() => {
+                            setStreamedContent(prev => {
+                                const next = [...prev];
+                                // Ensure array size matches
+                                while (next.length <= index) next.push('');
+                                next[index] = model.content.substring(0, charIndex + 1);
+                                return next;
+                            });
+                            charIndex += 5; // Faster typing for real data
+                            if (charIndex >= model.content.length) {
+                                setStreamedContent(prev => {
+                                    const next = [...prev];
+                                    next[index] = model.content;
+                                    return next;
+                                });
+                                clearInterval(interval);
+                            }
+                        }, 20);
+                        modelIntervals.push(interval);
+                    });
+
+                    // Show Consensus after delay
+                    setTimeout(() => {
+                        setShowConsensus(true);
+                        setConsensusContent(result.synthesis);
+                        setIsSimulating(false);
+                    }, 2000); // 2s delay for "thinking"
                 }
-            }, 20);
-        }, 3500);
+            } catch (err) {
+                console.error(err);
+                setIsSimulating(false);
+            }
+        }
     };
 
     return (
@@ -118,20 +195,17 @@ export default function HiveMindPage() {
                         </div>
                     </div>
 
-                    {/* Simulation Mode Badge */}
-                    <div className="flex items-center gap-2 px-3 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 group relative cursor-help text-xs">
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                        SIMULATION MODE
-
-                        {/* Tooltip */}
-                        <div className="absolute top-full right-0 mt-2 w-72 p-3 bg-black border border-white/20 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-                            <p className="text-slate-400 mb-2">Responses pre-computed.</p>
-                            <div className="p-2 bg-white/5 rounded border border-white/10 font-mono text-[10px] text-cyan-300 break-all mb-1">
-                                POST /api/v1/hive/consensus
-                            </div>
-                            <p className="text-slate-500 mt-2 font-normal">Connects to &apos;RouterService&apos; and Model Providers.</p>
-                        </div>
-                    </div>
+                    {/* Simulation Mode Toggle */}
+                    <button
+                        onClick={() => setSimulationMode(!simulationMode)}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${simulationMode
+                            ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/20'
+                            : 'bg-green-500/10 border-green-500/30 text-green-500 hover:bg-green-500/20'
+                            }`}
+                    >
+                        <div className={`w-2 h-2 rounded-full ${simulationMode ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`} />
+                        {simulationMode ? 'SIMULATION MODE' : 'REAL BACKEND'}
+                    </button>
                 </header>
 
                 <div className="flex-1 p-8 flex flex-col overflow-hidden relative">
@@ -147,7 +221,7 @@ export default function HiveMindPage() {
                                 className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-6 text-lg text-white placeholder-slate-500 focus:outline-none focus:border-violet-500/50 transition-all relative z-10 glass"
                             />
                             <button
-                                onClick={!isSimulating ? startSimulation : undefined}
+                                onClick={!isSimulating ? runConsensus : undefined}
                                 className={`absolute right-2 top-1/2 -translate-y-1/2 px-6 py-2 rounded-xl text-sm font-semibold transition-all z-20 flex items-center gap-2 ${isSimulating ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 'bg-violet-600 hover:bg-violet-500 text-white'}`}
                             >
                                 <FaBolt /> {isSimulating ? 'Processing...' : 'Run Consensus'}
@@ -157,7 +231,7 @@ export default function HiveMindPage() {
 
                     {/* Three Columns - Models */}
                     <div className="flex-1 grid grid-cols-3 gap-6 max-w-6xl mx-auto w-full mb-8 min-h-0">
-                        {PROMPT_SCENARIOS.default.models.map((model, i) => (
+                        {activeModels.map((model, i) => (
                             <div key={i} className="flex flex-col h-full">
                                 <motion.div
                                     initial={{ opacity: 0.5, y: 10 }}
@@ -168,9 +242,9 @@ export default function HiveMindPage() {
                                     <FaRobot className={model.color} />
                                     <span className={`font-bold font-mono ${model.color}`}>{model.name}</span>
                                 </motion.div>
-                                <div className={`flex-1 glass border-b border-l border-r border-white/10 rounded-b-xl p-4 font-mono text-sm text-slate-300 leading-relaxed overflow-y-auto relative ${isSimulating && streamedContent[i].length < model.content.length ? 'animate-pulse-subtle' : ''}`}>
+                                <div className={`flex-1 glass border-b border-l border-r border-white/10 rounded-b-xl p-4 font-mono text-sm text-slate-300 leading-relaxed overflow-y-auto relative ${isSimulating && streamedContent[i] && streamedContent[i].length < model.content.length ? 'animate-pulse-subtle' : ''}`}>
                                     {streamedContent[i]}
-                                    {isSimulating && streamedContent[i].length < model.content.length && (
+                                    {isSimulating && streamedContent[i] && streamedContent[i].length < model.content.length && (
                                         <span className="inline-block w-2 h-4 bg-violet-400 animate-pulse ml-1 align-middle" />
                                     )}
                                 </div>
@@ -205,7 +279,7 @@ export default function HiveMindPage() {
 
                                     <div className="min-h-[4rem] text-slate-200 font-medium leading-relaxed">
                                         {consensusContent}
-                                        {showConsensus && consensusContent.length < PROMPT_SCENARIOS.default.consensus.length && (
+                                        {showConsensus && consensusContent.length < finalConsensusText.length && (
                                             <span className="inline-block w-2 h-4 bg-violet-400 animate-pulse ml-1 align-middle" />
                                         )}
                                         {!showConsensus && !isSimulating && (

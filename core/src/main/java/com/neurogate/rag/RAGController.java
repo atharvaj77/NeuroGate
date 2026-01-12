@@ -1,10 +1,14 @@
 package com.neurogate.rag;
 
 import com.neurogate.sentinel.model.ChatRequest;
+import com.neurogate.rag.client.VectorStoreClient.ScoredPoint;
+import com.neurogate.rag.service.NexusService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST API for Dynamic RAG operations.
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class RAGController {
 
     private final DynamicRAGService ragService;
+    private final NexusService nexusService;
 
     /**
      * Determine optimal RAG strategy for a query
@@ -55,6 +60,30 @@ public class RAGController {
                 request.getSource());
 
         return ResponseEntity.ok("Document added successfully");
+    }
+
+    /**
+     * Search for documents (Nexus)
+     */
+    @PostMapping("/search")
+    public ResponseEntity<List<ScoredPoint>> search(@RequestBody SearchRequest request) {
+        // Default to a simulation user for now if auth is not fully integrated in this
+        // controller
+        String userId = "nexus-user-web";
+        List<String> collections = request.getCollection() != null ? List.of(request.getCollection()) : null;
+
+        return ResponseEntity.ok(nexusService.search(
+                request.getQuery(),
+                userId,
+                request.getLimit(),
+                collections));
+    }
+
+    @lombok.Data
+    public static class SearchRequest {
+        private String query;
+        private Integer limit;
+        private String collection;
     }
 
     /**

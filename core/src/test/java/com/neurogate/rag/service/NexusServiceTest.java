@@ -3,6 +3,7 @@ package com.neurogate.rag.service;
 import com.neurogate.core.config.RagConfig;
 import com.neurogate.rag.client.VectorStoreClient;
 import com.neurogate.rag.client.VectorStoreClient.ScoredPoint;
+import com.neurogate.rag.client.VectorStoreClient.SparseVector;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.Message;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +61,8 @@ class NexusServiceTest {
     void testEnrichRequest_Success() {
         when(ragConfig.isEnabled()).thenReturn(true);
         when(embeddingService.embed(anyString())).thenReturn(List.of(0.1, 0.2));
-        when(vectorStoreClient.search(anyString(), anyList(), anyInt(), anyMap()))
+        when(embeddingService.embedSparse(anyString())).thenReturn(new SparseVector(List.of(1), List.of(0.5)));
+        when(vectorStoreClient.search(anyString(), anyList(), any(), anyInt(), anyMap()))
                 .thenReturn(List.of(new ScoredPoint("doc1", 0.9, Map.of("content", "Secret Info"))));
         when(contextInjector.formatContext(anyList())).thenReturn("CTX");
 

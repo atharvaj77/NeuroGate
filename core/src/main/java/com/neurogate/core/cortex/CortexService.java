@@ -186,6 +186,8 @@ public class CortexService {
 
         EvaluationResult result = new EvaluationResult();
         result.setCaseId(evaluationCase.getId());
+        result.setInput(evaluationCase.getInput()); // Snapshot input
+        result.setIdealOutput(evaluationCase.getIdealOutput()); // Snapshot expected output
         result.setAgentOutput(agentOutput);
         result.setScore((int) (judgeResult.getScore() * 100));
         result.setJudgeReasoning(judgeResult.getReasoning());

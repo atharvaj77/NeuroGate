@@ -65,11 +65,11 @@ class ConsensusServiceTest {
         when(openAiClient.generate(any(ChatRequest.class))).thenReturn(judgeResp);
 
         // Act
-        String result = consensusService.reachConsensus(request);
+        ConsensusResult result = consensusService.reachConsensus(request);
 
         // Assert
         assertNotNull(result);
-        assertTrue(result.contains("Synthesized"));
+        assertTrue(result.getSynthesis().contains("Synthesized"));
 
         // Verify hedging was called
         verify(hedgingService).executeAll(eq("consensus-group"), anyList());
