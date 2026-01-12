@@ -33,30 +33,34 @@ const VersionGraph: React.FC<VersionGraphProps> = ({ versions }) => {
 
     // Sort versions by ID (mock heuristic) or reverse order of array
     // Assuming versions[0] is latest
-    const reversedVersions = [...versions].reverse();
+    const { initialNodes, initialEdges } = React.useMemo(() => {
+        const reversedVersions = [...versions].reverse();
 
-    const initialNodes: Node[] = reversedVersions.map((v, index) => ({
-        id: v.id,
-        data: { label: `${v.tag} (${v.active ? 'Active' : 'History'})` },
-        position: { x: 150 + (index * 120), y: 100 + (index % 2 === 0 ? 0 : 50) }, // Zig-zag layout
-        style: {
-            background: v.active ? '#581c87' : '#1e293b',
-            color: v.active ? '#e9d5ff' : '#cbd5e1',
-            border: v.active ? '1px solid #a855f7' : '1px solid #475569',
-            borderRadius: '8px',
-            fontSize: '10px',
-            width: 120,
-            boxShadow: v.active ? '0 0 15px rgba(168, 85, 247, 0.4)' : 'none'
-        },
-    }));
+        const nodes: Node[] = reversedVersions.map((v, index) => ({
+            id: v.id,
+            data: { label: `${v.tag} (${v.active ? 'Active' : 'History'})` },
+            position: { x: 150 + (index * 120), y: 100 + (index % 2 === 0 ? 0 : 50) }, // Zig-zag layout
+            style: {
+                background: v.active ? '#581c87' : '#1e293b',
+                color: v.active ? '#e9d5ff' : '#cbd5e1',
+                border: v.active ? '1px solid #a855f7' : '1px solid #475569',
+                borderRadius: '8px',
+                fontSize: '10px',
+                width: 120,
+                boxShadow: v.active ? '0 0 15px rgba(168, 85, 247, 0.4)' : 'none'
+            },
+        }));
 
-    const initialEdges: Edge[] = reversedVersions.slice(0, -1).map((v, index) => ({
-        id: `e-${v.id}-${reversedVersions[index + 1].id}`,
-        source: v.id,
-        target: reversedVersions[index + 1].id,
-        markerEnd: { type: MarkerType.ArrowClosed },
-        style: { stroke: v.active ? '#a855f7' : '#475569', strokeWidth: v.active ? 2 : 1 }
-    }));
+        const edges: Edge[] = reversedVersions.slice(0, -1).map((v, index) => ({
+            id: `e-${v.id}-${reversedVersions[index + 1].id}`,
+            source: v.id,
+            target: reversedVersions[index + 1].id,
+            markerEnd: { type: MarkerType.ArrowClosed },
+            style: { stroke: v.active ? '#a855f7' : '#475569', strokeWidth: v.active ? 2 : 1 }
+        }));
+
+        return { initialNodes: nodes, initialEdges: edges };
+    }, [versions]);
 
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -65,7 +69,7 @@ const VersionGraph: React.FC<VersionGraphProps> = ({ versions }) => {
     React.useEffect(() => {
         setNodes(initialNodes);
         setEdges(initialEdges);
-    }, [versions, setNodes, setEdges]);
+    }, [initialNodes, initialEdges, setNodes, setEdges]);
 
     return (
         <div style={{ height: '100%', width: '100%' }}>

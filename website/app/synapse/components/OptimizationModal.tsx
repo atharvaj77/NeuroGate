@@ -103,7 +103,7 @@ const OptimizationModal = ({ isOpen, onClose, original, result, isOptimizing, ob
                                     <FaMagic size={40} className="text-slate-600" />
                                 </div>
                                 <p className="text-lg font-medium">Ready to Optimize</p>
-                                <p className="text-sm opacity-60 max-w-sm text-center mt-2">Select an objective from the sidebar and click "Generate" to see AI suggestions.</p>
+                                <p className="text-sm opacity-60 max-w-sm text-center mt-2">Select an objective from the sidebar and click &quot;Generate&quot; to see AI suggestions.</p>
                             </div>
                         )}
 
