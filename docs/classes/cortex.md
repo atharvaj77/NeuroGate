@@ -40,6 +40,9 @@ The `cortex` module implements the **Evaluation Engine**, enabling automated "LL
 - **Key Responsibilities**:
     - **Dataset Management**: CRUD operations for Datasets and Cases.
     - **Parallel Execution**: Uses `CompletableFuture` to run multiple test cases concurrently against the Judge to reduce latency.
+    - **Dataset Management**: CRUD operations for Datasets and Cases.
+    - **Parallel Execution**: Uses `CompletableFuture` to run multiple test cases concurrently against the Judge to reduce latency.
+    - **Ad-Hoc Evaluation**: **[New]** Evaluates a transient prompt template against a transient list of test cases (without saving to DB) for rapid iteration.
     - **Scoring Aggregation**: Calculates the average score for an `EvaluationRun`.
 
 ### [Judge](file:///Users/atharva.joshi/PycharmProjects/NeuroGate/core/src/main/java/com/neurogate/core/cortex/Judge.java)
@@ -57,4 +60,7 @@ The `cortex` module implements the **Evaluation Engine**, enabling automated "LL
 **Purpose**: REST API endpoints for the Frontend/CLI.
 - `POST /api/v1/cortex/datasets`: Create new test suites.
 - `POST /api/v1/cortex/runs`: Trigger an evaluation run.
+- `POST /api/v1/cortex/datasets`: Create new test suites.
+- `POST /api/v1/cortex/runs`: Trigger an evaluation run.
 - `GET /api/v1/cortex/runs/{id}`: Retrieve run results.
+- `POST /api/v1/cortex/evaluate`: **[New]** Ad-Hoc Evaluation endpoint. Accepts `AdHocEvaluationRequest` (template + test cases) and returns results immediately.

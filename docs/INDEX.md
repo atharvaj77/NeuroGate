@@ -1,10 +1,19 @@
-# NeuroKernel Documentation
+# NeuroGate Documentation
 
-Welcome to the official documentation for **NeuroKernel**, the Agent-Native Operating System.
+Welcome to the official documentation for **NeuroGate**, the Agent-Native Operating System.
 
 ## Architecture Modules
 
-### [1. Iron Gate: Resilience & Routing](./01-router.md)
+### [1. Synapse: Visual Prompt Studio](./classes/synapse.md)
+*   **Version Control**: Semantic hashing and Git-like workflow for prompts.
+*   **Specter Mode**: Shadow deployments for risk-free testing in production.
+*   **Start-of-the-Art Optimization**: AI-driven prompt rewriting.
+
+### [2. Cortex: Evaluation Engine](./classes/cortex.md)
+*   **LLM-as-a-Judge**: Automated quality assurance for agent outputs.
+*   **Ad-Hoc Evaluation**: Rapid, transient testing of prompt performance.
+
+### [3. Iron Gate: Resilience & Routing](./01-router.md)
 *   **Neural Routing**: Score-based backend selection.
 *   **Hedging**: Scatter-gather concurrency for reliability.
 *   **Adaptive Rate Limiting**: Dynamic throttling based on upstream latency.

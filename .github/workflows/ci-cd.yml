@@ -14,12 +14,60 @@ env:
 
 jobs:
   # Build and test
+  # Build website to catch frontend errors early
+  build-website:
+    name: Build Website
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: website/package-lock.json
+
+    - name: Install dependencies
+      working-directory: website
+      run: npm ci
+
+    - name: Build website
+      working-directory: website
+      run: npm run build
+
+  # Build and test backend
   build-test:
-    name: Build and Test
+    name: Build and Test Backend
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      qdrant:
+        image: qdrant/qdrant:latest
+        ports:
+          - 6333:6333
+          - 6334:6334
+        env:
+          QDRANT__SERVICE__GRPC_PORT: "6334"
+        options: >-
+          --health-cmd "curl -f http://localhost:6333/healthz || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - name: Checkout code

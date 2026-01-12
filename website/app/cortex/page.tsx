@@ -71,11 +71,13 @@ export default function CortexPage() {
                     // Map to UI (run.results might be empty)
                     const mappedRun: EvaluationRun = {
                         id: run.id,
-                        timestamp: new Date().toLocaleString(),
-                        datasetName: "Live Evaluation Suite",
+                        datasetId: run.datasetId || dsId, // Ensure datasetId is present
+                        agentVersion: run.agentVersion || "v1.live", // Ensure agentVersion is present
+                        createdAt: new Date().toLocaleString(), // Use createdAt to match interface
                         overallScore: run.overallScore || 0,
                         totalCases: run.results?.length || 0,
-                        results: run.results || []
+                        results: run.results || [],
+                        datasetName: "Live Evaluation Suite" // Helper field
                     };
                     setRuns(prev => [mappedRun, ...prev]);
                 }
@@ -346,7 +348,7 @@ export default function CortexPage() {
                                                         <div>
                                                             <div className="text-xs text-slate-500 uppercase mb-2 flex items-center gap-2"><FaBalanceScale /> Judge Reasoning</div>
                                                             <div className="text-sm text-cortex-300 bg-cortex-950/30 p-3 rounded-lg border border-cortex-500/20 min-h-[80px]">
-                                                                {result.reasoning || result.judgeReasoning}
+                                                                {result.judgeReasoning}
                                                             </div>
                                                         </div>
                                                     </div>

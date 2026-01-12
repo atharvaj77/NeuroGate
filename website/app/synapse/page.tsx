@@ -123,23 +123,7 @@ export default function SynapsePage() {
 
     const getBaseUrl = () => `${backendConfig.url}:${backendConfig.port}`;
 
-    // -- Effects --
-
-    // Fetch versions when switching to Real Backend or on mount if already real
-    useEffect(() => {
-        if (!simulationMode) {
-            fetchVersions();
-        } else {
-            // Load mock versions for simulation mode
-            setVersions([
-                { id: 'v1.0', tag: 'v1.0.0', content: "You are a specialized assistant...", timestamp: '2 days ago', author: 'System', active: false },
-                { id: 'v1.1', tag: 'v1.1.0', content: "You are a helpful AI assistant...", timestamp: 'Yesterday', author: 'User', active: false },
-                { id: 'v1.2', tag: 'v1.2.0-draft', content: promptContent, timestamp: 'Today', author: 'You', active: true },
-            ]);
-        }
-    }, [simulationMode]);
-
-    const fetchVersions = async () => {
+    const fetchVersions = useCallback(async () => {
         setIsLoadingVersions(true);
         try {
             // Fetch versions
@@ -179,7 +163,23 @@ export default function SynapsePage() {
         } finally {
             setIsLoadingVersions(false);
         }
-    };
+    }, [backendConfig.port, backendConfig.url]); // Dependencies for getBaseUrl inside fetchVersions
+
+    // -- Effects --
+
+    // Fetch versions when switching to Real Backend or on mount if already real
+    useEffect(() => {
+        if (!simulationMode) {
+            fetchVersions();
+        } else {
+            // Load mock versions for simulation mode
+            setVersions([
+                { id: 'v1.0', tag: 'v1.0.0', content: "You are a specialized assistant...", timestamp: '2 days ago', author: 'System', active: false },
+                { id: 'v1.1', tag: 'v1.1.0', content: "You are a helpful AI assistant...", timestamp: 'Yesterday', author: 'User', active: false },
+                { id: 'v1.2', tag: 'v1.2.0-draft', content: promptContent, timestamp: 'Today', author: 'You', active: true },
+            ]);
+        }
+    }, [simulationMode, fetchVersions, promptContent]); // dependencies updated
 
     // -- Handlers --
 
@@ -599,8 +599,8 @@ export default function SynapsePage() {
                                     >
                                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Backend Configuration</h3>
                                         <div className="space-y-3">
-                                            <InputGroup label="Base URL" value={backendConfig.url} onChange={v => setBackendConfig({ ...backendConfig, url: v })} />
-                                            <InputGroup label="Port" value={backendConfig.port} onChange={v => setBackendConfig({ ...backendConfig, port: v })} />
+                                            <InputGroup label="Base URL" value={backendConfig.url} onChange={(v: string) => setBackendConfig({ ...backendConfig, url: v })} />
+                                            <InputGroup label="Port" value={backendConfig.port} onChange={(v: string) => setBackendConfig({ ...backendConfig, port: v })} />
                                         </div>
                                     </motion.div>
                                 )}
