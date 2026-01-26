@@ -6,6 +6,10 @@ import com.neurogate.sentinel.model.ChatResponse;
 import com.neurogate.sentinel.model.ChatResponse;
 import com.neurogate.sentinel.model.Message;
 import com.neurogate.prompts.PromptVersion;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,15 +23,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/synapse")
 @RequiredArgsConstructor
+@Tag(name = "Synapse", description = "Prompt optimization, versioning, and deployment")
 public class SynapseController {
 
     private final PromptRegistry promptRegistry;
     private final DiffService diffService;
     private final MultiProviderRouter routerService;
 
-    // Get workflow status (prod/staging versions)
+    @Operation(summary = "Get prompt workflow", description = "Get production and staging versions for a prompt")
+    @ApiResponse(responseCode = "200", description = "Workflow retrieved")
+    @ApiResponse(responseCode = "404", description = "Prompt not found")
     @GetMapping("/prompts/{promptName}/workflow")
-    public ResponseEntity<PromptWorkflow> getWorkflow(@PathVariable String promptName) {
+    public ResponseEntity<PromptWorkflow> getWorkflow(@Parameter(description = "Prompt name") @PathVariable String promptName) {
         PromptWorkflow workflow = promptRegistry.getWorkflow(promptName);
         if (workflow == null) {
             return ResponseEntity.notFound().build();
@@ -35,7 +42,8 @@ public class SynapseController {
         return ResponseEntity.ok(workflow);
     }
 
-    // Deploy/Promote
+    @Operation(summary = "Deploy prompt", description = "Promote a prompt version to production or staging")
+    @ApiResponse(responseCode = "200", description = "Prompt deployed")
     @PostMapping("/deploy")
     public ResponseEntity<Void> deploy(@RequestBody DeployRequest request) {
         promptRegistry.promote(
@@ -46,7 +54,8 @@ public class SynapseController {
         return ResponseEntity.ok().build();
     }
 
-    // Ephemeral Run (Playground)
+    @Operation(summary = "Playground execution", description = "Test a prompt with variables in the playground")
+    @ApiResponse(responseCode = "200", description = "Execution completed")
     @PostMapping("/play")
     public ResponseEntity<ChatResponse> play(@RequestBody PlayRequest request) {
         // Construct the prompt by replacing variables
@@ -67,14 +76,17 @@ public class SynapseController {
         return ResponseEntity.ok(response);
     }
 
-    // Diff two versions
+    @Operation(summary = "Diff prompt versions", description = "Compare two prompt versions and show differences")
+    @ApiResponse(responseCode = "200", description = "Diff computed")
     @PostMapping("/diff")
     public ResponseEntity<DiffService.DiffResult> diff(@RequestBody DiffRequest request) {
         DiffService.DiffResult result = diffService.computeDiff(request.getOriginal(), request.getRevised());
         return ResponseEntity.ok(result);
     }
 
-    // Shadow Comparison (Specter Mode)
+    @Operation(summary = "Shadow comparison", description = "Compare production vs shadow prompt responses (Specter Mode)")
+    @ApiResponse(responseCode = "200", description = "Comparison completed")
+    @ApiResponse(responseCode = "404", description = "Prompt versions not found")
     @PostMapping("/shadow/compare")
     public ResponseEntity<ShadowComparisonResult> compareShadow(@RequestBody ShadowCompareRequest request) {
         // 1. Get Production and Shadow Versions

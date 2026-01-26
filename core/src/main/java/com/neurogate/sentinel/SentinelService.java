@@ -29,6 +29,7 @@ public class SentinelService {
     private final ActiveDefenseService activeDefenseService;
     private final PulseEventPublisher pulseEventPublisher;
     private final com.neurogate.agent.AgentLoopDetector agentLoopDetector;
+    private final com.neurogate.validation.StructuredOutputService structuredOutputService;
 
     @SuppressWarnings("unused")
     public ChatResponse processRequest(ChatRequest request) {
@@ -42,15 +43,24 @@ public class SentinelService {
         long startTime = System.currentTimeMillis();
 
         try {
-            ChatResponse response = multiProviderRouter.route(request);
+            ChatResponse response;
+
+            // Use structured output service if json_schema format is requested
+            if (requiresStructuredOutputValidation(request)) {
+                log.debug("Using structured output validation for json_schema response format");
+                response = structuredOutputService.generateWithValidation(request);
+            } else {
+                response = multiProviderRouter.route(request);
+            }
 
             long latency = System.currentTimeMillis() - startTime;
             response.setLatencyMs(latency);
 
             publishResponseEvent(requestId, request, response, latency);
 
-            log.info("Request completed in {}ms, cache hit: {}, route: {}",
-                    latency, response.getCacheHit(), response.getRoute());
+            log.info("Request completed in {}ms, cache hit: {}, route: {}, validation: {}",
+                    latency, response.getCacheHit(), response.getRoute(),
+                    response.getValidation() != null ? response.getValidation().isSchemaValid() : "N/A");
 
             return response;
 
@@ -59,6 +69,15 @@ public class SentinelService {
             log.error("Error processing chat request", e);
             throw new RuntimeException("Failed to process chat request: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * Check if the request requires structured output validation.
+     */
+    private boolean requiresStructuredOutputValidation(ChatRequest request) {
+        if (request.getResponseFormat() == null) return false;
+        return "json_schema".equals(request.getResponseFormat().getType()) &&
+                request.getResponseFormat().getJsonSchema() != null;
     }
 
     /**

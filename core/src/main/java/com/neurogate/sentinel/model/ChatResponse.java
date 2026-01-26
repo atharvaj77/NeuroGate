@@ -59,6 +59,12 @@ public class ChatResponse {
     @JsonProperty("x_neurogate_citations")
     private List<String> citations;
 
+    /**
+     * Validation metadata for structured output (JSON schema validation).
+     */
+    @JsonProperty("x_neurogate_validation")
+    private com.neurogate.validation.model.ValidationMetadata validation;
+
     public boolean isCacheHit() {
         return Boolean.TRUE.equals(cacheHit);
     }

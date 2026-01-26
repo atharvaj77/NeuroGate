@@ -48,11 +48,10 @@ NeuroGate is organized into three "Organelles" to take agents from prototype to 
 
 ## 📚 Documentation
 
-*   **[Quick Start Guide](QUICKSTART.md)** ⚡ - Get running in 5 minutes with Docker.
+*   **[Quick Start Guide](docs/public/QUICKSTART.md)** ⚡ - Get running in 5 minutes with Docker.
 *   **[Documentation Index](docs/INDEX.md)** - Full documentation map.
-*   **[Architecture Details](docs/technical/ARCHITECTURE_DETAILED.md)** - Deep dive into the "Kernel" design.
-*   **[API Reference](docs/api/API_DOCUMENTATION.md)** - OpenAI-compatible API guide.
-*   **[Innovation Roadmap](docs/INNOVATION.md)** - Future vision (Flux, Specter, Aegis).
+*   **[API Reference](docs/public/guides/API_DOCUMENTATION.md)** - OpenAI-compatible API guide.
+*   **[Swagger UI](http://localhost:8080/swagger-ui.html)** - Interactive API explorer (when running).
 
 ---
 

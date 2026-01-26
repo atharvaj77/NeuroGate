@@ -1,5 +1,9 @@
 package com.neurogate.analytics;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -21,34 +25,41 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/analytics")
 @RequiredArgsConstructor
+@Tag(name = "Analytics", description = "Usage analytics and cost tracking")
 public class AnalyticsController {
 
         private final AnalyticsService analyticsService;
 
+        @Operation(summary = "Get user cost report", description = "Retrieve cost breakdown for a specific user over a date range")
+        @ApiResponse(responseCode = "200", description = "Cost report retrieved successfully")
         @GetMapping("/costs/user/{userId}")
         public ResponseEntity<CostReport> getUserCosts(
-                        @PathVariable String userId,
-                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                        @Parameter(description = "User ID") @PathVariable String userId,
+                        @Parameter(description = "Start date (ISO format)") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                        @Parameter(description = "End date (ISO format)") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
                 CostReport report = analyticsService.getUserCostReport(userId, from, to);
                 return ResponseEntity.ok(report);
         }
 
+        @Operation(summary = "Get team cost report", description = "Retrieve cost breakdown for a team with user-level details")
+        @ApiResponse(responseCode = "200", description = "Team cost report retrieved successfully")
         @GetMapping("/costs/team/{teamId}")
         public ResponseEntity<TeamCostReport> getTeamCosts(
-                        @PathVariable String teamId,
-                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+                        @Parameter(description = "Team ID") @PathVariable String teamId,
+                        @Parameter(description = "Start date (ISO format)") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+                        @Parameter(description = "End date (ISO format)") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
 
                 TeamCostReport report = analyticsService.getTeamCostReport(teamId, from, to);
                 return ResponseEntity.ok(report);
         }
 
+        @Operation(summary = "Get top expensive queries", description = "Retrieve the most expensive queries for a team")
+        @ApiResponse(responseCode = "200", description = "Expensive queries retrieved successfully")
         @GetMapping("/costs/team/{teamId}/top-queries")
         public ResponseEntity<List<ExpensiveQuery>> getTopExpensiveQueries(
-                        @PathVariable String teamId,
-                        @RequestParam(defaultValue = "10") int limit) {
+                        @Parameter(description = "Team ID") @PathVariable String teamId,
+                        @Parameter(description = "Maximum number of queries to return") @RequestParam(defaultValue = "10") int limit) {
 
                 List<ExpensiveQuery> result = analyticsService.getTopExpensiveQueries(teamId, limit);
                 return ResponseEntity.ok(result);

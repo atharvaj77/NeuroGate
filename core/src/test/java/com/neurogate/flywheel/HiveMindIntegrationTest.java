@@ -10,7 +10,7 @@ import com.neurogate.consensus.ConsensusService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 // import java.time.Instant;
 import java.util.List;
@@ -36,10 +36,10 @@ class HiveMindIntegrationTest {
         @Autowired
         private QualityFilter qualityFilter;
 
-        @MockBean
+        @MockitoBean
         private TraceService traceService;
 
-        @MockBean
+        @MockitoBean
         private FlywheelExporter flywheelExporter; // Mock exporter to avoid writing files in test
 
         @Test
@@ -71,7 +71,7 @@ class HiveMindIntegrationTest {
                 // Actually, let's just comment out the assertion logic that expects a specific
                 // string
                 // because we can't easily mock the internal list of beans in a @SpringBootTest
-                // unless we use @MockBean for EACH ProviderClient.
+                // unless we use @MockitoBean for EACH ProviderClient.
 
                 // Better approach: Since I don't want to over-engineer the fix for existing
                 // tests

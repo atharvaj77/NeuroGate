@@ -1,6 +1,10 @@
 package com.neurogate.prompts;
 
 import com.neurogate.sentinel.model.ChatRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +20,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/prompts")
 @RequiredArgsConstructor
+@Tag(name = "Prompts", description = "Prompt management and versioning")
 public class PromptController {
 
     private final PromptVersionControlService versionControlService;
 
+    @Operation(summary = "Commit prompt", description = "Commit a new prompt version")
+    @ApiResponse(responseCode = "200", description = "Prompt committed")
     @PostMapping("/commit")
     public ResponseEntity<PromptVersion> commitPrompt(
             @RequestBody CommitRequest request) {
@@ -33,6 +40,8 @@ public class PromptController {
         return ResponseEntity.ok(version);
     }
 
+    @Operation(summary = "Create branch", description = "Create a new prompt branch")
+    @ApiResponse(responseCode = "200", description = "Branch created")
     @PostMapping("/branches")
     public ResponseEntity<PromptBranch> createBranch(
             @RequestBody BranchRequest request) {
@@ -45,6 +54,8 @@ public class PromptController {
         return ResponseEntity.ok(branch);
     }
 
+    @Operation(summary = "Merge branches", description = "Merge source branch into target branch")
+    @ApiResponse(responseCode = "200", description = "Branches merged")
     @PostMapping("/merge")
     public ResponseEntity<MergeResult> mergeBranches(
             @RequestBody MergeRequest request) {
@@ -58,14 +69,18 @@ public class PromptController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "Get version history", description = "Retrieve prompt version history for a branch")
+    @ApiResponse(responseCode = "200", description = "History retrieved")
     @GetMapping("/versions")
     public ResponseEntity<List<PromptVersion>> getVersionHistory(
-            @RequestParam(defaultValue = "main") String branchName) {
+            @Parameter(description = "Branch name") @RequestParam(defaultValue = "main") String branchName) {
 
         List<PromptVersion> history = versionControlService.getVersionHistory(branchName);
         return ResponseEntity.ok(history);
     }
 
+    @Operation(summary = "Rollback version", description = "Rollback to a previous prompt version")
+    @ApiResponse(responseCode = "200", description = "Rollback completed")
     @PostMapping("/rollback")
     public ResponseEntity<PromptVersion> rollback(
             @RequestBody RollbackRequest request) {
@@ -78,6 +93,8 @@ public class PromptController {
         return ResponseEntity.ok(version);
     }
 
+    @Operation(summary = "Run A/B test", description = "Run A/B test between two prompt versions")
+    @ApiResponse(responseCode = "200", description = "Test completed")
     @PostMapping("/ab-test")
     public ResponseEntity<ABTestResult> runABTest(
             @RequestBody ABTestRequest request) {
@@ -95,9 +112,8 @@ public class PromptController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * Create a prompt template
-     */
+    @Operation(summary = "Create template", description = "Create a new prompt template with variables")
+    @ApiResponse(responseCode = "200", description = "Template created")
     @PostMapping("/templates")
     public ResponseEntity<PromptTemplate> createTemplate(
             @RequestBody TemplateRequest request) {
@@ -112,12 +128,12 @@ public class PromptController {
         return ResponseEntity.ok(template);
     }
 
-    /**
-     * Get template by ID
-     */
+    @Operation(summary = "Get template", description = "Retrieve a prompt template by ID")
+    @ApiResponse(responseCode = "200", description = "Template found")
+    @ApiResponse(responseCode = "404", description = "Template not found")
     @GetMapping("/templates/{templateId}")
     public ResponseEntity<PromptTemplate> getTemplate(
-            @PathVariable String templateId) {
+            @Parameter(description = "Template ID") @PathVariable String templateId) {
 
         PromptTemplate template = versionControlService.getTemplate(templateId);
         if (template == null) {
@@ -127,12 +143,11 @@ public class PromptController {
         return ResponseEntity.ok(template);
     }
 
-    /**
-     * Search templates by tag
-     */
+    @Operation(summary = "Search templates", description = "Search prompt templates by tag")
+    @ApiResponse(responseCode = "200", description = "Templates found")
     @GetMapping("/templates")
     public ResponseEntity<List<PromptTemplate>> searchTemplates(
-            @RequestParam String tag) {
+            @Parameter(description = "Tag to search") @RequestParam String tag) {
 
         List<PromptTemplate> templates = versionControlService.searchTemplates(tag);
         return ResponseEntity.ok(templates);

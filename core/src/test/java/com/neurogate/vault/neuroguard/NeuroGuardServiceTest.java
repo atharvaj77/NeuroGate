@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,17 +59,13 @@ class NeuroGuardServiceTest {
         when(jailbreakDetector.analyze(anyString())).thenReturn(ThreatDetectionResult.safe());
 
         PiiEntity ssnEntity = new PiiEntity(PiiType.SSN, "123-45-6789", 0, 11, 0.95);
-        when(piiDetector.detect(anyString())).thenReturn(List.of(ssnEntity));
+        when(piiDetector.detect(anyString())).thenReturn(new ArrayList<>(List.of(ssnEntity)));
 
-        // Expect Exception because confidence 0.95 > 0.8 block threshold
-        assertThatThrownBy(() -> neuroGuardService.validatePrompt("My SSN is 123-45-6789"))
-                .isInstanceOf(NeuroGuardService.SecurityThreatException.class)
-                .extracting("result")
-                .satisfies(obj -> {
-                    ThreatDetectionResult result = (ThreatDetectionResult) obj;
-                    assertThat(result.getThreatType()).isEqualTo(ThreatDetectionResult.ThreatType.PII_LEAK);
-                    assertThat(result.isBlocked()).isTrue();
-                });
+        // PII is masked, not blocked - returns sanitized content
+        String result = neuroGuardService.validatePrompt("My SSN is 123-45-6789");
+
+        // Result should be masked with <SSN> token
+        assertThat(result).contains("<SSN>");
     }
 
     @Test
@@ -77,13 +74,15 @@ class NeuroGuardServiceTest {
         when(jailbreakDetector.analyze(anyString())).thenReturn(ThreatDetectionResult.safe());
 
         PiiEntity apiKeyEntity = new PiiEntity(PiiType.API_KEY, "sk-12345", 0, 8, 0.99);
-        when(piiDetector.detect(anyString())).thenReturn(List.of(apiKeyEntity));
+        when(piiDetector.detect(anyString())).thenReturn(new ArrayList<>(List.of(apiKeyEntity)));
 
         ThreatDetectionResult result = neuroGuardService.analyzePrompt("Here is my api_key: sk-12345");
 
         assertThat(result.isThreatDetected()).isTrue();
         assertThat(result.getThreatType()).isEqualTo(ThreatDetectionResult.ThreatType.PII_LEAK);
         assertThat(result.getConfidenceScore()).isEqualTo(0.99);
-        assertThat(result.isBlocked()).isTrue();
+        // PII is masked, not blocked
+        assertThat(result.isBlocked()).isFalse();
+        assertThat(result.getSanitizedContent()).contains("<API_KEY>");
     }
 }

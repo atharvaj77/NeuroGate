@@ -1,5 +1,9 @@
 package com.neurogate.core.cortex;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,20 +14,27 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/cortex")
 @RequiredArgsConstructor
+@Tag(name = "Cortex", description = "Response evaluation engine for AI quality assessment")
 public class CortexController {
 
     private final CortexService cortexService;
 
+    @Operation(summary = "Create evaluation dataset", description = "Create a new dataset for evaluation test cases")
+    @ApiResponse(responseCode = "200", description = "Dataset created")
     @PostMapping("/datasets")
     public ResponseEntity<EvaluationDataset> createDataset(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(cortexService.createDataset(request.get("name")));
     }
 
+    @Operation(summary = "Add evaluation case", description = "Add a test case to an evaluation dataset")
+    @ApiResponse(responseCode = "200", description = "Case added")
     @PostMapping("/datasets/{id}/cases")
-    public ResponseEntity<EvaluationCase> addCase(@PathVariable String id, @RequestBody EvaluationCase evaluationCase) {
+    public ResponseEntity<EvaluationCase> addCase(@Parameter(description = "Dataset ID") @PathVariable String id, @RequestBody EvaluationCase evaluationCase) {
         return ResponseEntity.ok(cortexService.addCase(id, evaluationCase));
     }
 
+    @Operation(summary = "Run evaluation", description = "Execute evaluation against a dataset")
+    @ApiResponse(responseCode = "200", description = "Evaluation completed")
     @PostMapping("/runs")
     public ResponseEntity<EvaluationRun> runEvaluation(@RequestBody Map<String, String> request) {
         String datasetId = request.get("datasetId");
@@ -31,8 +42,10 @@ public class CortexController {
         return ResponseEntity.ok(cortexService.runEvaluation(datasetId, agentVersion));
     }
 
+    @Operation(summary = "Get evaluation runs", description = "Retrieve all evaluation runs for a dataset")
+    @ApiResponse(responseCode = "200", description = "Runs retrieved")
     @GetMapping("/runs/{datasetId}")
-    public ResponseEntity<List<EvaluationRun>> getRuns(@PathVariable String datasetId) {
+    public ResponseEntity<List<EvaluationRun>> getRuns(@Parameter(description = "Dataset ID") @PathVariable String datasetId) {
         return ResponseEntity.ok(cortexService.getRuns(datasetId));
     }
 }

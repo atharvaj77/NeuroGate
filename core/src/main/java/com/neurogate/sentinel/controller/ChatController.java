@@ -3,6 +3,13 @@ package com.neurogate.sentinel.controller;
 import com.neurogate.sentinel.SentinelService;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.ChatResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -22,16 +29,37 @@ import jakarta.validation.Valid;
 @RequestMapping("/v1")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "Chat", description = "OpenAI-compatible chat completions API")
 public class ChatController {
 
     private final SentinelService sentinelService;
 
+    @Operation(
+        summary = "Create chat completion",
+        description = "Send a chat completion request. Supports streaming via SSE when stream=true."
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Successful completion",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ChatResponse.class)
+            )
+        ),
+        @ApiResponse(responseCode = "400", description = "Invalid request"),
+        @ApiResponse(responseCode = "429", description = "Rate limit exceeded"),
+        @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     @PostMapping(value = "/chat/completions", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.TEXT_EVENT_STREAM_VALUE })
     public ResponseEntity<?> createChatCompletion(
             @Valid @RequestBody ChatRequest request,
+            @Parameter(description = "Canary weight for A/B testing (0-100)")
             @RequestHeader(value = "X-Canary-Weight", required = false) Integer canaryWeight,
+            @Parameter(description = "Trace ID for distributed tracing")
             @RequestHeader(value = "X-Trace-Id", required = false) String traceId,
+            @Parameter(description = "Session ID for conversation tracking")
             @RequestHeader(value = "X-Session-Id", required = false) String sessionId) {
 
         if (canaryWeight != null) {

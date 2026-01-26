@@ -1,6 +1,10 @@
 package com.neurogate.debugger;
 
 import com.neurogate.sentinel.model.ChatResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +22,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/debug")
 @RequiredArgsConstructor
+@Tag(name = "Debugger", description = "Session replay and debugging")
 public class DebuggerController {
 
     private final AIDebuggerService debuggerService;
 
-    /**
-     * Search debug records with filters
-     */
+    @Operation(summary = "Search debug records", description = "Search debug records with filters")
+    @ApiResponse(responseCode = "200", description = "Records retrieved")
     @GetMapping("/records")
     public ResponseEntity<List<DebugRecord>> searchRecords(
             @RequestParam(required = false) String userId,
@@ -45,9 +49,8 @@ public class DebuggerController {
         return ResponseEntity.ok(records);
     }
 
-    /**
-     * Get user's debug history
-     */
+    @Operation(summary = "Get user debug history", description = "Retrieve debug records for a specific user")
+    @ApiResponse(responseCode = "200", description = "Records retrieved")
     @GetMapping("/users/{userId}/records")
     public ResponseEntity<List<DebugRecord>> getUserRecords(
             @PathVariable String userId,
@@ -57,9 +60,8 @@ public class DebuggerController {
         return ResponseEntity.ok(records);
     }
 
-    /**
-     * Create a new debug session for a request
-     */
+    @Operation(summary = "Create debug session", description = "Create a new debug session for a request")
+    @ApiResponse(responseCode = "200", description = "Session created")
     @PostMapping("/sessions")
     public ResponseEntity<DebugSession> createSession(
             @RequestParam String requestId) {
@@ -68,9 +70,8 @@ public class DebuggerController {
         return ResponseEntity.ok(session);
     }
 
-    /**
-     * Replay a request with modifications
-     */
+    @Operation(summary = "Replay request", description = "Replay a request with modifications")
+    @ApiResponse(responseCode = "200", description = "Replay completed")
     @PostMapping("/sessions/{sessionId}/replay")
     public ResponseEntity<ChatResponse> replayRequest(
             @PathVariable String sessionId,
@@ -82,9 +83,8 @@ public class DebuggerController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Fork a session from a specific step
-     */
+    @Operation(summary = "Fork session", description = "Fork a session from a specific step")
+    @ApiResponse(responseCode = "200", description = "Session forked")
     @PostMapping("/sessions/{sessionId}/fork")
     public ResponseEntity<DebugSession> forkSession(
             @PathVariable String sessionId,
@@ -95,9 +95,8 @@ public class DebuggerController {
         return ResponseEntity.ok(newSession);
     }
 
-    /**
-     * Get semantic diff between original and replay
-     */
+    @Operation(summary = "Get semantic diff", description = "Compare original and replay responses")
+    @ApiResponse(responseCode = "200", description = "Diff computed")
     @GetMapping("/sessions/{sessionId}/diff")
     public ResponseEntity<SemanticDiff> getSemanticDiff(
             @PathVariable String sessionId) {
@@ -106,9 +105,8 @@ public class DebuggerController {
         return ResponseEntity.ok(diff);
     }
 
-    /**
-     * Export debug session as JSON
-     */
+    @Operation(summary = "Export session", description = "Export debug session as JSON")
+    @ApiResponse(responseCode = "200", description = "Session exported")
     @GetMapping("/sessions/{sessionId}/export")
     public ResponseEntity<String> exportSession(
             @PathVariable String sessionId) {
@@ -117,9 +115,8 @@ public class DebuggerController {
         return ResponseEntity.ok(exportJson);
     }
 
-    /**
-     * Clean up old debug records
-     */
+    @Operation(summary = "Cleanup records", description = "Remove debug records older than retention period")
+    @ApiResponse(responseCode = "200", description = "Cleanup completed")
     @DeleteMapping("/records/cleanup")
     public ResponseEntity<String> cleanupRecords(
             @RequestParam(defaultValue = "30") int retentionDays) {

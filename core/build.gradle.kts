@@ -39,7 +39,20 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("io.micrometer:micrometer-tracing-bridge-otel")
+
+    // OpenTelemetry OTLP Exporter
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp:1.36.0")
+    implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.36.0")
+
+    // SpringDoc OpenAPI (Swagger UI)
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
     
+    // JSON Schema Validation
+    implementation("com.networknt:json-schema-validator:1.0.87")
+
+    // Apache Commons Math for statistics (A/B testing)
+    implementation("org.apache.commons:commons-math3:3.6.1")
+
     // Resilience4j
     implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
     implementation("io.github.resilience4j:resilience4j-circuitbreaker:2.2.0")

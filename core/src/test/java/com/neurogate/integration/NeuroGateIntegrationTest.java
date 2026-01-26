@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class NeuroGateIntegrationTest {
 
-        @org.springframework.boot.test.mock.mockito.MockBean
+        @org.springframework.test.context.bean.override.mockito.MockitoBean
         private com.neurogate.synapse.optimizer.OptimizerService optimizerService;
 
         @LocalServerPort

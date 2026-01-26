@@ -2,6 +2,10 @@ package com.neurogate.flywheel;
 
 import com.neurogate.flywheel.model.FeedbackRequest;
 import com.neurogate.flywheel.model.GoldenInteraction;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -21,15 +25,15 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/flywheel")
 @RequiredArgsConstructor
+@Tag(name = "Flywheel", description = "Continuous improvement pipeline and feedback collection")
 public class FlywheelController {
 
     private final FeedbackService feedbackService;
     private final DatasetExporter datasetExporter;
     private final DatasetService datasetService;
 
-    /**
-     * Submit feedback for an interaction
-     */
+    @Operation(summary = "Submit feedback", description = "Submit feedback for an AI interaction")
+    @ApiResponse(responseCode = "200", description = "Feedback recorded")
     @PostMapping("/feedback")
     public ResponseEntity<GoldenInteraction> submitFeedback(@RequestBody FeedbackRequest request) {
 
@@ -65,26 +69,23 @@ public class FlywheelController {
         return ResponseEntity.ok(interaction);
     }
 
-    /**
-     * Export golden dataset for feedback controller alias
-     */
+    @Operation(summary = "Trigger export", description = "Trigger golden dataset export")
+    @ApiResponse(responseCode = "200", description = "Export started")
     @PostMapping("/export-trigger")
     public ResponseEntity<String> triggerExport() {
         datasetService.exportGoldenDataset();
         return ResponseEntity.ok("Export started");
     }
 
-    /**
-     * Get all golden interactions
-     */
+    @Operation(summary = "Get golden interactions", description = "Retrieve all golden (high-quality) interactions")
+    @ApiResponse(responseCode = "200", description = "Interactions retrieved")
     @GetMapping("/golden")
     public ResponseEntity<List<GoldenInteraction>> getGoldenInteractions() {
         return ResponseEntity.ok(feedbackService.getGoldenInteractions());
     }
 
-    /**
-     * Export dataset as JSONL
-     */
+    @Operation(summary = "Export dataset", description = "Export training dataset as JSONL format")
+    @ApiResponse(responseCode = "200", description = "Dataset exported")
     @GetMapping(value = "/export", produces = "application/jsonl")
     public ResponseEntity<String> exportDataset(
             @RequestParam(required = false) String model) {
@@ -103,17 +104,15 @@ public class FlywheelController {
         }
     }
 
-    /**
-     * Get export statistics
-     */
+    @Operation(summary = "Get export statistics", description = "Retrieve export statistics and counts")
+    @ApiResponse(responseCode = "200", description = "Statistics retrieved")
     @GetMapping("/export/stats")
     public ResponseEntity<Map<String, Object>> getExportStats() {
         return ResponseEntity.ok(datasetExporter.getExportStats());
     }
 
-    /**
-     * Get feedback statistics
-     */
+    @Operation(summary = "Get feedback statistics", description = "Retrieve feedback statistics and ratings")
+    @ApiResponse(responseCode = "200", description = "Statistics retrieved")
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getFeedbackStats() {
         return ResponseEntity.ok(feedbackService.getStatistics());
