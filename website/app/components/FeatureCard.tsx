@@ -34,7 +34,7 @@ export default function FeatureCard({
       viewport={{ once: true }}
       transition={{ delay }}
       whileHover={{ scale: 1.05, rotateY: 5 }}
-      className={`glass p-8 rounded-xl hover:shadow-2xl transition-all relative overflow-hidden group h-full flex flex-col ${href ? 'cursor-pointer' : ''}`}
+      className={`glass p-8 rounded-xl hover:shadow-2xl transition-all relative overflow-hidden group h-full flex flex-col glow-border ${href ? 'cursor-pointer' : ''}`}
     >
       {/* Gradient background on hover */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-opacity`} />

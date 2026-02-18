@@ -140,13 +140,26 @@ export default function ArchitectureDiagram() {
               </div>
 
               {/* Pulse Node */}
-              <div className="bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/30 rounded-xl p-6">
+              <div className="bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/30 rounded-xl p-6 mb-8">
                 <h4 className="text-lg font-bold text-red-400 mb-2">Pulse Monitor 💓</h4>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-black/30 p-2 rounded text-slate-300">Latency: 45ms</div>
                   <div className="bg-black/30 p-2 rounded text-slate-300">Cost: $0.002</div>
                   <div className="bg-black/30 p-2 rounded text-slate-300">Errors: 0%</div>
                   <div className="bg-black/30 p-2 rounded text-slate-300">Tokens: 450</div>
+                </div>
+              </div>
+
+              {/* Engram Vector Store Node */}
+              <div className="bg-gradient-to-br from-indigo-900/20 to-indigo-800/20 border border-indigo-500/30 rounded-xl p-6">
+                <h4 className="text-lg font-bold text-indigo-400 mb-2">Engram Vector Store 🧬</h4>
+                <div className="space-y-2 text-xs">
+                  <div className="bg-black/30 p-2 rounded text-slate-300 flex items-center gap-2">
+                    <span className="text-indigo-400">▸</span> Collection Manager
+                  </div>
+                  <div className="bg-black/30 p-2 rounded text-slate-300 flex items-center gap-2">
+                    <span className="text-indigo-400">▸</span> Top-K Search
+                  </div>
                 </div>
               </div>
             </motion.div>

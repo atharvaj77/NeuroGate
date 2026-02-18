@@ -14,13 +14,14 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'NeuroGate | Open Source Agent Kernel',
-  description: 'The Open Source Neural Gateway for AI Agents. Orchestrate, Secure, and Optimize your LLM traffic with a production-ready kernel.',
-  keywords: ['AI Gateway', 'AgentOps', 'Open Source', 'LLM Security', 'RAG'],
+  description: 'The Open Source Neural Gateway for AI Agents. Orchestrate, Secure, and Optimize your LLM traffic with a production-ready kernel featuring vector database, embedding store, and enterprise AI capabilities.',
+  keywords: ['AI Gateway', 'AgentOps', 'Open Source', 'LLM Security', 'RAG', 'vector database', 'embedding store', 'enterprise AI', 'semantic caching', 'PII protection', 'agent orchestration', 'LLM routing'],
   authors: [{ name: 'Atharva Joshi' }],
   openGraph: {
     title: 'NeuroGate | Open Source Agent Kernel',
-    description: 'The Open Source Neural Gateway for AI Agents.',
+    description: 'The Open Source Neural Gateway for AI Agents. 9+ modules for routing, security, evaluation, and vector storage.',
     type: 'website',
+    images: ['/og-image.png'],
   },
 }
 

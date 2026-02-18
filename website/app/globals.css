@@ -150,3 +150,55 @@ body {
 .mermaid-container * {
   transition: opacity 0.3s ease;
 }
+
+/* Animated glow border effect */
+.glow-border {
+  position: relative;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.4), rgba(99, 102, 241, 0.4), rgba(20, 184, 166, 0.4));
+  background-size: 200% 200%;
+  animation: glow-rotate 4s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glow-border:hover::before {
+  opacity: 1;
+}
+
+@keyframes glow-rotate {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Gradient section divider */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(20, 184, 166, 0.3), rgba(139, 92, 246, 0.3), transparent);
+}
+
+/* Subtle mesh gradient background */
+.mesh-bg {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(20, 184, 166, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  animation: mesh-shift 20s ease-in-out infinite;
+}
+
+@keyframes mesh-shift {
+  0%, 100% { background-position: 0% 0%, 100% 0%, 50% 100%; }
+  33% { background-position: 100% 50%, 0% 100%, 50% 0%; }
+  66% { background-position: 50% 100%, 50% 0%, 0% 50%; }
+}

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaGithub, FaShieldAlt, FaRocket, FaCheckCircle, FaPlay, FaBrain, FaNetworkWired, FaLock, FaBook, FaBolt, FaCode, FaSearch, FaClipboardCheck, FaUserEdit, FaFire, FaHammer, FaChartLine, FaMagic } from 'react-icons/fa'
+import { FaGithub, FaShieldAlt, FaRocket, FaCheckCircle, FaPlay, FaBrain, FaNetworkWired, FaLock, FaBook, FaBolt, FaCode, FaSearch, FaClipboardCheck, FaUserEdit, FaFire, FaHammer, FaChartLine, FaMagic, FaDatabase } from 'react-icons/fa'
 import { SiSpringboot, SiKubernetes, SiDocker, SiPrometheus, SiGrafana, SiRedis, SiApachekafka, SiApachespark } from 'react-icons/si'
 import { BiSolidServer, BiTestTube } from 'react-icons/bi'
 import Link from 'next/link'
@@ -36,6 +36,7 @@ export default function Home() {
             >
               <Link href="#features" className="text-sm font-medium hover:text-primary-400 transition-colors">Platform</Link>
               <Link href="/pulse" className="text-sm font-medium hover:text-primary-400 transition-colors">Pulse</Link>
+              <Link href="/engram" className="text-sm font-medium hover:text-primary-400 transition-colors">Engram</Link>
               <Link href="/use-cases" className="text-sm font-medium hover:text-primary-400 transition-colors">Use Cases</Link>
               <Link href="/playground" className="text-sm font-medium hover:text-primary-400 transition-colors">Terminal</Link>
               <Link href="/docs" className="text-sm font-medium hover:text-primary-400 transition-colors">Docs</Link>
@@ -130,7 +131,7 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto border-t border-white/5 pt-12"
           >
             {[
-              { value: 5, suffix: '', label: 'Kernel Modules' },
+              { value: 9, suffix: '+', label: 'Modules' },
               { value: 99, suffix: '%', label: 'Cache Hit Ratio*' },
               { value: 1, suffix: 'ms', label: 'L1 Latency*' },
               { value: 100, suffix: '%', label: 'Open Source' }
@@ -200,18 +201,19 @@ export default function Home() {
                 cta="Launch Studio"
               />
               <FeatureCard
-                icon={<FaBook className="text-5xl" />}
-                title="Python SDK"
-                description="Native integration for your Agent code."
+                icon={<FaCode className="text-5xl" />}
+                title="OpenAI Compatible"
+                description="Drop-in replacement for any OpenAI SDK."
                 features={[
-                  'Type-safe Agent API',
-                  'Async/Await Support',
-                  'One-line integration',
-                  'Jupyter Compatible'
+                  'LangChain & LlamaIndex',
+                  'Just change baseURL',
+                  'Streaming support',
+                  'Zero code changes'
                 ]}
                 gradient="from-blue-400 to-cyan-400"
                 delay={0.1}
                 href="/docs"
+                cta="View Integration"
               />
             </div>
           </div>
@@ -289,7 +291,7 @@ export default function Home() {
           </div>
 
           {/* LAYER 3: IMPROVE */}
-          <div>
+          <div className="mb-24">
             <h3 className="text-2xl font-bold mb-8 flex items-center gap-3 text-slate-200">
               <FaChartLine className="text-cortex-400" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cortex-400 to-forge-400">
@@ -341,6 +343,33 @@ export default function Home() {
                 delay={0.2}
                 href="/forge"
                 cta="Open Dashboard"
+              />
+            </div>
+          </div>
+
+          {/* LAYER 4: STORE */}
+          <div>
+            <h3 className="text-2xl font-bold mb-8 flex items-center gap-3 text-slate-200">
+              <FaDatabase className="text-engram-400" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-blue-400">
+                4. Store & Retrieve
+              </span>
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <FeatureCard
+                icon={<FaDatabase className="text-5xl" />}
+                title="Engram"
+                description="Enterprise Vector Data Store."
+                features={[
+                  'Configurable Collections',
+                  'Top-K Similarity Search',
+                  'Streaming Ingestion',
+                  'SOC 2 / HIPAA / GDPR'
+                ]}
+                gradient="from-indigo-500 to-blue-500"
+                delay={0}
+                href="/engram"
+                cta="Explore Store"
               />
             </div>
           </div>
@@ -527,9 +556,10 @@ export default function Home() {
           <h2 className="text-3xl font-bold mb-12 text-center">Frequently Asked Questions</h2>
           <div className="space-y-6">
             {[
-              { q: 'Does NeuroGate store my data?', a: 'No. NeuroGate is a pass-through kernel. Data is processed in-memory for PII detection and routing, then immediately discarded. Logs can be configured to be redacted or disabled suitable for HIPAA compliance.' },
+              { q: 'Does NeuroGate store my data?', a: 'No. NeuroGate is a pass-through kernel. Data is processed in-memory for PII detection and routing, then immediately discarded. Logs can be configured to be redacted or disabled, supporting HIPAA-compliant deployment architectures when properly configured.' },
               { q: 'What is the latency overhead?', a: 'Minimal. The core routing and PII detection layer adds approximately 5-15ms to the request. However, semantic caching often reduces overall total latency by 90% for repeated queries.' },
-              { q: 'Can I self-host?', a: 'Yes. NeuroGate is distributed as a Docker container and Helm chart. It allows you to own your infrastructure completely.' }
+              { q: 'Can I self-host?', a: 'Yes. NeuroGate is distributed as a Docker container and Helm chart. It allows you to own your infrastructure completely.' },
+              { q: 'What is Engram?', a: 'Engram is NeuroGate\'s built-in enterprise vector data store. It provides configurable collections, top-K similarity search, and streaming ingestion with compliance-ready architecture (SOC 2, HIPAA, GDPR). Think of it as a managed vector database integrated directly into the kernel.' }
             ].map((faq, i) => (
               <div key={i} className="glass p-6 rounded-xl border border-white/5">
                 <h4 className="font-bold text-lg mb-2 text-slate-200">{faq.q}</h4>

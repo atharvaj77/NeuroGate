@@ -8,7 +8,8 @@ import {
     FaLock, FaEye, FaSkull,
     FaCheckDouble, FaFlask, FaHistory,
     FaGraduationCap, FaThumbsUp, FaFire,
-    FaSitemap, FaMoneyBillWave
+    FaSitemap, FaMoneyBillWave,
+    FaDatabase, FaServer, FaCertificate
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { BiSolidServer } from 'react-icons/bi';
@@ -196,6 +197,33 @@ const modules = [
                 title: "RLHF Loop",
                 desc: "Turn user 'Thumbs Up/Down' feedback into a proprietary dataset. Automatically fine-tune your models to align with your specific users.",
                 tags: ['Feedback', 'Alignment']
+            }
+        ]
+    },
+    {
+        id: 'engram',
+        name: 'Engram',
+        tagline: 'Vector Data Store',
+        color: 'from-indigo-400 to-blue-400',
+        bg: 'bg-indigo-950/20',
+        scenarios: [
+            {
+                icon: <FaDatabase className="text-3xl text-indigo-400" />,
+                title: "Enterprise Embedding Platform",
+                desc: "Centralize 100M+ embeddings across teams with configurable collections, tenant isolation, and sub-100ms similarity search at scale.",
+                tags: ['Embeddings', 'Scale']
+            },
+            {
+                icon: <FaCertificate className="text-3xl text-emerald-400" />,
+                title: "Compliance-Ready Vector Search",
+                desc: "SOC 2, HIPAA, and GDPR-ready architecture with encryption at rest, audit logging, and data residency controls for regulated industries.",
+                tags: ['Compliance', 'Security']
+            },
+            {
+                icon: <FaServer className="text-3xl text-cyan-400" />,
+                title: "Real-Time Recommendation Engine",
+                desc: "Sub-100ms similarity search powers product recommendations, content discovery, and personalization engines with streaming ingestion.",
+                tags: ['Recommendations', 'Real-Time']
             }
         ]
     }

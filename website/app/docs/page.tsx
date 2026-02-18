@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FaGithub, FaArrowLeft, FaBook, FaRocket, FaCog, FaBrain, FaShieldAlt, FaCode, FaMemory, FaMagic, FaSearch, FaUserEdit, FaFire, FaChartLine } from 'react-icons/fa'
+import { FaGithub, FaArrowLeft, FaBook, FaRocket, FaCog, FaBrain, FaShieldAlt, FaCode, FaMemory, FaMagic, FaSearch, FaUserEdit, FaFire, FaChartLine, FaDatabase } from 'react-icons/fa'
 import Link from 'next/link'
 
 export default function Docs() {
@@ -53,7 +53,7 @@ export default function Docs() {
               </h3>
               <ul className="space-y-1 text-sm text-slate-400 border-l border-white/10 pl-4">
                 <li className="font-bold text-slate-600 uppercase text-[10px] tracking-widest mt-4 mb-2">Build Layer</li>
-                {['Synapse', 'Python SDK'].map((item) => (
+                {['Synapse', 'OpenAI Compatible'].map((item) => (
                   <li key={item}>
                     <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 hover:text-primary-300 transition-colors font-mono text-xs">
                       {item}
@@ -74,6 +74,15 @@ export default function Docs() {
                 {['Cortex', 'Reinforce', 'Forge'].map((item) => (
                   <li key={item}>
                     <a href={`#${item.toLowerCase().replace(' ', '')}`} className="block py-2 hover:text-green-300 transition-colors font-mono text-xs">
+                      {item}
+                    </a>
+                  </li>
+                ))}
+
+                <li className="font-bold text-slate-600 uppercase text-[10px] tracking-widest mt-6 mb-2">Store Layer</li>
+                {['Engram'].map((item) => (
+                  <li key={item}>
+                    <a href={`#${item.toLowerCase()}`} className="block py-2 hover:text-indigo-300 transition-colors font-mono text-xs">
                       {item}
                     </a>
                   </li>
@@ -109,17 +118,17 @@ export default function Docs() {
                 </div>
               </section>
 
-              {/* SDK */}
-              <section id="pythonsdk">
+              {/* OpenAI Compatible */}
+              <section id="openaicompatible">
                 <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
                   <FaCode className="text-blue-400" />
-                  02_Python_SDK
+                  02_OpenAI_Compatible
                 </h2>
                 <div className="glass p-8 rounded-xl border border-white/5">
-                  <p className="text-slate-400 mb-6">Drop-in replacement for `langchain` or raw `openai` calls.</p>
+                  <p className="text-slate-400 mb-6">Drop-in replacement for any OpenAI SDK. Just change the <code className="bg-white/10 px-1 rounded text-primary-300">baseURL</code> — works with LangChain, LlamaIndex, and any OpenAI-compatible client.</p>
                   <div className="bg-gray-950 p-4 rounded-lg border border-white/10 overflow-x-auto shadow-inner">
                     <pre className="text-sm font-mono text-slate-300">
-                      <code><span className="text-primary-400">$</span> pip install neurogate-sdk</code>
+                      <code><span className="text-accent-400">const</span> client = <span className="text-accent-400">new</span> <span className="text-yellow-300">OpenAI</span>({'{'}<br/>  baseURL: <span className="text-green-400">&apos;https://gateway.internal/v1&apos;</span><br/>{'}'})</code>
                     </pre>
                   </div>
                 </div>
@@ -212,6 +221,39 @@ export default function Docs() {
                   <p className="text-slate-400 text-lg">
                     Automated Fine-Tuning pipeline. Forge takes &quot;Golden Traces&quot; from Reinforce/Cortex and fine-tunes smaller, cheaper models (e.g., Llama 3 8B) to match GPT-4 performance.
                   </p>
+                </div>
+              </section>
+
+              {/* === STORE LAYER === */}
+
+              {/* Engram */}
+              <section id="engram">
+                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3 font-mono text-slate-200 border-b border-white/5 pb-4">
+                  <FaDatabase className="text-indigo-400" />
+                  09_Engram_Store
+                </h2>
+                <div className="glass p-8 rounded-xl space-y-6 border border-white/5">
+                  <p className="text-slate-400 text-lg leading-relaxed">
+                    Enterprise-grade vector data store integrated directly into the NeuroGate kernel. Engram provides configurable collections, streaming ingestion, and top-K similarity search with compliance-ready architecture.
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-indigo-300 mb-2 font-mono text-sm">Collection Management</h4>
+                      <p className="text-sm text-slate-400">Create and manage named collections with configurable dimensions, distance metrics (cosine, euclidean, dot), and metadata schemas.</p>
+                    </div>
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-indigo-300 mb-2 font-mono text-sm">Ingestion Pipeline</h4>
+                      <p className="text-sm text-slate-400">Stream vectors via REST, Kafka, or batch upload. Automatic deduplication and versioning for production workloads.</p>
+                    </div>
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-indigo-300 mb-2 font-mono text-sm">Search Engine</h4>
+                      <p className="text-sm text-slate-400">Top-K similarity search with optional metadata filtering. Sub-100ms P99 latency on collections up to 100M vectors.</p>
+                    </div>
+                    <div className="bg-black/40 border border-white/5 p-6 rounded-lg">
+                      <h4 className="font-bold text-indigo-300 mb-2 font-mono text-sm">Compliance</h4>
+                      <p className="text-sm text-slate-400">Architecture supports SOC 2, HIPAA, and GDPR requirements. Data encryption at rest and in transit with tenant isolation.</p>
+                    </div>
+                  </div>
                 </div>
               </section>
 

@@ -23,6 +23,7 @@ module.exports = {
         cortex: colors.amber,
         nexus: colors.cyan,
         reinforce: colors.green,
+        engram: colors.indigo,
       },
       fontFamily: {
         mono: ['var(--font-jetbrains-mono)', 'monospace'],
