@@ -2,7 +2,7 @@
 # Stage 1: Build (optional, can use pre-built JAR)
 # Stage 2: Runtime
 
-FROM eclipse-temurin:17-jre AS runtime
+FROM eclipse-temurin:21-jre AS runtime
 
 # Metadata
 LABEL maintainer="Atharva Joshi <your.email@example.com>"

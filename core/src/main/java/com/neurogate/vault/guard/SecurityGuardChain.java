@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -25,8 +26,9 @@ public class SecurityGuardChain {
     private final Map<SecurityGuard.GuardType, AtomicLong> threatsByType = new ConcurrentHashMap<>();
 
     public SecurityGuardChain(List<SecurityGuard> guards) {
-        this.guards = new ArrayList<>(guards);
-        this.guards.sort(Comparator.comparingInt(SecurityGuard::getPriority));
+        this.guards = new CopyOnWriteArrayList<>(guards.stream()
+                .sorted(Comparator.comparingInt(SecurityGuard::getPriority))
+                .toList());
         log.info("Security guard chain initialized with {} guards: {}",
                 guards.size(),
                 guards.stream().map(g -> g.getType().name()).toList());

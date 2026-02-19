@@ -112,10 +112,10 @@ export default function ForgePage() {
                         </div>
                     </div>
 
-                    {/* Simulation Mode Badge */}
+                    {/* Demo Mode Badge */}
                     <div className="flex items-center gap-2 px-3 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 group relative cursor-help text-xs">
                         <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                        SIMULATION MODE
+                        DEMO MODE
 
                         {/* Tooltip */}
                         <div className="absolute top-full right-0 mt-2 w-72 p-3 bg-black border border-white/20 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
@@ -132,6 +132,9 @@ export default function ForgePage() {
                 </header>
 
                 <div className="flex-1 p-8 flex flex-col justify-center items-center relative overflow-hidden">
+                    <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-300">
+                        Training simulation. Real training pipeline coming soon.
+                    </div>
 
                     {/* Pipeline Visual */}
                     <div className="w-full max-w-4xl flex items-center justify-between mb-16 relative">

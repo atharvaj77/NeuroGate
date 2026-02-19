@@ -83,10 +83,10 @@ export default function PulsePage() {
                             <div className="flex items-center gap-2 text-green-400">
                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
                             </div>
-                            {/* Simulation Mode Indicator */}
+                            {/* Demo Mode Indicator */}
                             <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded bg-yellow-500/10 border border-yellow-500/30 text-yellow-500 group relative cursor-help">
                                 <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
-                                SIMULATION MODE
+                                DEMO MODE
 
                                 {/* Tooltip */}
                                 <div className="absolute top-full right-0 mt-2 w-64 p-3 bg-black border border-white/20 rounded shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">

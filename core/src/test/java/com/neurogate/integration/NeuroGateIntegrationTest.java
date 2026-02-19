@@ -16,8 +16,21 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
+import org.junit.jupiter.api.function.Executable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,10 +51,14 @@ import static org.junit.jupiter.api.Assertions.*;
                 "management.endpoints.web.exposure.include=*",
                 "management.metrics.export.prometheus.enabled=true",
                 "management.metrics.export.simple.enabled=false",
-                "spring.main.allow-bean-definition-overriding=true"
+                "spring.main.allow-bean-definition-overriding=true",
+                "resilience4j.ratelimiter.instances.openai.limitForPeriod=2",
+                "resilience4j.ratelimiter.instances.openai.limitRefreshPeriod=60s",
+                "resilience4j.ratelimiter.instances.openai.timeoutDuration=0s"
 })
 @Import(PrometheusMetricsExportAutoConfiguration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Testcontainers
 class NeuroGateIntegrationTest {
 
         @org.springframework.test.context.bean.override.mockito.MockitoBean
@@ -59,29 +76,27 @@ class NeuroGateIntegrationTest {
         private String baseUrl;
 
         // Redis container for L2 cache
-        // @Container
-        // static GenericContainer<?> redisContainer = new
-        // GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
-        // .withExposedPorts(6379)
-        // .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
+        @Container
+        static GenericContainer<?> redisContainer = new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+                        .withExposedPorts(6379)
+                        .waitingFor(Wait.forLogMessage(".*Ready to accept connections.*\\n", 1));
 
         // Qdrant container for L3 semantic cache
-        // @Container
-        // static GenericContainer<?> qdrantContainer = new GenericContainer<>(
-        // DockerImageName.parse("qdrant/qdrant:latest"))
-        // .withExposedPorts(6333, 6334)
-        // .waitingFor(Wait.forHttp("/health").forPort(6333));
+        @Container
+        static GenericContainer<?> qdrantContainer = new GenericContainer<>(DockerImageName.parse("qdrant/qdrant:latest"))
+                        .withExposedPorts(6333, 6334)
+                        .waitingFor(Wait.forHttp("/healthz").forPort(6333));
 
         @DynamicPropertySource
         static void configureProperties(DynamicPropertyRegistry registry) {
                 // Redis configuration
-                registry.add("spring.data.redis.host", () -> "localhost");
-                registry.add("spring.data.redis.port", () -> 6379);
+                registry.add("spring.data.redis.host", redisContainer::getHost);
+                registry.add("spring.data.redis.port", () -> redisContainer.getMappedPort(6379));
 
                 // Qdrant configuration
-                registry.add("neurogate.qdrant.host", () -> "localhost");
-                registry.add("neurogate.qdrant.rest-port", () -> 6333);
-                registry.add("neurogate.qdrant.grpc-port", () -> 6334);
+                registry.add("neurogate.qdrant.host", qdrantContainer::getHost);
+                registry.add("neurogate.qdrant.rest-port", () -> qdrantContainer.getMappedPort(6333));
+                registry.add("neurogate.qdrant.grpc-port", () -> qdrantContainer.getMappedPort(6334));
                 registry.add("neurogate.qdrant.enabled", () -> "true");
 
                 // Disable external providers for integration tests
@@ -241,11 +256,30 @@ class NeuroGateIntegrationTest {
         @Order(6)
         @DisplayName("Caching - Second identical request should be cache hit")
         void testCaching_SecondRequest() throws Exception {
-                // To ensure cache hit, we need a successful first request.
-                // Assuming provider might fail in test, skipping specific assertion on speed
-                // unless mocked.
-                // Just ensuring endpoint works.
-                assertTrue(true, "Skipping specific cache hit verification without deterministic mock provider");
+                ChatRequest request = ChatRequest.builder()
+                                .model("gpt-3.5-turbo")
+                                .messages(List.of(
+                                                Message.builder()
+                                                                .role("user")
+                                                                .content("Repeatable cache prompt")
+                                                                .build()))
+                                .build();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<ChatRequest> entity = new HttpEntity<>(request, headers);
+
+                ResponseEntity<ChatResponse> firstResponse = restTemplate.postForEntity(
+                                baseUrl + "/v1/chat/completions",
+                                entity,
+                                ChatResponse.class);
+                ResponseEntity<ChatResponse> secondResponse = restTemplate.postForEntity(
+                                baseUrl + "/v1/chat/completions",
+                                entity,
+                                ChatResponse.class);
+
+                assertFalse(firstResponse.getStatusCode().is5xxServerError(), "first request should not be 5xx");
+                assertFalse(secondResponse.getStatusCode().is5xxServerError(), "second request should not be 5xx");
         }
 
         // =====================================================
@@ -255,9 +289,9 @@ class NeuroGateIntegrationTest {
         @Order(7)
         @DisplayName("Redis Integration - L2 cache should work")
         void testRedisIntegration() {
-                // Check if port 6379 is listening (naive check or just rely on Context Load)
-                // If Context loaded, Redis is connected.
-                assertTrue(true, "Context loaded implies Redis connected");
+                assertTrue(redisContainer.isRunning(), "Redis testcontainer should be running");
+                assertNotNull(redisContainer.getHost());
+                assertTrue(redisContainer.getMappedPort(6379) > 0);
         }
 
         // =====================================================
@@ -267,8 +301,9 @@ class NeuroGateIntegrationTest {
         @Order(8)
         @DisplayName("Qdrant Integration - L3 semantic cache should work")
         void testQdrantIntegration() {
-                // If Context loaded, Qdrant is connected.
-                assertTrue(true, "Context loaded implies Qdrant connected");
+                assertTrue(qdrantContainer.isRunning(), "Qdrant testcontainer should be running");
+                assertNotNull(qdrantContainer.getHost());
+                assertTrue(qdrantContainer.getMappedPort(6333) > 0);
         }
 
         // =====================================================
@@ -343,40 +378,54 @@ class NeuroGateIntegrationTest {
         @Test
         @Order(11)
         @DisplayName("Concurrency - Handle multiple concurrent requests")
-        void testConcurrentRequests() throws InterruptedException {
+        void testConcurrentRequests() throws Exception {
                 int threadCount = 10;
-                Thread[] threads = new Thread[threadCount];
+                ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+                CountDownLatch startLatch = new CountDownLatch(1);
+                CountDownLatch doneLatch = new CountDownLatch(threadCount);
+                List<Future<ResponseEntity<ChatResponse>>> futures = new ArrayList<>();
 
                 for (int i = 0; i < threadCount; i++) {
                         final int index = i;
-                        threads[i] = new Thread(() -> {
-                                ChatRequest request = ChatRequest.builder()
-                                                .model("gpt-3.5-turbo")
-                                                .messages(List.of(
-                                                                Message.builder()
-                                                                                .role("user")
-                                                                                .content("Concurrent test " + index)
-                                                                                .build()))
-                                                .build();
+                        Callable<ResponseEntity<ChatResponse>> task = () -> {
+                                try {
+                                        startLatch.await(2, TimeUnit.SECONDS);
+                                        ChatRequest request = ChatRequest.builder()
+                                                        .model("gpt-3.5-turbo")
+                                                        .messages(List.of(
+                                                                        Message.builder()
+                                                                                        .role("user")
+                                                                                        .content("Concurrent test " + index)
+                                                                                        .build()))
+                                                        .build();
 
-                                HttpHeaders headers = new HttpHeaders();
-                                headers.setContentType(MediaType.APPLICATION_JSON);
-                                HttpEntity<ChatRequest> entity = new HttpEntity<>(request, headers);
+                                        HttpHeaders headers = new HttpHeaders();
+                                        headers.setContentType(MediaType.APPLICATION_JSON);
+                                        HttpEntity<ChatRequest> entity = new HttpEntity<>(request, headers);
 
-                                ResponseEntity<ChatResponse> response = restTemplate.postForEntity(
-                                                baseUrl + "/v1/chat/completions",
-                                                entity,
-                                                ChatResponse.class);
-
-                                assertEquals(HttpStatus.OK, response.getStatusCode());
-                        });
-                        threads[i].start();
+                                        return restTemplate.postForEntity(
+                                                        baseUrl + "/v1/chat/completions",
+                                                        entity,
+                                                        ChatResponse.class);
+                                } finally {
+                                        doneLatch.countDown();
+                                }
+                        };
+                        futures.add(executor.submit(task));
                 }
 
-                // Wait for all threads
-                for (Thread thread : threads) {
-                        thread.join();
+                startLatch.countDown();
+                assertTrue(doneLatch.await(10, TimeUnit.SECONDS), "all concurrent requests should complete");
+
+                List<Executable> assertions = new ArrayList<>();
+                for (Future<ResponseEntity<ChatResponse>> future : futures) {
+                        ResponseEntity<ChatResponse> response = future.get();
+                        assertions.add(() -> assertFalse(
+                                        response.getStatusCode().is5xxServerError(),
+                                        "concurrent request should not return 5xx"));
                 }
+                assertAll(assertions);
+                executor.shutdownNow();
         }
 
         // =====================================================
@@ -434,11 +483,7 @@ class NeuroGateIntegrationTest {
                         }
                 }
 
-                // Note: Unless rate limits are very strict in test config, this might not
-                // always trigger 429.
-                // But measuring it ensures the logic is active.
-                // We assert true to avoid flaky tests if limits are high default.
-                assertTrue(throttledCount >= 0);
+                assertTrue(throttledCount > 0, "Expected at least one 429 response when rate limit is low");
         }
 
         // =====================================================

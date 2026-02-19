@@ -1,21 +1,33 @@
 package com.neurogate.sentinel;
 
+import com.neurogate.exception.NeuroGateException;
 import com.neurogate.pulse.PulseEventPublisher;
 import com.neurogate.pulse.model.PulseEvent;
 import com.neurogate.router.provider.MultiProviderRouter;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.ChatResponse;
+import com.neurogate.sentinel.model.Message;
 import com.neurogate.vault.PiiRestorerFactory;
 import com.neurogate.vault.PiiSanitizationService;
 import com.neurogate.vault.StreamingPiiRestorer;
 import com.neurogate.vault.model.SanitizedPrompt;
 import com.neurogate.vault.neuroguard.ActiveDefenseService;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
+import io.github.resilience4j.reactor.retry.RetryOperator;
+import io.github.resilience4j.retry.Retry;
+import io.github.resilience4j.retry.RetryRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -30,6 +42,8 @@ public class SentinelService {
     private final PulseEventPublisher pulseEventPublisher;
     private final com.neurogate.agent.AgentLoopDetector agentLoopDetector;
     private final com.neurogate.validation.StructuredOutputService structuredOutputService;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+    private final RetryRegistry retryRegistry;
 
     @SuppressWarnings("unused")
     public ChatResponse processRequest(ChatRequest request) {
@@ -67,6 +81,12 @@ public class SentinelService {
         } catch (Exception e) {
             publishErrorEvent(requestId, request, e);
             log.error("Error processing chat request", e);
+            if (e instanceof NeuroGateException neuroGateException) {
+                throw neuroGateException;
+            }
+            if (e instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
             throw new RuntimeException("Failed to process chat request: " + e.getMessage(), e);
         }
     }
@@ -102,9 +122,13 @@ public class SentinelService {
 
         // Thread-safe restorer for this stream
         StreamingPiiRestorer restorer = piiRestorerFactory.createRestorer();
+        CircuitBreaker streamCircuitBreaker = circuitBreakerRegistry.circuitBreaker("streaming");
+        Retry streamRetry = retryRegistry.retry("streaming");
 
         return Flux.concat(
                 multiProviderRouter.routeStream(sanitizedRequest)
+                        .transformDeferred(CircuitBreakerOperator.of(streamCircuitBreaker))
+                        .transformDeferred(RetryOperator.of(streamRetry))
                         .map(chunk -> {
                             if (sanitizedPrompt.isContainsPii() && chunk.getChoices() != null) {
                                 chunk.getChoices().forEach(choice -> {
@@ -161,29 +185,52 @@ public class SentinelService {
     }
 
     private ChatRequest createSanitizedRequest(ChatRequest original, String sanitizedText) {
-        ChatRequest sanitized = ChatRequest.builder()
-                .model(original.getModel())
-                .messages(original.getMessages())
-                .temperature(original.getTemperature())
-                .maxTokens(original.getMaxTokens())
-                .topP(original.getTopP())
-                .frequencyPenalty(original.getFrequencyPenalty())
-                .presencePenalty(original.getPresencePenalty())
-                .stop(original.getStop())
-                .stream(original.getStream())
-                .user(original.getUser())
+        List<Message> copiedMessages = deepCopyMessages(original.getMessages());
+        if (!copiedMessages.isEmpty()) {
+            int lastIndex = copiedMessages.size() - 1;
+            copiedMessages.get(lastIndex).setContent(sanitizedText);
+        }
+
+        return original.toBuilder()
+                .messages(copiedMessages)
                 .build();
+    }
 
-        if (original.getCanaryWeight() != null) {
-            sanitized.setCanaryWeight(original.getCanaryWeight());
+    private List<Message> deepCopyMessages(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return List.of();
         }
-
-        if (!original.getMessages().isEmpty()) {
-            int lastIndex = original.getMessages().size() - 1;
-            original.getMessages().get(lastIndex).setContent(sanitizedText);
+        List<Message> copies = new ArrayList<>(messages.size());
+        for (Message message : messages) {
+            copies.add(copyMessage(message));
         }
+        return copies;
+    }
 
-        return sanitized;
+    private Message copyMessage(Message original) {
+        return Message.builder()
+                .role(original.getRole())
+                .name(original.getName())
+                .content(deepCopyContent(original.getContent()))
+                .build();
+    }
+
+    private Object deepCopyContent(Object content) {
+        if (content instanceof List<?> list) {
+            List<Object> copied = new ArrayList<>(list.size());
+            for (Object item : list) {
+                copied.add(deepCopyContent(item));
+            }
+            return copied;
+        }
+        if (content instanceof Map<?, ?> map) {
+            Map<String, Object> copied = new HashMap<>();
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                copied.put(String.valueOf(entry.getKey()), deepCopyContent(entry.getValue()));
+            }
+            return copied;
+        }
+        return content;
     }
 
     private void enrichRequestLogging(ChatRequest request) {

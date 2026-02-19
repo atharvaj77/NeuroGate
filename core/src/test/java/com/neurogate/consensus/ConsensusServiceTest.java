@@ -1,6 +1,7 @@
 package com.neurogate.consensus;
 
 import com.neurogate.client.ProviderClient;
+import com.neurogate.config.NeuroGateProperties;
 import com.neurogate.router.resilience.HedgingService;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.ChatResponse;
@@ -34,6 +35,7 @@ class ConsensusServiceTest {
     private ProviderClient geminiClient;
 
     private ConsensusService consensusService;
+    private NeuroGateProperties properties;
 
     @BeforeEach
     void setUp() {
@@ -41,8 +43,9 @@ class ConsensusServiceTest {
 
         when(openAiClient.getProviderName()).thenReturn("openai");
         when(geminiClient.getProviderName()).thenReturn("gemini");
+        properties = new NeuroGateProperties();
 
-        consensusService = new ConsensusService(hedgingService, List.of(openAiClient, geminiClient));
+        consensusService = new ConsensusService(hedgingService, List.of(openAiClient, geminiClient), properties);
     }
 
     @Test

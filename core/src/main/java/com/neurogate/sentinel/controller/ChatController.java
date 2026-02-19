@@ -73,26 +73,35 @@ public class ChatController {
             request.setSessionId(sessionId);
         }
 
+        if (Boolean.TRUE.equals(request.getStream())) {
+            Flux<ChatResponse> streamResponse = Flux.defer(() -> {
+                        populateMdc(request);
+                        return sentinelService.processStreamRequest(request);
+                    })
+                    .doFinally(signalType -> org.slf4j.MDC.clear());
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_EVENT_STREAM)
+                    .body(streamResponse);
+        }
+
+        populateMdc(request);
+        try {
+                ChatResponse response = sentinelService.processRequest(request);
+                return ResponseEntity.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(response);
+        } finally {
+            org.slf4j.MDC.clear();
+        }
+    }
+
+    private void populateMdc(ChatRequest request) {
         if (request.getTraceId() != null) {
             org.slf4j.MDC.put("traceId", request.getTraceId());
         }
         if (request.getSessionId() != null) {
             org.slf4j.MDC.put("sessionId", request.getSessionId());
-        }
-
-        try {
-            if (Boolean.TRUE.equals(request.getStream())) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.TEXT_EVENT_STREAM)
-                        .body(sentinelService.processStreamRequest(request));
-            } else {
-                ChatResponse response = sentinelService.processRequest(request);
-                return ResponseEntity.ok()
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(response);
-            }
-        } finally {
-            org.slf4j.MDC.clear();
         }
     }
 

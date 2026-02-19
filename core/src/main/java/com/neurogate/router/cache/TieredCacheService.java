@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * 4-Tier Caching Hierarchy
@@ -176,8 +177,12 @@ public class TieredCacheService {
     private String generateCacheKey(ChatRequest request) {
         try {
             String content = request.getConcatenatedContent();
+            String model = request.getModel();
+            String temperature = String.valueOf(request.getTemperature());
+            String maxTokens = String.valueOf(request.getMaxTokens());
+            String fingerprint = content + "|" + model + "|" + temperature + "|" + maxTokens;
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(content.getBytes(StandardCharsets.UTF_8));
+            byte[] hash = digest.digest(fingerprint.getBytes(StandardCharsets.UTF_8));
 
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
@@ -231,6 +236,23 @@ public class TieredCacheService {
         l1Cache.invalidateAll();
         log.info("Invalidated all L1 cache entries");
 
-        // Note: L2 and L3 will expire naturally based on TTL
+        try {
+            Set<String> keys = redisTemplate.keys("neurogate:cache:*");
+            if (keys != null && !keys.isEmpty()) {
+                redisTemplate.delete(keys);
+                log.info("Invalidated {} L2 cache entries", keys.size());
+            }
+        } catch (Exception e) {
+            log.warn("Failed to invalidate L2 Redis cache: {}", e.getMessage());
+        }
+
+        semanticCacheService.ifPresent(service -> {
+            try {
+                service.clearCache();
+                log.info("Triggered L3 semantic cache invalidation");
+            } catch (Exception e) {
+                log.warn("Failed to invalidate L3 semantic cache: {}", e.getMessage());
+            }
+        });
     }
 }

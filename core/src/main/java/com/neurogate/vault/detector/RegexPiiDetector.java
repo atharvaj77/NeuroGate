@@ -27,9 +27,9 @@ public class RegexPiiDetector implements PiiDetector {
             PiiType.EMAIL, Pattern.compile(
                     "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"),
 
-            // SSN: formats like 123-45-6789 or 123456789
+            // SSN: formatted format only. Unformatted detection is context-aware.
             PiiType.SSN, Pattern.compile(
-                    "\\b\\d{3}-\\d{2}-\\d{4}\\b|\\b\\d{9}\\b"),
+                    "\\b\\d{3}-\\d{2}-\\d{4}\\b"),
 
             // Phone: US formats like (555) 123-4567, 555-123-4567, 555.123.4567, 5551234567
             PiiType.PHONE, Pattern.compile(

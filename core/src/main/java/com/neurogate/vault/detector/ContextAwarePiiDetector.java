@@ -23,7 +23,8 @@ public class ContextAwarePiiDetector implements PiiDetector {
     private static final List<ContextPattern> PATTERNS = List.of(
             // SSN: Look for "SSN", "Social Security", etc. before the number
             new ContextPattern(
-                    Pattern.compile("(?i)(ssn|social security|soc sec)[^a-zA-Z0-9]*([0-9]{3}-[0-9]{2}-[0-9]{4})"),
+                    Pattern.compile(
+                            "(?i)(ssn|social security|social security number|soc sec)[^a-zA-Z0-9]*([0-9]{3}-[0-9]{2}-[0-9]{4}|[0-9]{9})"),
                     PiiType.SSN, 2, 0.95),
 
             // API Keys: Look for "api_key", "bearer", etc.

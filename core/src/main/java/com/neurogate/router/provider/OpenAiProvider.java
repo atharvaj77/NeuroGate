@@ -26,8 +26,12 @@ public class OpenAiProvider implements LLMProvider {
 
     private static final Map<String, String> MODEL_EQUIVALENTS = Map.of(
             "gpt-4", "gpt-4",
+            "gpt-4o", "gpt-4o",
+            "gpt-4o-mini", "gpt-4o-mini",
             "gpt-4-turbo", "gpt-4-turbo",
             "gpt-3.5-turbo", "gpt-3.5-turbo",
+            "o1", "o1",
+            "o3-mini", "o3-mini",
             "claude-3-opus", "gpt-4", // Equivalent to Claude Opus
             "claude-3-sonnet", "gpt-3.5-turbo", // Equivalent to Claude Sonnet
             "gemini-ultra", "gpt-4", // Equivalent to Gemini Ultra
@@ -43,8 +47,12 @@ public class OpenAiProvider implements LLMProvider {
     public List<String> getSupportedModels() {
         return List.of(
                 "gpt-4",
+                "gpt-4o",
+                "gpt-4o-mini",
                 "gpt-4-turbo",
                 "gpt-4-turbo-preview",
+                "o1",
+                "o3-mini",
                 "gpt-3.5-turbo",
                 "gpt-3.5-turbo-16k");
     }
@@ -92,6 +100,6 @@ public class OpenAiProvider implements LLMProvider {
 
     @Override
     public String getEquivalentModel(String requestedModel) {
-        return MODEL_EQUIVALENTS.getOrDefault(requestedModel, "gpt-3.5-turbo");
+        return MODEL_EQUIVALENTS.getOrDefault(requestedModel, "gpt-4o-mini");
     }
 }

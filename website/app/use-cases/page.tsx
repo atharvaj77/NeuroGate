@@ -92,9 +92,9 @@ const modules = [
             },
             {
                 icon: <FaRedo className="text-3xl text-rose-400" />,
-                title: "Self-Correction",
-                desc: "If the Primary Model generates invalid JSON, Hive Mind intercepts the error, adds the stack trace to the context, and retries with a 'Fixer' model.",
-                tags: ['Resilience', 'Auto-Heal']
+                title: "Response Alignment",
+                desc: "Hive Mind compares outputs across models and elevates the shared facts into a single synthesized answer with a confidence score.",
+                tags: ['Consensus', 'Reliability']
             }
         ]
     },

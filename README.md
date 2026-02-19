@@ -29,7 +29,7 @@ NeuroGate is organized into three "Organelles" to take agents from prototype to 
 *   **Synapse Studio**: A VS Code-like environment in the browser for visual Prompt Engineering.
 *   **Version Control**: Git-like versioning for prompts with branching and rollback.
 *   **Interactive Playground**: Test prompts against the real NeuroGate router with "Compare V1 vs V2" diffs.
-*   **Python SDK**: Type-safe, async-ready SDK for seamless agent integration.
+*   **Python SDK**: Planned (coming soon).
 
 ### 2. Run & Secure (The Kernel)
 *   **Nexus (RAG Gateway)**: Centralized RAG service. Inject context, manage vector DB connections (Qdrant), and enforce ACLs at the gateway level.
@@ -79,7 +79,7 @@ docker-compose ps
 ```
 
 ### 2. Configure & Run
-Set your API keys in `src/main/resources/application.yml` or via environment variables:
+Set your API keys in `core/src/main/resources/application.yml` or via environment variables:
 ```bash
 export OPENAI_API_KEY="sk-..."
 ./gradlew bootRun
@@ -124,3 +124,11 @@ NeuroGate is an open-source research project exploring the future of Agentic Inf
 Built by **Atharva Joshi** as a senior engineering portfolio project.
 
 **MIT Licensed. Free for everyone.**
+
+---
+
+## Known Limitations
+
+*   Pulse and Forge dashboard pages run in demo mode with simulated data.
+*   Forge training is currently a simulation and does not execute real model training jobs yet.
+*   Python SDK is not published yet (API integration should use OpenAI-compatible clients for now).

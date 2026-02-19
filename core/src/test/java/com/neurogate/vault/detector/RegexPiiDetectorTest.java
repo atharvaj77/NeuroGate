@@ -123,6 +123,18 @@ class RegexPiiDetectorTest {
     }
 
     @Test
+    void shouldNotDetectNineDigitZipCodeAsSsn() {
+        // Given
+        String text = "Shipping ZIP+4 is 123456789 for this order";
+
+        // When
+        List<PiiEntity> entities = detector.detect(text);
+
+        // Then
+        assertThat(entities).noneMatch(entity -> entity.getType() == PiiType.SSN);
+    }
+
+    @Test
     void shouldNotDetectInvalidCreditCard() {
         // Given - Invalid credit card (fails Luhn check)
         String text = "Card: 1234-5678-9012-3456";

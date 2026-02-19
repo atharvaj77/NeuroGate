@@ -46,3 +46,11 @@ application-prod.yml
 
 # Secrets
 core/src/main/resources/application.yml
+
+# Docs (planning, internal, and generated documentation)
+docs/
+
+# Test output files
+full_test_log.txt
+test_log.txt
+test_output*.txt

@@ -14,6 +14,7 @@ public class NeuroGateProperties {
     private Embedding embedding = new Embedding();
     private Router router = new Router();
     private RateLimit rateLimit = new RateLimit();
+    private Consensus consensus = new Consensus();
 
     @Data
     public static class Qdrant {
@@ -57,5 +58,10 @@ public class NeuroGateProperties {
         private int defaultRpm = 1000;
         private int burstCapacity = 100;
         private int refillTokensPerMinute = 1000;
+    }
+
+    @Data
+    public static class Consensus {
+        private String judgeModel = "gpt-4o";
     }
 }

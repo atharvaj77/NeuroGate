@@ -131,7 +131,7 @@ export default function Home() {
             className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto border-t border-white/5 pt-12"
           >
             {[
-              { value: 9, suffix: '+', label: 'Modules' },
+              { value: 8, suffix: '+', label: 'Modules' },
               { value: 99, suffix: '%', label: 'Cache Hit Ratio*' },
               { value: 1, suffix: 'ms', label: 'L1 Latency*' },
               { value: 100, suffix: '%', label: 'Open Source' }
@@ -249,7 +249,7 @@ export default function Home() {
                 features={[
                   '3-Model Voting (GPT+Claude)',
                   'Neural Routing',
-                  'Self-Correction',
+                  'Provider Failover',
                   'Confidence Scoring'
                 ]}
                 gradient="from-violet-500 to-fuchsia-500"
