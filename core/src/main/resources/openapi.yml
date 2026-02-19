@@ -13,9 +13,20 @@ info:
     - **Agent Operations**: Trace and monitor AI agent workflows
 
     ## Authentication
-    Use API key authentication via the `Authorization` header:
+    NeuroGate supports two authentication modes:
+
+    1) JWT via Clerk (for UI and user sessions)
     ```
-    Authorization: Bearer your-api-key
+    Authorization: Bearer <clerk-jwt>
+    ```
+
+    2) API key (for programmatic access)
+    ```
+    Authorization: Bearer ng_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ```
+    or
+    ```
+    X-API-Key: ng_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     ```
 
   version: 1.0.0
@@ -1627,10 +1638,15 @@ components:
             type: string
 
   securitySchemes:
-    bearerAuth:
+    clerkJwt:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
 
 security:
-  - bearerAuth: []
+  - clerkJwt: []
+  - apiKeyAuth: []

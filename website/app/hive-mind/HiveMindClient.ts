@@ -15,7 +15,7 @@ export interface ConsensusResult {
     confidence: number;
 }
 
-const API_BASE_URL = 'http://localhost:8080/api/hive';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_NEUROGATE_API_BASE_URL ?? 'http://localhost:8080'}/api/hive`;
 
 export const HiveMindClient = {
     async runConsensus(query: string): Promise<ConsensusResult | null> {
@@ -31,6 +31,7 @@ export const HiveMindClient = {
                         { role: 'user', content: query }
                     ]
                 }),
+                credentials: 'include',
             });
 
             if (!response.ok) {

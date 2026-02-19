@@ -1,5 +1,6 @@
 package com.neurogate.core.cortex;
 
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 @Table(name = "cortex_runs")
 @Data
 @NoArgsConstructor
-public class EvaluationRun {
+public class EvaluationRun extends TenantScopedEntity {
 
     @Id
     @GeneratedValue

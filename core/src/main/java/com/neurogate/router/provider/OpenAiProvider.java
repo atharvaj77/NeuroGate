@@ -24,18 +24,18 @@ public class OpenAiProvider implements LLMProvider {
     private final OpenAiClient openAiClient;
     private final ChatModel chatModel;
 
-    private static final Map<String, String> MODEL_EQUIVALENTS = Map.of(
-            "gpt-4", "gpt-4",
-            "gpt-4o", "gpt-4o",
-            "gpt-4o-mini", "gpt-4o-mini",
-            "gpt-4-turbo", "gpt-4-turbo",
-            "gpt-3.5-turbo", "gpt-3.5-turbo",
-            "o1", "o1",
-            "o3-mini", "o3-mini",
-            "claude-3-opus", "gpt-4", // Equivalent to Claude Opus
-            "claude-3-sonnet", "gpt-3.5-turbo", // Equivalent to Claude Sonnet
-            "gemini-ultra", "gpt-4", // Equivalent to Gemini Ultra
-            "gemini-pro", "gpt-3.5-turbo" // Equivalent to Gemini Pro
+    private static final Map<String, String> MODEL_EQUIVALENTS = Map.ofEntries(
+            Map.entry("gpt-4", "gpt-4"),
+            Map.entry("gpt-4o", "gpt-4o"),
+            Map.entry("gpt-4o-mini", "gpt-4o-mini"),
+            Map.entry("gpt-4-turbo", "gpt-4-turbo"),
+            Map.entry("gpt-3.5-turbo", "gpt-3.5-turbo"),
+            Map.entry("o1", "o1"),
+            Map.entry("o3-mini", "o3-mini"),
+            Map.entry("claude-3-opus", "gpt-4"), // Equivalent to Claude Opus
+            Map.entry("claude-3-sonnet", "gpt-3.5-turbo"), // Equivalent to Claude Sonnet
+            Map.entry("gemini-ultra", "gpt-4"), // Equivalent to Gemini Ultra
+            Map.entry("gemini-pro", "gpt-3.5-turbo") // Equivalent to Gemini Pro
     );
 
     @Override

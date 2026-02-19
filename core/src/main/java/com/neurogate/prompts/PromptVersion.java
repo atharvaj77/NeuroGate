@@ -1,5 +1,6 @@
 package com.neurogate.prompts;
 
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +19,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "prompt_versions")
-public class PromptVersion {
+public class PromptVersion extends TenantScopedEntity {
     @Id
     private String versionId;
 

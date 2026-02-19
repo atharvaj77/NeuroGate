@@ -1,5 +1,7 @@
 package com.neurogate.core.cortex;
 
+import com.neurogate.auth.RequiresRole;
+import com.neurogate.auth.Role;
 import com.neurogate.core.cortex.dto.AdHocEvaluationRequest;
 import com.neurogate.core.cortex.dto.AdHocEvaluationResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,7 @@ public class EvaluationController {
     @Operation(summary = "Ad-hoc evaluation", description = "Run evaluation on provided test cases without creating a dataset")
     @ApiResponse(responseCode = "200", description = "Evaluation completed")
     @PostMapping("/evaluate")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<AdHocEvaluationResponse> evaluateAdHoc(@RequestBody AdHocEvaluationRequest request) {
         log.info("Received ad-hoc evaluation request with {} cases", request.getTestCases().size());
         AdHocEvaluationResponse response = cortexService.evaluateAdHoc(request);

@@ -1,5 +1,7 @@
 package com.neurogate.prompts;
 
+import com.neurogate.auth.RequiresRole;
+import com.neurogate.auth.Role;
 import com.neurogate.sentinel.model.ChatRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,6 +23,7 @@ import java.util.Map;
 @RequestMapping("/api/prompts")
 @RequiredArgsConstructor
 @Tag(name = "Prompts", description = "Prompt management and versioning")
+@RequiresRole(Role.VIEWER)
 public class PromptController {
 
     private final PromptVersionControlService versionControlService;
@@ -28,6 +31,7 @@ public class PromptController {
     @Operation(summary = "Commit prompt", description = "Commit a new prompt version")
     @ApiResponse(responseCode = "200", description = "Prompt committed")
     @PostMapping("/commit")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<PromptVersion> commitPrompt(
             @RequestBody CommitRequest request) {
 
@@ -43,6 +47,7 @@ public class PromptController {
     @Operation(summary = "Create branch", description = "Create a new prompt branch")
     @ApiResponse(responseCode = "200", description = "Branch created")
     @PostMapping("/branches")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<PromptBranch> createBranch(
             @RequestBody BranchRequest request) {
 
@@ -57,6 +62,7 @@ public class PromptController {
     @Operation(summary = "Merge branches", description = "Merge source branch into target branch")
     @ApiResponse(responseCode = "200", description = "Branches merged")
     @PostMapping("/merge")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<MergeResult> mergeBranches(
             @RequestBody MergeRequest request) {
 
@@ -82,6 +88,7 @@ public class PromptController {
     @Operation(summary = "Rollback version", description = "Rollback to a previous prompt version")
     @ApiResponse(responseCode = "200", description = "Rollback completed")
     @PostMapping("/rollback")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<PromptVersion> rollback(
             @RequestBody RollbackRequest request) {
 
@@ -96,6 +103,7 @@ public class PromptController {
     @Operation(summary = "Run A/B test", description = "Run A/B test between two prompt versions")
     @ApiResponse(responseCode = "200", description = "Test completed")
     @PostMapping("/ab-test")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<ABTestResult> runABTest(
             @RequestBody ABTestRequest request) {
 
@@ -115,6 +123,7 @@ public class PromptController {
     @Operation(summary = "Create template", description = "Create a new prompt template with variables")
     @ApiResponse(responseCode = "200", description = "Template created")
     @PostMapping("/templates")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<PromptTemplate> createTemplate(
             @RequestBody TemplateRequest request) {
 

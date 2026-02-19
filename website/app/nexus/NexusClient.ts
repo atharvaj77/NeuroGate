@@ -22,7 +22,7 @@ export interface RAGStats {
     averageCostSavings: number;
 }
 
-const API_BASE_URL = 'http://localhost:8080/api/rag';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_NEUROGATE_API_BASE_URL ?? 'http://localhost:8080'}/api/rag`;
 
 export const NexusClient = {
     async searchDocuments(query: string, collection?: string, limit: number = 5): Promise<SearchResult[]> {
@@ -38,6 +38,7 @@ export const NexusClient = {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(body),
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -55,7 +56,9 @@ export const NexusClient = {
 
     async getStats(): Promise<RAGStats | null> {
         try {
-            const response = await fetch(`${API_BASE_URL}/stats`);
+            const response = await fetch(`${API_BASE_URL}/stats`, {
+                credentials: 'include',
+            });
             if (!response.ok) return null;
             return await response.json();
         } catch (error) {
@@ -69,7 +72,8 @@ export const NexusClient = {
             const response = await fetch(`${API_BASE_URL}/documents`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, content, source })
+                body: JSON.stringify({ title, content, source }),
+                credentials: 'include',
             });
             return response.ok;
         } catch (error) {

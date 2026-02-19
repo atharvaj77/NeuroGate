@@ -1,5 +1,6 @@
 package com.neurogate.prompts;
 
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @Entity
 @Table(name = "prompt_branches")
-public class PromptBranch {
+public class PromptBranch extends TenantScopedEntity {
     @Id
     private String branchId;
     private String branchName;

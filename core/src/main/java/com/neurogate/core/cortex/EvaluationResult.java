@@ -1,6 +1,7 @@
 package com.neurogate.core.cortex;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "cortex_results")
 @Data
 @NoArgsConstructor
-public class EvaluationResult {
+public class EvaluationResult extends TenantScopedEntity {
 
     @Id
     @GeneratedValue

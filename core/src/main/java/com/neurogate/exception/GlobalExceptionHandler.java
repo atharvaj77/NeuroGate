@@ -6,6 +6,7 @@ import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -64,6 +65,30 @@ public class GlobalExceptionHandler {
                 Instant.now(),
                 Map.of());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException exception) {
+        ErrorResponse response = new ErrorResponse(
+                "invalid_request",
+                NeuroGateException.ErrorCode.INVALID_REQUEST.getCode(),
+                exception.getMessage(),
+                traceId(),
+                Instant.now(),
+                Map.of());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException exception) {
+        ErrorResponse response = new ErrorResponse(
+                "forbidden",
+                NeuroGateException.ErrorCode.AUTHORIZATION_FAILED.getCode(),
+                exception.getMessage(),
+                traceId(),
+                Instant.now(),
+                Map.of());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(Exception.class)

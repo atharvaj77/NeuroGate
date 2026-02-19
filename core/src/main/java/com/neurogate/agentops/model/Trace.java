@@ -1,6 +1,7 @@
 package com.neurogate.agentops.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Entity
 @Table(name = "traces")
-public class Trace {
+public class Trace extends TenantScopedEntity {
 
     @Id
     @JsonProperty("trace_id")

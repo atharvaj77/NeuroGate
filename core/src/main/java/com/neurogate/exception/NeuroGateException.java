@@ -42,6 +42,7 @@ public abstract class NeuroGateException extends RuntimeException {
         PII_DETECTED(3002),
         JAILBREAK_ATTEMPT(3003),
         PROMPT_INJECTION(3004),
+        AUTHORIZATION_FAILED(3005),
 
         // Rate limiting (4xxx)
         RATE_LIMIT_EXCEEDED(4001),

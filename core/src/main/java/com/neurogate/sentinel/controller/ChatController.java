@@ -1,5 +1,10 @@
 package com.neurogate.sentinel.controller;
 
+import com.neurogate.auth.ApiPrincipal;
+import com.neurogate.auth.RequiresRole;
+import com.neurogate.auth.Role;
+import com.neurogate.auth.SecurityUtils;
+import com.neurogate.auth.UsageTracker;
 import com.neurogate.sentinel.SentinelService;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.ChatResponse;
@@ -14,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -33,6 +40,7 @@ import jakarta.validation.Valid;
 public class ChatController {
 
     private final SentinelService sentinelService;
+    private final UsageTracker usageTracker;
 
     @Operation(
         summary = "Create chat completion",
@@ -53,6 +61,7 @@ public class ChatController {
     })
     @PostMapping(value = "/chat/completions", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.TEXT_EVENT_STREAM_VALUE })
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<?> createChatCompletion(
             @Valid @RequestBody ChatRequest request,
             @Parameter(description = "Canary weight for A/B testing (0-100)")
@@ -88,12 +97,22 @@ public class ChatController {
         populateMdc(request);
         try {
                 ChatResponse response = sentinelService.processRequest(request);
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                SecurityUtils.getApiPrincipal(authentication)
+                        .ifPresent(principal -> trackApiKeyUsage(principal, response));
                 return ResponseEntity.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(response);
         } finally {
             org.slf4j.MDC.clear();
         }
+    }
+
+    private void trackApiKeyUsage(ApiPrincipal principal, ChatResponse response) {
+        int tokens = response.getUsage() != null ? response.getUsage().getTotalTokens() : 0;
+        java.math.BigDecimal cost = response.getCostUsd() != null ? java.math.BigDecimal.valueOf(response.getCostUsd())
+                : java.math.BigDecimal.ZERO;
+        usageTracker.trackTokenAndCost(principal.apiKeyId(), principal.orgId(), tokens, cost);
     }
 
     private void populateMdc(ChatRequest request) {

@@ -5,6 +5,7 @@ import { FaGithub, FaShieldAlt, FaRocket, FaCheckCircle, FaPlay, FaBrain, FaNetw
 import { SiSpringboot, SiKubernetes, SiDocker, SiPrometheus, SiGrafana, SiRedis, SiApachekafka, SiApachespark } from 'react-icons/si'
 import { BiSolidServer, BiTestTube } from 'react-icons/bi'
 import Link from 'next/link'
+import { SignedIn, SignedOut, SignInButton, UserButton } from './lib/clerk'
 import AnimatedCounter from './components/AnimatedCounter'
 import ScrollToTop from './components/ScrollToTop'
 import FeatureCard from './components/FeatureCard'
@@ -39,10 +40,21 @@ export default function Home() {
               <Link href="/engram" className="text-sm font-medium hover:text-primary-400 transition-colors">Engram</Link>
               <Link href="/use-cases" className="text-sm font-medium hover:text-primary-400 transition-colors">Use Cases</Link>
               <Link href="/playground" className="text-sm font-medium hover:text-primary-400 transition-colors">Terminal</Link>
+              <Link href="/settings" className="text-sm font-medium hover:text-primary-400 transition-colors">Settings</Link>
               <Link href="/docs" className="text-sm font-medium hover:text-primary-400 transition-colors">Docs</Link>
               <a href="https://github.com/atharvaj77/NeuroGate" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors opacity-80 hover:opacity-100">
                 <FaGithub className="text-xl" />
               </a>
+              <SignedOut>
+                <SignInButton mode="redirect" forceRedirectUrl="/settings">
+                  <button className="text-xs px-3 py-1.5 rounded-md border border-slate-700 hover:border-primary-500 hover:text-primary-300">
+                    Sign In
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
             </motion.div>
           </div>
         </div>

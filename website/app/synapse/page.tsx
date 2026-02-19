@@ -121,20 +121,25 @@ export default function SynapsePage() {
         setHistory(prev => [newItem, ...prev]);
     };
 
-    const getBaseUrl = () => `${backendConfig.url}:${backendConfig.port}`;
+    const baseUrl = useMemo(() => `${backendConfig.url}:${backendConfig.port}`, [backendConfig.port, backendConfig.url]);
+    const authFetch = (url: string, init?: RequestInit) =>
+        fetch(url, {
+            ...init,
+            credentials: 'include',
+        });
 
     const fetchVersions = useCallback(async () => {
         setIsLoadingVersions(true);
         try {
             // Fetch versions
-            const versionsRes = await fetch(`${getBaseUrl()}/api/prompts/versions?branchName=main`);
+            const versionsRes = await authFetch(`${baseUrl}/api/prompts/versions?branchName=main`);
             if (!versionsRes.ok) throw new Error("Failed to fetch versions");
             const data: PromptVersionDTO[] = await versionsRes.json();
 
             // Fetch workflow status
             let workflow: any = null;
             try {
-                const wfRes = await fetch(`${getBaseUrl()}/api/v1/synapse/prompts/default-prompt/workflow`);
+                const wfRes = await authFetch(`${baseUrl}/api/v1/synapse/prompts/default-prompt/workflow`);
                 if (wfRes.ok) {
                     workflow = await wfRes.json();
                 }
@@ -163,7 +168,7 @@ export default function SynapsePage() {
         } finally {
             setIsLoadingVersions(false);
         }
-    }, [backendConfig.port, backendConfig.url]); // Dependencies for getBaseUrl inside fetchVersions
+    }, [baseUrl]);
 
     // -- Effects --
 
@@ -212,10 +217,10 @@ export default function SynapsePage() {
             }, 1000);
         } else {
             // Real Backend Call
-            setConsoleOutput(`// Connecting to NeuroGate Core at ${getBaseUrl()}...\n`);
+            setConsoleOutput(`// Connecting to NeuroGate Core at ${baseUrl}...\n`);
 
             try {
-                const response = await fetch(`${getBaseUrl()}/api/v1/synapse/play`, {
+                const response = await authFetch(`${baseUrl}/api/v1/synapse/play`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -274,7 +279,7 @@ export default function SynapsePage() {
         } else {
             // Real Commit
             try {
-                const res = await fetch(`${getBaseUrl()}/api/prompts/commit`, {
+                const res = await authFetch(`${baseUrl}/api/prompts/commit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -317,7 +322,7 @@ export default function SynapsePage() {
                 if (versions.length === 0) throw new Error("No version to deploy");
                 const versionId = versions[0].id; // Latest for now
 
-                const res = await fetch(`${getBaseUrl()}/api/v1/synapse/deploy`, {
+                const res = await authFetch(`${baseUrl}/api/v1/synapse/deploy`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -364,7 +369,7 @@ export default function SynapsePage() {
                 }, 1500);
             } else {
                 // Real Backend
-                const res = await fetch(`${getBaseUrl()}/api/v1/synapse/optimize`, {
+                const res = await authFetch(`${baseUrl}/api/v1/synapse/optimize`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -424,7 +429,7 @@ export default function SynapsePage() {
                 }, 2000);
             } else {
                 // Real Backend Ad-Hoc Eval
-                const res = await fetch(`${getBaseUrl()}/api/v1/cortex/evaluate`, {
+                const res = await authFetch(`${baseUrl}/api/v1/cortex/evaluate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -23,7 +23,7 @@ export interface EvaluationRun {
     datasetName?: string; // Helpers
 }
 
-const API_BASE_URL = 'http://localhost:8080/api/v1/cortex';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_NEUROGATE_API_BASE_URL ?? 'http://localhost:8080'}/api/v1/cortex`;
 
 export const CortexClient = {
     // For MVP, we might need to look up a dataset ID if the UI assumes a "default" one.
@@ -34,7 +34,8 @@ export const CortexClient = {
             const response = await fetch(`${API_BASE_URL}/datasets`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
+                body: JSON.stringify({ name }),
+                credentials: 'include',
             });
             if (!response.ok) return null;
             const data = await response.json();
@@ -47,8 +48,11 @@ export const CortexClient = {
 
     async runEvaluation(datasetId: string, agentVersion: string): Promise<EvaluationRun | null> {
         try {
-            const response = await fetch(`${API_BASE_URL}/datasets/${datasetId}/run?agentVersion=${agentVersion}`, {
-                method: 'POST'
+            const response = await fetch(`${API_BASE_URL}/runs`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ datasetId, agentVersion }),
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -65,7 +69,9 @@ export const CortexClient = {
 
     async getRuns(datasetId: string): Promise<EvaluationRun[]> {
         try {
-            const response = await fetch(`${API_BASE_URL}/datasets/${datasetId}/runs`);
+            const response = await fetch(`${API_BASE_URL}/runs/${datasetId}`, {
+                credentials: 'include',
+            });
             if (!response.ok) return [];
             return await response.json();
         } catch (error) {

@@ -1,4 +1,9 @@
 spring:
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
   ai:
     openai:
       api-key: test-key
@@ -6,6 +11,8 @@ spring:
         api-key: test-key
 
 neurogate:
+  auth:
+    enabled: false
   anthropic:
     api-key: test-key
   gemini:

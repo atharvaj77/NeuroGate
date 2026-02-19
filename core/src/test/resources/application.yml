@@ -1,4 +1,6 @@
 neurogate:
+  auth:
+    enabled: false
   qdrant:
     enabled: false
   anthropic:

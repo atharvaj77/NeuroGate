@@ -1,5 +1,7 @@
 package com.neurogate.router.cache;
 
+import com.neurogate.auth.RequiresRole;
+import com.neurogate.auth.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/cache")
 @RequiredArgsConstructor
+@RequiresRole(Role.ADMIN)
 public class CacheAdminController {
 
     private final TieredCacheService tieredCacheService;

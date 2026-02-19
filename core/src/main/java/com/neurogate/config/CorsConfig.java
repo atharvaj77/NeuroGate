@@ -28,6 +28,7 @@ public class CorsConfig {
                         .allowedHeaders(
                                 "Content-Type",
                                 "Authorization",
+                                "X-API-Key",
                                 "X-Trace-Id",
                                 "X-Session-Id",
                                 "X-Canary-Weight")

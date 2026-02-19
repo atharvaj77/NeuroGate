@@ -21,6 +21,7 @@ export default function ApiDocs() {
                 <div className="hidden md:block col-span-1">
                     <div className="sticky top-24 space-y-2">
                         <h3 className="font-bold text-slate-200 mb-4 uppercase tracking-wider text-sm">Endpoints</h3>
+                        <a href="#authentication" className="block text-slate-400 hover:text-primary-400 transition-colors">Authentication</a>
                         <a href="#chat-completions" className="block text-slate-400 hover:text-primary-400 transition-colors">Chat Completions</a>
                         <a href="#analytics" className="block text-slate-400 hover:text-primary-400 transition-colors">Analytics & Cost</a>
                         <a href="#neuroguard" className="block text-slate-400 hover:text-primary-400 transition-colors">NeuroGuard Security</a>
@@ -30,6 +31,34 @@ export default function ApiDocs() {
 
                 {/* Main Content */}
                 <div className="md:col-span-3 space-y-16">
+
+                    {/* Section: Authentication */}
+                    <section id="authentication">
+                        <div className="flex items-center gap-3 mb-6">
+                            <span className="text-2xl">🔐</span>
+                            <h2 className="text-3xl font-bold">Authentication</h2>
+                        </div>
+
+                        <div className="space-y-8">
+                            <div className="glass p-6 rounded-xl border border-slate-700">
+                                <h4 className="font-bold text-slate-300 mb-3">Method 1: Clerk JWT</h4>
+                                <div className="bg-slate-950 p-4 rounded-lg overflow-x-auto border border-slate-800 mb-5">
+                                    <pre className="text-sm text-blue-300">
+                                        {`Authorization: Bearer <clerk-jwt-token>`}
+                                    </pre>
+                                </div>
+
+                                <h4 className="font-bold text-slate-300 mb-3">Method 2: API Key</h4>
+                                <div className="bg-slate-950 p-4 rounded-lg overflow-x-auto border border-slate-800">
+                                    <pre className="text-sm text-blue-300">
+                                        {`Authorization: Bearer ng_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+// or
+X-API-Key: ng_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`}
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
                     {/* Section: Chat Completions */}
                     <section id="chat-completions">
@@ -47,6 +76,11 @@ export default function ApiDocs() {
                                 <p className="text-slate-400 mb-6">
                                     OpenAI-compatible endpoint for LLM inference. Routes requests to optimal providers, handles PII protection, and manages caching.
                                 </p>
+
+                                <h4 className="font-bold text-slate-300 mb-3">Auth Header</h4>
+                                <div className="bg-slate-950 p-4 rounded-lg overflow-x-auto border border-slate-800 mb-6">
+                                    <pre className="text-sm text-blue-300">{`Authorization: Bearer <jwt-or-api-key>`}</pre>
+                                </div>
 
                                 <h4 className="font-bold text-slate-300 mb-3">Request Body</h4>
                                 <div className="bg-slate-950 p-4 rounded-lg overflow-x-auto border border-slate-800">
@@ -83,6 +117,7 @@ export default function ApiDocs() {
                                 <p className="text-slate-400 mb-6">
                                     Retrieve cost analytics for a specific user within a date range.
                                 </p>
+                                <p className="text-slate-500 text-sm mb-4">Requires JWT or API key with VIEWER+ role.</p>
                                 <div className="bg-slate-950 p-4 rounded-lg overflow-x-auto border border-slate-800">
                                     <pre className="text-sm text-blue-300">
                                         {`// Response
@@ -117,6 +152,7 @@ export default function ApiDocs() {
                                 <p className="text-slate-400 mb-6">
                                     Detect prompt injection attempts and other security threats in user input.
                                 </p>
+                                <p className="text-slate-500 text-sm">Requires JWT or API key with DEVELOPER+ role.</p>
                             </div>
                         </div>
                     </section>
@@ -137,6 +173,7 @@ export default function ApiDocs() {
                                 <p className="text-slate-400 mb-6">
                                     Search and retrieve historical LLM request records for debugging.
                                 </p>
+                                <p className="text-slate-500 text-sm">Requires JWT or API key with VIEWER+ role.</p>
                             </div>
                         </div>
                     </section>

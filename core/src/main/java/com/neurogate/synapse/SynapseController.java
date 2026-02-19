@@ -1,5 +1,7 @@
 package com.neurogate.synapse;
 
+import com.neurogate.auth.RequiresRole;
+import com.neurogate.auth.Role;
 import com.neurogate.router.provider.MultiProviderRouter;
 import com.neurogate.sentinel.model.ChatRequest;
 import com.neurogate.sentinel.model.ChatResponse;
@@ -24,6 +26,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/synapse")
 @RequiredArgsConstructor
 @Tag(name = "Synapse", description = "Prompt optimization, versioning, and deployment")
+@RequiresRole(Role.VIEWER)
 public class SynapseController {
 
     private final PromptRegistry promptRegistry;
@@ -45,6 +48,7 @@ public class SynapseController {
     @Operation(summary = "Deploy prompt", description = "Promote a prompt version to production or staging")
     @ApiResponse(responseCode = "200", description = "Prompt deployed")
     @PostMapping("/deploy")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<Void> deploy(@RequestBody DeployRequest request) {
         promptRegistry.promote(
                 request.getPromptName(),
@@ -57,6 +61,7 @@ public class SynapseController {
     @Operation(summary = "Playground execution", description = "Test a prompt with variables in the playground")
     @ApiResponse(responseCode = "200", description = "Execution completed")
     @PostMapping("/play")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<ChatResponse> play(@RequestBody PlayRequest request) {
         // Construct the prompt by replacing variables
         String finalPrompt = request.getPromptContent();
@@ -79,6 +84,7 @@ public class SynapseController {
     @Operation(summary = "Diff prompt versions", description = "Compare two prompt versions and show differences")
     @ApiResponse(responseCode = "200", description = "Diff computed")
     @PostMapping("/diff")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<DiffService.DiffResult> diff(@RequestBody DiffRequest request) {
         DiffService.DiffResult result = diffService.computeDiff(request.getOriginal(), request.getRevised());
         return ResponseEntity.ok(result);
@@ -88,6 +94,7 @@ public class SynapseController {
     @ApiResponse(responseCode = "200", description = "Comparison completed")
     @ApiResponse(responseCode = "404", description = "Prompt versions not found")
     @PostMapping("/shadow/compare")
+    @RequiresRole(Role.DEVELOPER)
     public ResponseEntity<ShadowComparisonResult> compareShadow(@RequestBody ShadowCompareRequest request) {
         // 1. Get Production and Shadow Versions
         PromptVersion prodVersion = promptRegistry.getProductionPrompt(request.getPromptName());

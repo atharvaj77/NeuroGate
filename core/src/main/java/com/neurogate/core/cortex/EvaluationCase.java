@@ -3,6 +3,7 @@ package com.neurogate.core.cortex;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.neurogate.tenant.TenantScopedEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Table(name = "cortex_cases")
 @Data
 @NoArgsConstructor
-public class EvaluationCase {
+public class EvaluationCase extends TenantScopedEntity {
 
     @Id
     @GeneratedValue

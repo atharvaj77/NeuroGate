@@ -13,6 +13,15 @@ spring:
   application:
     name: neurogate
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
@@ -25,6 +34,19 @@ spring:
       timeout: 2000ms
 
 neurogate:
+  auth:
+    enabled: ${NEUROGATE_AUTH_ENABLED:true}
+    clerk:
+      issuer: ${CLERK_ISSUER:}
+      audience: ${CLERK_AUDIENCE:}
+      jwks-uri: ${CLERK_JWKS_URI:}
+
+  usage:
+    plans:
+      free-monthly-requests: ${NEUROGATE_PLAN_FREE_MONTHLY_REQUESTS:10000}
+      pro-monthly-requests: ${NEUROGATE_PLAN_PRO_MONTHLY_REQUESTS:100000}
+      team-monthly-requests: ${NEUROGATE_PLAN_TEAM_MONTHLY_REQUESTS:500000}
+
   qdrant:
     host: ${QDRANT_HOST:qdrant-service}
     grpc-port: 6334
