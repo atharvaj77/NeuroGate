@@ -8,7 +8,7 @@ export default function SignInPage() {
         <Link href="/" className="text-primary-400 hover:text-primary-300 mb-6 inline-block">
           ← Back to Home
         </Link>
-        <SignIn routing="path" path="/settings" />
+        <SignIn routing="path" path="/sign-in" fallbackRedirectUrl="/settings" />
       </div>
     </div>
   )

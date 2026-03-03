@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neurogate.pulse.model.PulseEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -19,6 +20,7 @@ public class PulseEventPublisher {
 
     private final ObjectMapper objectMapper;
     private final SessionRepository sessionRepository;
+    private final ApplicationEventPublisher applicationEventPublisher; // Spring ApplicationEventPublisher injected
 
     public void registerSession(WebSocketSession session) {
         sessionRepository.addSession(session);
@@ -32,6 +34,9 @@ public class PulseEventPublisher {
     }
 
     public void publish(PulseEvent event) {
+        // Publish to Spring context
+        applicationEventPublisher.publishEvent(event);
+
         if (sessionRepository.getSessionCount() == 0) {
             return;
         }

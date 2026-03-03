@@ -27,7 +27,8 @@ public class PulseEvent {
         CACHE_HIT,
         PROVIDER_FALLBACK,
         CIRCUIT_OPENED,
-
+        PII_DETECTED,
+        RATE_LIMITED,
         ERROR,
         METRIC_UPDATE
     }
@@ -60,6 +61,12 @@ public class PulseEvent {
     private String error;
 
     private String message;
+
+    @JsonProperty("pii_detected")
+    private Boolean piiDetected;
+
+    @JsonProperty("rate_limited")
+    private Boolean rateLimited;
 
     @JsonProperty("payload")
     private Object payload;

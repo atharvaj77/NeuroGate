@@ -43,6 +43,11 @@ subprojects {
         // Common dependencies like Lombok, Testing
         compileOnly("org.projectlombok:lombok")
         annotationProcessor("org.projectlombok:lombok")
+        
+        // Security dependencies
+        implementation("org.springframework.boot:spring-boot-starter-security")
+        implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("io.projectreactor:reactor-test")
         testImplementation("org.testcontainers:testcontainers:1.19.3")

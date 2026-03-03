@@ -40,7 +40,7 @@ function formatDate(date: Date) {
 }
 
 export default function SettingsPage() {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, getToken } = useAuth()
 
   const [keys, setKeys] = useState<ApiKeyRecord[]>([])
   const [currentUsage, setCurrentUsage] = useState<CurrentUsage | null>(null)
@@ -68,12 +68,18 @@ export default function SettingsPage() {
       headers.set('Content-Type', 'application/json')
     }
 
+    // Attach Clerk JWT as Bearer token for backend auth
+    const token = await getToken()
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`)
+    }
+
     return fetch(`${API_BASE_URL}${path}`, {
       ...init,
       headers,
       credentials: 'include',
     })
-  }, [])
+  }, [getToken])
 
   const loadData = useCallback(async () => {
     setIsLoading(true)
